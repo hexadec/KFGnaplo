@@ -175,6 +175,11 @@ public class ChangeListener extends BroadcastReceiver
 		String subjects[] = new String[384];
 		String descriptions[] = new String[384];
 		try {
+			if (response.getEntity().getContentLength()==1483||response.getEntity().getContentLength()==342) {
+				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", "A GYIA kód lejárt, nyisd meg a megújításhoz");
+				Log.w("TAG", ""+response.getEntity().getContentLength());
+				return false;
+			}
 			BufferedReader rd = new BufferedReader
 					(new InputStreamReader(response.getEntity().getContent(), "ISO-8859-2"));
 			String line;
@@ -193,7 +198,7 @@ public class ChangeListener extends BroadcastReceiver
 				if ((counter==8||counter==9)&&(line.contains("<div class=\"description\">"))) {
 					int i = line.indexOf(">");
 					String desc;
-					descriptions[notesc-1] = ((desc = line.substring(i+1,line.indexOf("<",i))).length()>13?desc.substring(0,12)+"…":desc);
+					descriptions[notesc-1] = ((desc = line.substring(i+1,line.indexOf("<",i))).length()>18?desc.substring(0,17)+"…":desc);
 				}
 				if ((counter==11||counter==10)&&(line.contains("<div class=\"creditbox_footer\">"))) {
 					int i = line.indexOf(">");
@@ -215,8 +220,10 @@ public class ChangeListener extends BroadcastReceiver
 			return false;
 		}
 		try {
-			if (sb.toString().length() < 1000)
+			if (sb.toString().length() < 1000) {
+				Log.w("TAG",sb.toString());
 				throw new Exception("Content too small \nLength: " + sb.toString().length());
+			}
 			if (subjects[0]==null||subjects[0].length()<2) throw new Exception("Null or nonexistent content");
 		} catch (Exception e) {
 			Log.e(TAG,e.getMessage());
@@ -306,7 +313,7 @@ public class ChangeListener extends BroadcastReceiver
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
 		Notification.Builder n  = new Notification.Builder(context)
 			.setContentTitle("Karinthy Napló")
-			.setContentText("Új jegyet kaptál!")
+			.setContentText(state[0]==0?"Új jegyet kaptál!":"A GYIA kód lejárt, nyisd meg a megújításhoz")
 			.setSmallIcon(R.drawable.number_blocks_mod)
 			//.setContentIntent(pIntent)
 			.setAutoCancel(true);
@@ -323,7 +330,7 @@ public class ChangeListener extends BroadcastReceiver
 			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		n.addAction(android.R.drawable.ic_menu_view,"Megnyitás", epIntent);
 		Notification notification = new Notification.BigTextStyle(n)
-            .bigText(("Új jegyet kaptál!\n" + subjects + (oldtext==null?"":oldtext))).build();
+            .bigText(((state[0]==0?"Új jegyet kaptál!\n":"") + subjects + (oldtext==null?"":oldtext))).build();
 //				notification.number = numberoflessons;
 		notificationManager.notify(0, notification);
 		pref.edit().putString("oldtext",subjects.length()>100? subjects.substring(0,subjects.indexOf(",",90))+"…":subjects).commit();

@@ -1,0 +1,8 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gradle/
+.idea/workspace.xml
+app/app-release.apk
+build/
+jquery.js
+local.properties
+projectFilesBackup/
