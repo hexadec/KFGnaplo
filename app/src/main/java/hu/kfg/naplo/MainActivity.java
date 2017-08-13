@@ -161,6 +161,15 @@ public class MainActivity extends PreferenceActivity
 			
 		open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
 				public boolean onPreferenceClick(Preference pref){
+					ConnectivityManager cm =
+							(ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+					boolean isConnected = activeNetwork != null &&
+							activeNetwork.isConnectedOrConnecting();
+					if (!isConnected) {
+						Toast.makeText(MainActivity.this, "Nincs internetkapcsolat!", Toast.LENGTH_SHORT).show();
+						return true;
+					}
 					if (url2.getText()!=null&&url2.getText().length()>=45) {
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(Uri.parse(url2.getText()));
