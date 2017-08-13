@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Beállítások">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="notify"
+            android:title="Értesítések engedélyezése" />
+        <EditTextPreference
+            android:key="url"
+            android:summary="Másold be a GYIA kódban található linket! (Katt ide)"
+            android:title="URL: " />
+        <ListPreference
+            android:defaultValue="120"
+            android:entries="@array/check_interval"
+            android:entryValues="@array/check_interval_values"
+            android:key="auto_check_interval"
+            android:summary="%s"
+            android:title="Változások ellenőrzése" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="vibrate"
+            android:title="Rezgő értesítés" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="flash"
+            android:title="Villogás értesítéskor" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="nightmode"
+            android:summary="22:30 és 5:30 között nem küld értesítést a jegyekről, csak ha feloldod a képernyőt"
+            android:title="Éjszakai mód" />
+        <!--<EditTextPreference-->
+            <!--android:key="ignore_lessons"-->
+            <!--android:summary="Írd be azokat az órákat vesszővel elválasztva és szóköz nélkül, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)"-->
+            <!--android:title="Órák figyelmen kívül hagyása" />-->
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Kézi">
+        <Preference
+            android:key="manual_check"
+            android:title="Változások ellenőrzése most" />
+        <Preference
+            android:key="open_in_browser"
+            android:title="Megnyitás a böngészőben" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Információk">
+        <Preference
+            android:key="about"
+            android:title="Névjegy" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

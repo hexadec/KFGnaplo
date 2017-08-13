@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '25.0.3'
+	
+	useLibrary 'org.apache.http.legacy'
+
+    defaultConfig {
+        applicationId "hu.kfg.naplo"
+        minSdkVersion 16
+        targetSdkVersion 19
+        versionCode 12
+        versionName "0.12beta"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+}
