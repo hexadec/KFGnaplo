@@ -3,15 +3,12 @@ package hu.kfg.naplo;
 import android.content.*;
 import android.preference.*;
 
-import org.apache.http.*;
-import org.apache.http.params.*;
 import android.net.*;
 import android.os.*;
 import android.util.*;
-import org.apache.http.client.*;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.*;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.util.*;
 import java.io.*;
@@ -105,7 +102,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")){
 			showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context,"Nem érhető el a \"Napló\"oldal!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context,"Nem érhető el a \"Napló\" oldal!", Toast.LENGTH_SHORT).show();
 					}
 				});
 				}
@@ -130,8 +127,8 @@ public class ChangeListener extends BroadcastReceiver
 		final String TAG = "KFGnaplo-check";
 		final SharedPreferences pref = PreferenceManager
 			.getDefaultSharedPreferences(context);
-		String url = pref.getString("url","1");
-		if (url.length()<30){
+		String kfgserver = pref.getString("url","1");
+		if (kfgserver.length()<30){
 			if (intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
@@ -141,20 +138,13 @@ public class ChangeListener extends BroadcastReceiver
 			}
 				return false;
 		}
-		String kfgserver = url;
-		final HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 7000);
-		HttpConnectionParams.setSoTimeout(httpParams, 7000);
 
-		HttpResponse response = null;
-		HttpClient client = new DefaultHttpClient(httpParams);
-		HttpUriRequest request = new HttpGet(kfgserver);
-		HttpEntity entity = null;
-
-
+		HttpURLConnection urlConnection;
 		try {
-			response = client.execute(request);
-		} catch (IOException e3) {
+			URL url = new URL(kfgserver);
+			urlConnection = (HttpURLConnection) url.openConnection();
+			urlConnection.setInstanceFollowRedirects(true);
+		} catch (IOException e) {
 			Log.e(TAG,"Cannot load website!");
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -163,25 +153,44 @@ public class ChangeListener extends BroadcastReceiver
 					}
 				});
 			}
-			e3.printStackTrace();
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) {
+			Log.e(TAG,"Unknown error!");
+			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+				showSuccessToast.postAtFrontOfQueue(new Runnable() {
+					public void run() {
+						Toast.makeText(context, "Karinthy Napló hiba!", Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+			e.printStackTrace();
 			return false;
 		}
-		StringBuilder sb = new StringBuilder();
+
+        StringBuilder sb = new StringBuilder();
 		int counter = 0;
 		int notesc = 0;
 		boolean hasstarted = false;
 		boolean hasended = false;
-		byte notes[] = new byte[384];
-		String subjects[] = new String[384];
-		String descriptions[] = new String[384];
+		byte notes[] = new byte[512];
+		String subjects[] = new String[512];
+		String descriptions[] = new String[512];
 		try {
-			if (response.getEntity().getContentLength()==1483||response.getEntity().getContentLength()==342) {
-				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", "A GYIA kód lejárt, nyisd meg a megújításhoz");
-				Log.w("TAG", ""+response.getEntity().getContentLength());
+			if (urlConnection.getResponseCode()%300<100) {
+				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", "A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a megújításhoz");
+				Log.w(TAG,urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
+				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+					showSuccessToast.postAtFrontOfQueue(new Runnable() {
+						public void run() {
+							Toast.makeText(context, "A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a naplót a megújításhoz!", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
 				return false;
 			}
 			BufferedReader rd = new BufferedReader
-					(new InputStreamReader(response.getEntity().getContent(), "ISO-8859-2"));
+					(new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
 			String line;
 			notesc = 0;
 			counter = 0;
@@ -221,10 +230,10 @@ public class ChangeListener extends BroadcastReceiver
 		}
 		try {
 			if (sb.toString().length() < 1000) {
-				Log.w("TAG",sb.toString());
+				Log.w(TAG,sb.toString());
 				throw new Exception("Content too small \nLength: " + sb.toString().length());
 			}
-			if (subjects[0]==null||subjects[0].length()<2) throw new Exception("Null or nonexistent content");
+			if (subjects[0]==null||subjects[0].length()<2) throw new Exception("Content too small \nLength: " + sb.toString());
 		} catch (Exception e) {
 			Log.e(TAG,e.getMessage());
 			e.printStackTrace();
@@ -261,13 +270,13 @@ public class ChangeListener extends BroadcastReceiver
 					text+=s[i2] +", \n";
 				}
 				text = text.substring(0,text.length()-2);
-				notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,url,text);
+				notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver,text);
 				pref.edit().putString("lastSHA",SHA512(notes)).commit();
 				running = false;
 			} else {
 				if (!SHA512(notes).equals(pref.getString("lastSHA","ABCD"))) {
 					pref.edit().putString("lastSHA",SHA512(notes)).commit();
-					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,url,"Valami változás történt, talán beírtak egy hiányzást?");
+					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver,"Valami változás történt, talán beírtak egy hiányzást?");
 					running = false;
 					return true;
 				} else
@@ -313,10 +322,14 @@ public class ChangeListener extends BroadcastReceiver
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
 		Notification.Builder n  = new Notification.Builder(context)
 			.setContentTitle("Karinthy Napló")
-			.setContentText(state[0]==0?"Új jegyet kaptál!":"A GYIA kód lejárt, nyisd meg a megújításhoz")
-			.setSmallIcon(R.drawable.number_blocks_mod)
-			//.setContentIntent(pIntent)
+			.setContentText(state[0]==0?"Új jegyet kaptál!":"A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a megújításhoz")
 			.setAutoCancel(true);
+		if (Build.VERSION.SDK_INT >= 21) {
+			n.setSmallIcon(R.drawable.number_blocks);
+		} else {
+			n.setSmallIcon(R.drawable.number_blocks_mod);
+		}
+			//.setContentIntent(pIntent)
 			if (state[1]==1){
 				n.setVibrate(new long[]{0,60,100,70,100,60});
 			}

@@ -4,14 +4,14 @@ android {
     compileSdkVersion 24
     buildToolsVersion '25.0.3'
 	
-	useLibrary 'org.apache.http.legacy'
+	//useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "hu.kfg.naplo"
         minSdkVersion 16
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 14
-        versionName "0.14-build0"
+        versionName "0.14-build1"
     }
     buildTypes {
         release {
