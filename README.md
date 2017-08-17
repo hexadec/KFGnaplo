@@ -1,4 +1,5 @@
 # KFGnaplo
+### or Karinthy Napló
 Mobile app to get notification when a new grade is written into the "Karinthy Napló"
 
 If the line above does not have a meaning to you, this repo is not for you. ;)
