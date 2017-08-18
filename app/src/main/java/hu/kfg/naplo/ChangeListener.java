@@ -207,7 +207,7 @@ public class ChangeListener extends BroadcastReceiver
 				if ((counter==8||counter==9)&&(line.contains("<div class=\"description\">"))) {
 					int i = line.indexOf(">");
 					String desc;
-					descriptions[notesc-1] = ((desc = line.substring(i+1,line.indexOf("<",i))).length()>18?desc.substring(0,17)+"…":desc);
+					descriptions[notesc-1] = ((desc = line.substring(i+1,line.indexOf("<",i))).length()>21?desc.substring(0,20)+"…":desc);
 				}
 				if ((counter==11||counter==10)&&(line.contains("<div class=\"creditbox_footer\">"))) {
 					int i = line.indexOf(">");
