@@ -28,6 +28,7 @@ public class ChangeListener extends BroadcastReceiver
 
 	public static final int NIGHTMODE_START = 2230;
 	public static final int NIGHTMODE_STOP = 530;
+	final String TAG = "KFGnaplo-check";
 
 	static boolean running = false;
 	
@@ -58,9 +59,10 @@ public class ChangeListener extends BroadcastReceiver
 			}
 		} else {
 		if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")||intent.getAction().equals("hu.kfg.wifimanager.LOGGED_IN")){
-			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","180"))*60000)){
+			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","300"))*60000)){
 				return;
 			}
+			Log.w(TAG,""+(System.currentTimeMillis()+"//"+pref.getLong("last_check",0)));
 		}
 		if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&!pref.getBoolean("nightmode",false)) {
 			return;
@@ -124,7 +126,6 @@ public class ChangeListener extends BroadcastReceiver
 	
 	
 	public boolean doCheck(final Context context,final Intent intent) {
-		final String TAG = "KFGnaplo-check";
 		final SharedPreferences pref = PreferenceManager
 			.getDefaultSharedPreferences(context);
 		String kfgserver = pref.getString("url","1");
@@ -263,6 +264,7 @@ public class ChangeListener extends BroadcastReceiver
 		try {
 
 			pref.edit().putInt("numberofnotes",notesc).commit();
+            pref.edit().putLong("last_check",System.currentTimeMillis()).commit();
 			if (numofnotes0-numofnotes>0) {
 				int i = numofnotes0-numofnotes;
 				String text ="";

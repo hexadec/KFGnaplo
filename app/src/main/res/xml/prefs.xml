@@ -10,7 +10,7 @@
             android:summary="Másold be a GYIA kódban található linket! (Katt ide)"
             android:title="URL: " />
         <ListPreference
-            android:defaultValue="120"
+            android:defaultValue="300"
             android:entries="@array/check_interval"
             android:entryValues="@array/check_interval_values"
             android:key="auto_check_interval"
