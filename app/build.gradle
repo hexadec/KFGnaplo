@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 26
     buildToolsVersion '25.0.3'
 	
 	//useLibrary 'org.apache.http.legacy'
@@ -9,9 +9,9 @@ android {
     defaultConfig {
         applicationId "hu.kfg.naplo"
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 14
-        versionName "0.14-build2"
+        versionName "0.14-build3"
     }
     buildTypes {
         release {
