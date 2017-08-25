@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Karinthy Napló</string>
-    <string name="instructions"><![CDATA[<b>Olvasd el!</b><br>GYIA kódok használata:<br/>
-1. Lépj be a KFG Napló oldalra<br/>
-2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
-3. Felül Új kód<br/>
-4. Kattints a nagyítóra, és egy QR-kód olvasóval (pl NeoReader) olvasd be a kódot, a kimásolt linket pedig illeszd be a programba<br/>
-5. Ne felejtsd el átállítani a kód érvényességét, ha lejár a Karinthy Napló nem fog tudni értesítéseket küldeni!]]></string>
+    <string name="app_name">Karinthy Naplo</string>
+    <string name="instructions"><![CDATA[<b>Read me!</b><br>How to use GYIA codes:<br/>
+1. Login to KFG Napló<br/>
+2. Open okostelefonos hozzáférés (GYIA)<br/>
+3. Új kód at the top<br/>
+4. Click on the magnifying glass, and read the code w/ a QR-reader (eg. NeoReader). Now copy the link and paste it in the app.<br/>
+5. Do not forget to change the validity of the code, if it expires the app cannot send notifications any longer!]]></string>
+    <string name="insert_code">GYIA code required!</string>
+    <string name="click2edit">Click here to edit</string>
+    <string name="copythelink">Copy the link found in the GYIA code! (click here)</string>
+    <string name="invalid_url">Invalid url!</string>
+    <string name="checking_now">Checking...</string>
+    <string name="no_network_conn">Network connection is not available!</string>
+    <string name="about">About</string>
+    <string name="enable_notifications">Turn on notifications</string>
+    <string name="interval">Check for changes</string>
+    <string name="vibrate">Vibrating notifications</string>
+    <string name="light">Notification light</string>
 
 </resources>

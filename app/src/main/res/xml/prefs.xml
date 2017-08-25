@@ -4,10 +4,10 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="notify"
-            android:title="Értesítések engedélyezése" />
+            android:title="@string/enable_notifications" />
         <EditTextPreference
             android:key="url"
-            android:summary="Másold be a GYIA kódban található linket! (Katt ide)"
+            android:summary="@string/copythelink"
             android:title="URL: " />
         <ListPreference
             android:defaultValue="300"
@@ -15,15 +15,15 @@
             android:entryValues="@array/check_interval_values"
             android:key="auto_check_interval"
             android:summary="%s"
-            android:title="Változások ellenőrzése" />
+            android:title="@string/interval" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="vibrate"
-            android:title="Rezgő értesítés" />
+            android:title="@string/vibrate" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="flash"
-            android:title="Villogás értesítéskor" />
+            android:title="@string/light" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="nightmode"

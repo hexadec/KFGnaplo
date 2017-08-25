@@ -33,7 +33,7 @@ public class MainActivity extends PreferenceActivity
 		final ListPreference interval2 = (ListPreference)interval;
 		if (url2.getText()!=null){
 		if (url2.getText().length()>=45){
-			url2.setSummary("Kattints ide a szerkesztéshez");
+			url2.setSummary(getString(R.string.click2edit));
 		}
 		}
 		if (!notify2.isChecked()){
@@ -69,18 +69,18 @@ public class MainActivity extends PreferenceActivity
 				boolean isConnected = activeNetwork != null &&
 						activeNetwork.isConnected();
 				if (!isConnected) {
-					Toast.makeText(MainActivity.this, "Nincs internetkapcsolat!", Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
 					return true;
 				}
 				if (url2.getText()==null){
-					Toast.makeText(MainActivity.this,"Másold be a GYIA-linket!",Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this,R.string.insert_code, Toast.LENGTH_SHORT).show();
 					return true;
 				}
 				if (url2.getText().length()<30){
-					Toast.makeText(MainActivity.this,"Másold be a GYIA-linket!",Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this,R.string.insert_code, Toast.LENGTH_SHORT).show();
 					return true;
 				}
-				Toast.makeText(MainActivity.this,"Ellenőrzés...",Toast.LENGTH_SHORT).show();
+				Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
 				Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
 				sendBroadcast(i);
 				return true;
@@ -114,20 +114,20 @@ public class MainActivity extends PreferenceActivity
 		url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
 				public boolean onPreferenceChange(Preference pref, Object obj){
 					if (((String)obj).length()<45){
-						url2.setSummary("Másold be a GYIA kódban található linket! (Katt ide)");
+						url2.setSummary(getString(R.string.copythelink));
 						url2.setText("");
 						Point point = new Point();
 						getWindowManager().getDefaultDisplay().getSize(point);
-						Toast t = Toast.makeText(MainActivity.this,"Hibás URL!",Toast.LENGTH_SHORT);
+						Toast t = Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT);
 						t.setGravity(Gravity.TOP,0,point.y/4);
 						t.show();
 						return false;
 					} else if (((String)obj).startsWith("http://naplo.karinthy.hu/app")||((String)obj).startsWith("https://naplo.karinthy.hu/app")){
-						url2.setSummary("Kattints ide a szerkesztéshez");
+						url2.setSummary(getString(R.string.click2edit));
 					} else {
-						url2.setSummary("Másold be a GYIA kódban található linket! (Katt ide)");
+						url2.setSummary(getString(R.string.copythelink));
 						url2.setText("");
-						Toast.makeText(MainActivity.this,"Érvénytelen URL!",Toast.LENGTH_SHORT).show();
+						Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT).show();
 						return false;
 					}
 					return true;
@@ -149,13 +149,14 @@ public class MainActivity extends PreferenceActivity
 		
 		about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
 				public boolean onPreferenceClick(Preference pref){
+					String version = "0.0";
 					android.content.pm.PackageInfo pInfo = null;
 					try {
 						pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+						version = pInfo.versionName;
 					} catch (Exception e){}
-					String version = pInfo.versionName;
 					AlertDialog.Builder adb =new AlertDialog.Builder(MainActivity.this);
-					adb.setTitle("Névjegy");
+					adb.setTitle(R.string.about);
 					adb.setPositiveButton("Ok",null);
 					adb.setCancelable(true);
 					TextView messageText = new TextView(MainActivity.this);
@@ -175,7 +176,7 @@ public class MainActivity extends PreferenceActivity
 						intent.setData(Uri.parse(url2.getText()));
 						startActivity(intent);
 					} else {
-						Toast.makeText(MainActivity.this,"Másold be a GYIA-linket!",Toast.LENGTH_SHORT).show();
+						Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
 					}
 					return true;
 				}
