@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Napló</string>
-    <string name="instructions"><![CDATA[<b>Olvasd el!</b><br>GYIA kódok használata:<br/>
+    <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
 1. Lépj be a KFG Napló oldalra<br/>
 2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
 3. Felül Új kód<br/>
@@ -19,5 +19,12 @@
     <string name="interval">Változások ellenőrzése</string>
     <string name="vibrate">Rezgő értesítés</string>
     <string name="light">Villogás értesítéskor</string>
+    <string name="nightmode">Alvásbarát mód</string>
+    <string name="nightmode_explained">22:30 és 5:30 között nem küld értesítést a jegyekről, csak ha feloldod a képernyőt</string>
+    <string name="manual">Kézi</string>
+    <string name="browser">Megnyitás a böngészőben</string>
+    <string name="find_changes_now">Változások keresése most</string>
+    <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
+    <string name="unknown_error">Karinthy Napló hiba!</string>
 
 </resources>

@@ -12,6 +12,9 @@ import android.net.*;
 
 public class MainActivity extends PreferenceActivity
 {
+
+	protected static int URL_MIN_LENGTH = 45;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -32,7 +35,7 @@ public class MainActivity extends PreferenceActivity
 		final CheckBoxPreference notify2 = (CheckBoxPreference)notify;
 		final ListPreference interval2 = (ListPreference)interval;
 		if (url2.getText()!=null){
-		if (url2.getText().length()>=45){
+		if (url2.getText().length()>=URL_MIN_LENGTH){
 			url2.setSummary(getString(R.string.click2edit));
 		}
 		}
@@ -76,7 +79,7 @@ public class MainActivity extends PreferenceActivity
 					Toast.makeText(MainActivity.this,R.string.insert_code, Toast.LENGTH_SHORT).show();
 					return true;
 				}
-				if (url2.getText().length()<30){
+				if (url2.getText().length()<URL_MIN_LENGTH){
 					Toast.makeText(MainActivity.this,R.string.insert_code, Toast.LENGTH_SHORT).show();
 					return true;
 				}
@@ -113,7 +116,7 @@ public class MainActivity extends PreferenceActivity
 		
 		url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
 				public boolean onPreferenceChange(Preference pref, Object obj){
-					if (((String)obj).length()<45){
+					if (((String)obj).length()<URL_MIN_LENGTH){
 						url2.setSummary(getString(R.string.copythelink));
 						url2.setText("");
 						Point point = new Point();
@@ -171,7 +174,7 @@ public class MainActivity extends PreferenceActivity
 			
 		open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
 				public boolean onPreferenceClick(Preference pref){
-					if (url2.getText()!=null&&url2.getText().length()>=45) {
+					if (url2.getText()!=null&&url2.getText().length()>=URL_MIN_LENGTH) {
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(Uri.parse(url2.getText()));
 						startActivity(intent);

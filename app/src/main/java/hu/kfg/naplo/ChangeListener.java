@@ -104,7 +104,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")){
 			showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context,"Nem érhető el a \"Napló\" oldal!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
 					}
 				});
 				}
@@ -129,11 +129,11 @@ public class ChangeListener extends BroadcastReceiver
 		final SharedPreferences pref = PreferenceManager
 			.getDefaultSharedPreferences(context);
 		String kfgserver = pref.getString("url","1");
-		if (kfgserver.length()<30){
+		if (kfgserver.length() < MainActivity.URL_MIN_LENGTH){
 			if (intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Másold be a linket!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -150,7 +150,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Nem érhető el a \"Napló\" oldala!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -161,7 +161,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Karinthy Napló hiba!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}

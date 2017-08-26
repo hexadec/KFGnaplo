@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Naplo</string>
-    <string name="instructions"><![CDATA[<b>Read me!</b><br>How to use GYIA codes:<br/>
+    <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>
 2. Open okostelefonos hozzáférés (GYIA)<br/>
 3. Új kód at the top<br/>
@@ -19,5 +19,13 @@
     <string name="interval">Check for changes</string>
     <string name="vibrate">Vibrating notifications</string>
     <string name="light">Notification light</string>
+    <string name="nightmode">Sleep-friendly mode</string>
+    <string name="nightmode_explained">Doesn\'t send notifications between 22:30 and 5:30 unless you unlock the phone</string>
+    <string name="manual">Manual</string>
+    <string name="browser">Open page in browser</string>
+    <string name="info" translatable="false">Info</string>
+    <string name="find_changes_now">Find changes now</string>
+    <string name="cannot_reach_site">Cannot reach KFG Naplo site!</string>
+    <string name="unknown_error">Unknown error in Karinthy Naplo!</string>
 
 </resources>

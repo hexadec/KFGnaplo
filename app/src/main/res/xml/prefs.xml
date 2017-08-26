@@ -27,26 +27,22 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="nightmode"
-            android:summary="22:30 és 5:30 között nem küld értesítést a jegyekről, csak ha feloldod a képernyőt"
-            android:title="Éjszakai mód" />
-        <!--<EditTextPreference-->
-            <!--android:key="ignore_lessons"-->
-            <!--android:summary="Írd be azokat az órákat vesszővel elválasztva és szóköz nélkül, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)"-->
-            <!--android:title="Órák figyelmen kívül hagyása" />-->
+            android:summary="@string/nightmode_explained"
+            android:title="@string/nightmode" />
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="Kézi">
+    <PreferenceCategory android:title="@string/manual">
         <Preference
             android:key="manual_check"
-            android:title="Változások ellenőrzése most" />
+            android:title="@string/find_changes_now" />
         <Preference
             android:key="open_in_browser"
-            android:title="Megnyitás a böngészőben" />
+            android:title="@string/browser" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Információk">
+    <PreferenceCategory android:title="@string/info">
         <Preference
             android:key="about"
-            android:title="Névjegy" />
+            android:title="@string/about" />
     </PreferenceCategory>
 
 </PreferenceScreen>
