@@ -163,7 +163,7 @@ public class MainActivity extends PreferenceActivity
 					adb.setPositiveButton("Ok",null);
 					adb.setCancelable(true);
 					TextView messageText = new TextView(MainActivity.this);
-					messageText.setText(Html.fromHtml("<b>Fejlesztő:</b><br/>Cseh András<br/><b>App verziója:</b><br/>"+version+"<br/>Értesítés ikonja: Freepik<br/>Alkalmazás ikonja: ToffeeNut"));
+					messageText.setText(Html.fromHtml(String.format(getString(R.string.about_text), version)));
 					messageText.setGravity(Gravity.CENTER_HORIZONTAL);
 					messageText.setTextAppearance(MainActivity.this,android.R.style.TextAppearance_Medium);
 					adb.setView(messageText);

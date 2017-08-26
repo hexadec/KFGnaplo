@@ -5,6 +5,7 @@ import android.preference.*;
 
 import android.net.*;
 import android.os.*;
+import android.service.notification.StatusBarNotification;
 import android.util.*;
 
 import java.net.HttpURLConnection;
@@ -179,12 +180,12 @@ public class ChangeListener extends BroadcastReceiver
 		String descriptions[] = new String[512];
 		try {
 			if (urlConnection.getResponseCode()%300<100) {
-				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", "A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a megújításhoz");
+				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
 				Log.w(TAG,urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
 				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 					showSuccessToast.postAtFrontOfQueue(new Runnable() {
 						public void run() {
-							Toast.makeText(context, "A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a naplót a megújításhoz!", Toast.LENGTH_SHORT).show();
+							Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
 						}
 					});
 				}
@@ -222,7 +223,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Karinthy Napló hiba!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -241,7 +242,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Karinthy Napló hiba!\n Próbáld meg ismét!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -278,14 +279,14 @@ public class ChangeListener extends BroadcastReceiver
 			} else {
 				if (!SHA512(notes).equals(pref.getString("lastSHA","ABCD"))) {
 					pref.edit().putString("lastSHA",SHA512(notes)).commit();
-					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver,"Valami változás történt, talán beírtak egy hiányzást?");
+					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver, context.getString(R.string.unknown_change));
 					running = false;
 					return true;
 				} else
 				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 					showSuccessToast.postAtFrontOfQueue(new Runnable() {
 						public void run() {
-							Toast.makeText(context,"Nincs új jegyed! "+numofnotes0+"/"+numofnotes, Toast.LENGTH_SHORT).show();
+							Toast.makeText(context, context.getString(R.string.no_new_grade) + " "+numofnotes0+"/"+numofnotes, Toast.LENGTH_SHORT).show();
 						}
 					});
 				}
@@ -297,7 +298,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "Karinthy Napló hiba!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -317,14 +318,14 @@ public class ChangeListener extends BroadcastReceiver
 		final SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		String oldtext = oldtext = null;
-		if (isNotificationVisible(context)) {
+		if (state[0]==0&&isNotificationVisible(context)) {
 			oldtext = pref.getString("oldtext",null);
 		}
 		//PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
 		Notification.Builder n  = new Notification.Builder(context)
-			.setContentTitle("Karinthy Napló")
-			.setContentText(state[0]==0?"Új jegyet kaptál!":"A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a megújításhoz")
+			.setContentTitle(context.getString(R.string.app_name))
+			.setContentText(state[0]==0?context.getString(R.string.new_grade):context.getString(R.string.gyia_expired_not))
 			.setAutoCancel(true);
 		if (Build.VERSION.SDK_INT >= 21) {
 			n.setSmallIcon(R.drawable.number_blocks);
@@ -343,18 +344,22 @@ public class ChangeListener extends BroadcastReceiver
 			}
 		NotificationManager notificationManager = 
 			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		n.addAction(android.R.drawable.ic_menu_view,"Megnyitás", epIntent);
+		n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
 		Notification notification = new Notification.BigTextStyle(n)
-            .bigText(((state[0]==0?"Új jegyet kaptál!\n":"") + subjects + (oldtext==null?"":oldtext))).build();
+            .bigText(((state[0]==0?context.getString(R.string.new_grade)+"\n":"") + subjects + (oldtext==null?"":"\n"+oldtext))).build();
 //				notification.number = numberoflessons;
-		notificationManager.notify(0, notification);
+		notificationManager.notify(state[0], notification);
 		pref.edit().putString("oldtext",subjects.length()>100? subjects.substring(0,subjects.indexOf(",",90))+"…":subjects).commit();
 	}
 
 	private boolean isNotificationVisible(Context context) {
-		Intent notificationIntent = new Intent(context, MainActivity.class);
-		PendingIntent test = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_NO_CREATE);
-		return test != null;
+		if (Build.VERSION.SDK_INT < 23) return false;
+		StatusBarNotification[] notifications = ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+		if (notifications.length == 0) return false;
+		for (StatusBarNotification s: notifications) {
+			if (s.getId() == 0) return true;
+		}
+		return false;
 	}
 
 	public static String SHA512(byte[] data) throws Exception {
