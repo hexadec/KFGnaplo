@@ -141,10 +141,18 @@ public class ChangeListener extends BroadcastReceiver
 				return false;
 		}
 
+		String version = "0.0";
+		android.content.pm.PackageInfo pInfo = null;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			version = pInfo.versionName;
+		} catch (Exception e){}
+
 		HttpURLConnection urlConnection;
 		try {
 			URL url = new URL(kfgserver);
 			urlConnection = (HttpURLConnection) url.openConnection();
+			urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v"+ version + ")");
 			urlConnection.setInstanceFollowRedirects(true);
 		} catch (IOException e) {
 			Log.e(TAG,"Cannot load website!");
