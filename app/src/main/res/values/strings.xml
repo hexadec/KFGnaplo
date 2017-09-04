@@ -26,7 +26,7 @@
     <string name="info" translatable="false">Info</string>
     <string name="find_changes_now">Find changes now</string>
     <string name="cannot_reach_site">Cannot reach KFG Naplo site!</string>
-    <string name="unknown_error">Unknown error in Karinthy Naplo! \\nConsider trying it again later!</string>
+    <string name="unknown_error">Unknown error in Karinthy Naplo!  Consider trying it again later!</string>
     <string name="gyia_expired_or_faulty">The GYIA code has expired or you gave a wrong code, open the Naplo to renew!</string>
     <string name="gyia_expired_not">The GYIA code is expired or wrong, please open to renew</string>
     <string name="no_new_grade">You haven\'t got a new grade!</string>
@@ -34,5 +34,6 @@
     <string name="new_grade">You got a new grade!</string>
     <string name="open">Open Naplo</string>
     <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Notification icon: Freepik&lt;br/>App icon: ToffeeNut</string>
+    <string name="error_no_grades">No grades were found! If you do have some, try it again later!</string>
 
 </resources>

@@ -170,7 +170,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -231,7 +231,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
@@ -240,20 +240,32 @@ public class ChangeListener extends BroadcastReceiver
 		}
 		try {
 			if (sb.toString().length() < 1000) {
-				Log.w(TAG,sb.toString());
+				Log.w(TAG, sb.toString());
 				throw new Exception("Content too small \nLength: " + sb.toString().length());
 			}
-			if (subjects[0]==null||subjects[0].length()<2) throw new Exception("Content too small \nLength: " + sb.toString());
-		} catch (Exception e) {
-			Log.e(TAG,e.getMessage());
-			e.printStackTrace();
+			if (subjects[0] == null || subjects[0].length() < 2)
+				throw new IndexOutOfBoundsException("Content too small \nLength: " + sb.toString());
+		} catch (IndexOutOfBoundsException e) {
+			Log.e(TAG, e.getMessage());
+			Log.w(TAG, ""+(subjects[0]==null));
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
+			return false;
+		} catch (Exception e) {
+			Log.e(TAG,e.getMessage());
+			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+				showSuccessToast.postAtFrontOfQueue(new Runnable() {
+					public void run() {
+						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+			return false;
 		}
 		String[] s = new String[notesc];
 		for (int i = 0;i<notesc;i++) {
@@ -306,7 +318,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
-						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
