@@ -338,8 +338,13 @@ public class ChangeListener extends BroadcastReceiver
 		final SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		String oldtext = oldtext = null;
-		if (state[0]==0&&isNotificationVisible(context)) {
-			oldtext = pref.getString("oldtext",null);
+		NotificationManager notificationManager =
+				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (state[0]==0) {
+			notificationManager.cancel(1);
+			if (isNotificationVisible(context)) {
+				oldtext = pref.getString("oldtext",null);
+			}
 		}
 		//PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
@@ -362,8 +367,6 @@ public class ChangeListener extends BroadcastReceiver
 			if (Build.VERSION.SDK_INT>=21){
 				n.setVisibility(Notification.VISIBILITY_PUBLIC);
 			}
-		NotificationManager notificationManager = 
-			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
 		Notification notification = new Notification.BigTextStyle(n)
             .bigText(((state[0]==0?context.getString(R.string.new_grade)+"\n":"") + subjects + (oldtext==null?"":"\n"+oldtext))).build();
