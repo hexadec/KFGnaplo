@@ -34,5 +34,6 @@
     <string name="open">Megnyitás</string>
     <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Értesítés ikonja: Freepik&lt;br/>Alkalmazás ikonja: ToffeeNut</string>
     <string name="error_no_grades">Nincs egy jegyed sem! Ha szerinted van, próbáld újra később!</string>
+    <string name="title_activity_table_view">Jegyeim</string>
 
 </resources>

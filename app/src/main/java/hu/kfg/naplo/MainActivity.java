@@ -185,4 +185,13 @@ public class MainActivity extends PreferenceActivity
 				}
 			});
     }
+
+    /*public static void showLilla(String[] args) {
+		String toworkwith = args[1];
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < toworkwith.length(); i++) {
+			if (i%2==0) sb.append(toworkwith.charAt(i));
+		}
+		System.out.println(sb.toString());
+	}*/
 }
