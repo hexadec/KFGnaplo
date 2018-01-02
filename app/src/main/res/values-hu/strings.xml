@@ -42,5 +42,7 @@
     <string name="emptydb">Úgy tűnik nincsen egy jegyed sem...</string>
     <string name="subjects">Tantárgyak</string>
     <string name="ohno">Jaj, ne! Valami hiba történt!</string>
+    <string name="average">Átl.</string>
+
 
 </resources>

@@ -19,6 +19,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +98,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     void doStuff(DBHelper db) {
         TableLayout table = (TableLayout) findViewById(R.id.table);
         ArrayList<String> subjects = db.getSubjects();
-        for(int i = -1; i < subjects.size(); i++) {
+        for (int i = -1; i < subjects.size(); i++) {
             TableRow row = new TableRow(this);
 
             TableLayout.LayoutParams lp = new TableLayout.LayoutParams(
@@ -107,19 +108,19 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
             row.setPadding(15, 0, 15, 0);
 
-            if (i==-1) row.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+            if (i == -1)
+                row.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
 
 
             TextView Header = new TextView(this);
 
             Header.setGravity(Gravity.CENTER);
-            if (i==-1) {
+            if (i == -1) {
                 Header.setText(R.string.subjects);
                 Header.setTextSize(18.0f);
                 Header.setTextColor(Color.parseColor("#FFFFFF"));
-            }
-            else {
-                Header.setText(subjects.get(i).length()>20?subjects.get(i).substring(0,17)+"…":subjects.get(i));
+            } else {
+                Header.setText(subjects.get(i).length() > 20 ? subjects.get(i).substring(0, 17) + "…" : subjects.get(i));
                 Header.setTextColor(getResources().getColor(android.R.color.holo_green_light));
                 Header.setTextSize(18.0f);
                 Header.setBackground(getResources().getDrawable(R.drawable.cell));
@@ -128,21 +129,34 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Header.setTypeface(null, Typeface.BOLD);
 
             row.addView(Header);
-            if (i!=-1) {
+            if (i != -1) {
                 List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
-                for (int j = 0; j < grades.size(); j++) {
+                double avg = 0;
+                for (Grade g : grades) {
+                    avg+=g.value;
+                }
+                avg/=grades.size();
+                for (int j = -1; j < grades.size(); j++) {
                     TextView Values = new TextView(this);
                     Values.setPadding(30, 4, 30, 4);
                     Values.setGravity(Gravity.CENTER);
                     Values.setTextSize(18.0f);
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
                     Values.setTypeface(null, Typeface.ITALIC);
-                    Values.setText(""+grades.get(j).value);
-                    Values.setId(grades.get(j).id+1000);
+                    Values.setText(j==-1?new DecimalFormat("#.##").format(avg):"" + grades.get(j).value);
+                    Values.setId(j!=-1?grades.get(j).id + 1000:grades.get(j+1).id-30000);
                     Values.setOnClickListener(this);
                     Values.setBackground(getResources().getDrawable(R.drawable.cell));
                     row.addView(Values);
                 }
+            } else {
+                TextView Header2 = new TextView(this);
+                Header2.setGravity(Gravity.CENTER);
+                Header2.setText(R.string.average);
+                Header2.setTextSize(18.0f);
+                Header2.setTextColor(Color.parseColor("#FFFFFF"));
+                Header2.setTypeface(null, Typeface.BOLD);
+                row.addView(Header2);
             }
             table.addView(row);
         }
@@ -152,10 +166,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         ProgressDialog pdialog = ProgressDialog.show(TableViewActivity.this, "",
                 getString(R.string.upgrading), true);
         Thread t = new Thread(new Runnable() {
-            public void run(){
+            public void run() {
                 Intent intent = new Intent(TableViewActivity.this, ChangeListener.class);
-                intent.putExtra("dbupgrade",true);
-                upgraderesult = ChangeListener.doCheck(TableViewActivity.this,intent);
+                intent.putExtra("dbupgrade", true);
+                upgraderesult = ChangeListener.doCheck(TableViewActivity.this, intent);
             }
 
         });
@@ -167,7 +181,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
         }
         pdialog.cancel();
-        Toast.makeText(TableViewActivity.this, ""+upgraderesult+"/rows affected: "+db.numberOfRows(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(TableViewActivity.this, "" + upgraderesult + "/rows affected: " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -175,18 +189,25 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         // TODO Auto-generated method stub
 
         int clicked_id = v.getId();
-        if (clicked_id>-1) {
-            Grade g = db.getGradeById(clicked_id-1000);
-            AlertDialog.Builder adb =new AlertDialog.Builder(this);
-            adb.setTitle((g.subject.length()>12?g.subject.substring(0,10)+"…":g.subject)+"  " + g.value);
-            adb.setPositiveButton("Ok",null);
+        if (clicked_id > -1) {
+            Grade g = db.getGradeById(clicked_id - 1000);
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            TextView Header2 = new TextView(this);
+            Header2.setGravity(Gravity.CENTER);
+            Header2.setText(""+g.value);
+            Header2.setTextSize(26.0f);
+            Header2.setTextColor(Color.parseColor("#FFFFFF"));
+            Header2.setTypeface(null, Typeface.BOLD);
+            Header2.setPadding(0,20,0,20);
+            adb.setCustomTitle(Header2);
+            adb.setPositiveButton(g.value>3?"OK :)":g.value>2?"OK :/":"OK :(", null);
             adb.setIcon(android.R.drawable.ic_dialog_info);
             adb.setCancelable(true);
             TextView messageText = new TextView(this);
-            messageText.setText(Html.fromHtml("<i>"+g.date+"<br/>"+g.teacher+"<br/>"+g.description+"</i>"));
+            messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " + g.date + "<br/>&#9658; " + g.teacher + "<br/>&#9658; " + g.description + "</i>"));
             messageText.setGravity(Gravity.LEFT);
-            messageText.setPadding(40,10,10,10);
-            messageText.setTextAppearance(this,android.R.style.TextAppearance_Medium);
+            messageText.setPadding(40, 10, 10, 10);
+            messageText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
             adb.setView(messageText);
             adb.show();
         }

@@ -43,5 +43,6 @@
     <string name="emptydb">It looks like you have no grades yet...</string>
     <string name="subjects">Subjects</string>
     <string name="ohno">Oh no! Something went wrong!</string>
+    <string name="average">Avg.</string>
 
 </resources>
