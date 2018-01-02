@@ -2,7 +2,7 @@ package hu.kfg.naplo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -29,7 +30,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // TODO Auto-generated method stub
         db.execSQL(
                 "create table grades " +
                         "(id integer primary key, description text,teacher text,date text, subject text,value smallint)"
@@ -49,9 +49,13 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("teacher", teacher);
         contentValues.put("date", date);
         contentValues.put("subject", subject);
-        contentValues.put("grade", grade);
-        db.insert("grades", null, contentValues);
-        return true;
+        contentValues.put("value", grade);
+        return db.insert("grades", null, contentValues)>-1;
+    }
+
+    public boolean insertGrade(Grade grade) {
+        //Log.i("Grades",grade.description+grade.teacher+grade.date+grade.subject+grade.value);
+        return insertGrade(grade.description, grade.teacher, grade.date, grade.subject, grade.value);
     }
 
     public Cursor getData(int id) {
@@ -98,5 +102,15 @@ public class DBHelper extends SQLiteOpenHelper {
             res.moveToNext();
         }
         return array_list;
+    }
+
+    public boolean upgradeDatabase(List<Grade> grades) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS grades");
+        onCreate(db);
+        for (Grade grade:grades) {
+            if (!insertGrade(grade)) return false;
+        }
+        return true;
     }
 }

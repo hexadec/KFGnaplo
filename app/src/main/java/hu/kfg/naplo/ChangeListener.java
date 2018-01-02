@@ -21,7 +21,7 @@ import java.text.*;
 public class ChangeListener extends BroadcastReceiver
 {
 	
-	private final Handler showSuccessToast = new Handler() {
+	private static final Handler showSuccessToast = new Handler() {
 		public void handleMessage(Message msg) {
 			
 		}
@@ -29,7 +29,7 @@ public class ChangeListener extends BroadcastReceiver
 
 	public static final int NIGHTMODE_START = 2230;
 	public static final int NIGHTMODE_STOP = 530;
-	final String TAG = "KFGnaplo-check";
+	final static String TAG = "KFGnaplo-check";
 
 	static boolean running = false;
 	
@@ -126,7 +126,7 @@ public class ChangeListener extends BroadcastReceiver
 	
 	
 	
-	public boolean doCheck(final Context context,final Intent intent) {
+	public static int doCheck(final Context context,final Intent intent) {
 		final SharedPreferences pref = PreferenceManager
 			.getDefaultSharedPreferences(context);
 		String kfgserver = pref.getString("url","1");
@@ -138,7 +138,7 @@ public class ChangeListener extends BroadcastReceiver
 					}
 				});
 			}
-				return false;
+				return -1;
 		}
 
 		String version = "0.0";
@@ -164,7 +164,7 @@ public class ChangeListener extends BroadcastReceiver
 				});
 			}
 			e.printStackTrace();
-			return false;
+			return -1;
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
@@ -175,7 +175,7 @@ public class ChangeListener extends BroadcastReceiver
 				});
 			}
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
 
         StringBuilder sb = new StringBuilder();
@@ -197,13 +197,15 @@ public class ChangeListener extends BroadcastReceiver
 						}
 					});
 				}
-				return false;
+				return -1;
 			}
 			BufferedReader rd = new BufferedReader
 					(new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
 			String line;
 			notesc = 0;
 			counter = 0;
+			List<Grade> mygrades = new ArrayList<>();
+			Grade grade = new Grade((byte)0);
 			while ((line = rd.readLine()) != null) {
 				if (!hasstarted&&line.contains("<div data-role=\"content\" style=\"padding: 0px;\">")) hasstarted = true;
 				if (line.contains("</article>")&&!hasended) {hasended = true; sb.append(line); break;}
@@ -211,20 +213,37 @@ public class ChangeListener extends BroadcastReceiver
 					counter=0;
 				}
 				if ((counter==3||counter==2)&&(line.contains("<div class=\"credit ini_fresh\">")||line.contains("<div class=\"credit ini_credit\">"))) {
-					notes[notesc] = (byte)Character.getNumericValue(line.charAt(line.indexOf(">")+1));
+					grade = new Grade(notes[notesc] = (byte)Character.getNumericValue(line.charAt(line.indexOf(">")+1)));
 					notesc++;
+				}
+				if ((counter==4||counter==3)&&(line.contains("<div class=\"teacher\">"))) {
+					int i = line.indexOf(">");
+					grade.addTeacher(line.substring(i+1,line.indexOf("<",i)));
+				}
+				if ((counter==6||counter==7)&&(line.contains("<span id=\"stamp_correct_"))) {
+					int i = line.indexOf(">");
+					grade.addDate(line.substring(i+1,line.indexOf("<",i)));
 				}
 				if ((counter==8||counter==9)&&(line.contains("<div class=\"description\">"))) {
 					int i = line.indexOf(">");
 					String desc;
 					descriptions[notesc-1] = ((desc = line.substring(i+1,line.indexOf("<",i))).length()>21?desc.substring(0,20)+"…":desc);
+					grade.addDescription(desc);
 				}
 				if ((counter==11||counter==10)&&(line.contains("<div class=\"creditbox_footer\">"))) {
 					int i = line.indexOf(">");
-					subjects[notesc-1] = line.substring(i+1,line.indexOf("<",i));
+					grade.addSubject(subjects[notesc-1] = line.substring(i+1,line.indexOf("<",i)));
+					mygrades.add(grade);
+					//Log.i("Grades",grade.toString());
 				}
 				counter++;
 				sb.append(line);
+			}
+			if (intent.hasExtra("dbupgrade")) {
+				Log.i("Grades","Size: " + mygrades.size());
+				if (mygrades.size()<1) return 4;
+				if (new DBHelper(context).upgradeDatabase(mygrades)==true) return 3;
+				else return 5;
 			}
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
@@ -236,7 +255,7 @@ public class ChangeListener extends BroadcastReceiver
 				});
 			}
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
 		try {
 			if (sb.toString().length() < 1000) {
@@ -255,7 +274,7 @@ public class ChangeListener extends BroadcastReceiver
 					}
 				});
 			}
-			return false;
+			return -1;
 		} catch (Exception e) {
 			Log.e(TAG,e.getMessage());
 			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
@@ -265,7 +284,7 @@ public class ChangeListener extends BroadcastReceiver
 					}
 				});
 			}
-			return false;
+			return -1;
 		}
 		String[] s = new String[notesc];
 		for (int i = 0;i<notesc;i++) {
@@ -277,7 +296,7 @@ public class ChangeListener extends BroadcastReceiver
 				Toast.makeText(context,"Nincs új jegyed! "+notesf[0], Toast.LENGTH_SHORT).show();
 			}
 		});*/
-		if (running) {Log.w(TAG,"A process is already running"); return false;}
+		if (running) {Log.w(TAG,"A process is already running"); return -1;}
 		running = true;
 
 		final int numofnotes = pref.getInt("numberofnotes",0);
@@ -301,7 +320,7 @@ public class ChangeListener extends BroadcastReceiver
 					pref.edit().putString("lastSHA",SHA512(notes)).commit();
 					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver, context.getString(R.string.unknown_change));
 					running = false;
-					return true;
+					return 0;
 				} else
 				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 					showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -311,7 +330,7 @@ public class ChangeListener extends BroadcastReceiver
 					});
 				}
 				running = false;
-				return false;
+				return -1;
 			}
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
@@ -324,13 +343,13 @@ public class ChangeListener extends BroadcastReceiver
 			}
 			e.printStackTrace();
 			running = false;
-			return false;
+			return -1;
 		}
 		running = false;
-		return true;
+		return 0;
 	}
 	
-	public void notifyIfChanged(int[] state,Context context,String url, String subjects){
+	public static void notifyIfChanged(int[] state,Context context,String url, String subjects){
 		Intent intent = new Intent(context, MainActivity.class);
 		Intent eintent = new Intent(Intent.ACTION_VIEW);
 		eintent.setData(Uri.parse(url));
@@ -375,7 +394,7 @@ public class ChangeListener extends BroadcastReceiver
 		pref.edit().putString("oldtext",subjects.length()>100? subjects.substring(0,subjects.indexOf(",",90))+"…":subjects).commit();
 	}
 
-	private boolean isNotificationVisible(Context context) {
+	private static boolean isNotificationVisible(Context context) {
 		if (Build.VERSION.SDK_INT < 23) return false;
 		StatusBarNotification[] notifications = ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
 		if (notifications.length == 0) return false;
