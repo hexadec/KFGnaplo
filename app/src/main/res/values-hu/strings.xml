@@ -40,5 +40,7 @@
     <string name="not_now">Most nem</string>
     <string name="upgrading">Frissítés, kérlek várj...</string>
     <string name="emptydb">Úgy tűnik nincsen egy jegyed sem...</string>
+    <string name="subjects">Tantárgyak</string>
+    <string name="ohno">Jaj, ne! Valami hiba történt!</string>
 
 </resources>

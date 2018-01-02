@@ -64,6 +64,36 @@ public class DBHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public ArrayList<String> getSubjects() {
+        ArrayList<String> array_list = new ArrayList<String>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select distinct subject from grades order by subject", null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+            array_list.add(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
+            res.moveToNext();
+        }
+        return array_list;
+    }
+
+    public ArrayList<Short> getSubjectGrades(String subject) {
+        ArrayList<Short> array_list = new ArrayList<Short>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select value from grades where subject=\"" + subject + "\"", null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+            array_list.add(res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
+            res.moveToNext();
+        }
+        return array_list;
+    }
+
     public int numberOfRows() {
         SQLiteDatabase db = this.getReadableDatabase();
         int numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);

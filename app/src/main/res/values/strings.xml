@@ -41,5 +41,7 @@
     <string name="not_now">Not now</string>
     <string name="upgrading">Updating database, please wait...</string>
     <string name="emptydb">It looks like you have no grades yet...</string>
+    <string name="subjects">Subjects</string>
+    <string name="ohno">Oh no! Something went wrong!</string>
 
 </resources>
