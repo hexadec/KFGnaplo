@@ -7,6 +7,7 @@ public class Grade extends Object{
     String teacher;
     String subject;
     String description;
+    int id;
 
     public Grade(byte value) {
         this.value = value;
@@ -16,6 +17,10 @@ public class Grade extends Object{
         boolean returnv = description != null;
         description = s;
         return returnv;
+    }
+
+    public void addID(int i) {
+        id = i;
     }
 
     public boolean addSubject(String s) {

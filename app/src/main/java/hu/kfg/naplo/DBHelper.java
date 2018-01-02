@@ -94,6 +94,46 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
+    public List<Grade> getSubjectGradesG(String subject) {
+        List<Grade> array_list = new ArrayList<Grade>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\"", null);
+        res.moveToFirst();
+        Grade g = new Grade((byte)0);
+        while (res.isAfterLast() == false) {
+            g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
+            g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
+            g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
+            g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
+            g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
+            g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+            array_list.add(g);
+            res.moveToNext();
+        }
+        return array_list;
+    }
+
+    public Grade getGradeById(int id) {
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from grades where id=\"" + id + "\"", null);
+        res.moveToFirst();
+        Grade g = new Grade((byte)0);
+        while (res.isAfterLast() == false) {
+            g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
+            g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
+            g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
+            g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
+            g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
+            g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+            res.moveToNext();
+        }
+        return g;
+    }
+
     public int numberOfRows() {
         SQLiteDatabase db = this.getReadableDatabase();
         int numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);

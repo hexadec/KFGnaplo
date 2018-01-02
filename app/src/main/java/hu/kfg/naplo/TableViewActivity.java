@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.text.Html;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,7 +22,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableViewActivity extends Activity {
+public class TableViewActivity extends Activity implements View.OnClickListener {
 
     DBHelper db;
     int upgraderesult = 0;
@@ -104,7 +105,7 @@ public class TableViewActivity extends Activity {
                     TableLayout.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
 
-            row.setPadding(15, 3, 15, 3);
+            row.setPadding(15, 0, 15, 0);
 
             if (i==-1) row.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
 
@@ -121,21 +122,25 @@ public class TableViewActivity extends Activity {
                 Header.setText(subjects.get(i).length()>20?subjects.get(i).substring(0,17)+"…":subjects.get(i));
                 Header.setTextColor(getResources().getColor(android.R.color.holo_green_light));
                 Header.setTextSize(18.0f);
+                Header.setBackground(getResources().getDrawable(R.drawable.cell));
             }
-            Header.setPadding(15, 0, 15, 0);
+            Header.setPadding(15, 4, 15, 4);
             Header.setTypeface(null, Typeface.BOLD);
 
             row.addView(Header);
             if (i!=-1) {
-                ArrayList<Short> grades = db.getSubjectGrades(subjects.get(i));
+                List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
                 for (int j = 0; j < grades.size(); j++) {
                     TextView Values = new TextView(this);
-                    Values.setPadding(15, 0, 15, 0);
+                    Values.setPadding(30, 4, 30, 4);
                     Values.setGravity(Gravity.CENTER);
-                    Values.setTextSize(16.0f);
+                    Values.setTextSize(18.0f);
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
                     Values.setTypeface(null, Typeface.ITALIC);
-                    Values.setText(""+grades.get(j));
+                    Values.setText(""+grades.get(j).value);
+                    Values.setId(grades.get(j).id+1000);
+                    Values.setOnClickListener(this);
+                    Values.setBackground(getResources().getDrawable(R.drawable.cell));
                     row.addView(Values);
                 }
             }
@@ -163,6 +168,30 @@ public class TableViewActivity extends Activity {
         }
         pdialog.cancel();
         Toast.makeText(TableViewActivity.this, ""+upgraderesult+"/rows affected: "+db.numberOfRows(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        // TODO Auto-generated method stub
+
+        int clicked_id = v.getId();
+        if (clicked_id>-1) {
+            Grade g = db.getGradeById(clicked_id-1000);
+            AlertDialog.Builder adb =new AlertDialog.Builder(this);
+            adb.setTitle((g.subject.length()>12?g.subject.substring(0,10)+"…":g.subject)+"  " + g.value);
+            adb.setPositiveButton("Ok",null);
+            adb.setIcon(android.R.drawable.ic_dialog_info);
+            adb.setCancelable(true);
+            TextView messageText = new TextView(this);
+            messageText.setText(Html.fromHtml("<i>"+g.date+"<br/>"+g.teacher+"<br/>"+g.description+"</i>"));
+            messageText.setGravity(Gravity.LEFT);
+            messageText.setPadding(40,10,10,10);
+            messageText.setTextAppearance(this,android.R.style.TextAppearance_Medium);
+            adb.setView(messageText);
+            adb.show();
+        }
+
+
     }
 
 }
