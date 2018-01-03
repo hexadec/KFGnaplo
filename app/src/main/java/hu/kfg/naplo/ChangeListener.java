@@ -186,6 +186,7 @@ public class ChangeListener extends BroadcastReceiver
 		byte notes[] = new byte[512];
 		String subjects[] = new String[512];
 		String descriptions[] = new String[512];
+		List<Grade> mygrades = new ArrayList<>();
 		try {
 			if (urlConnection.getResponseCode()%300<100) {
 				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
@@ -204,7 +205,6 @@ public class ChangeListener extends BroadcastReceiver
 			String line;
 			notesc = 0;
 			counter = 0;
-			List<Grade> mygrades = new ArrayList<>();
 			Grade grade = new Grade((byte)0);
 			while ((line = rd.readLine()) != null) {
 				if (!hasstarted&&line.contains("<div data-role=\"content\" style=\"padding: 0px;\">")) hasstarted = true;
@@ -289,13 +289,8 @@ public class ChangeListener extends BroadcastReceiver
 		String[] s = new String[notesc];
 		for (int i = 0;i<notesc;i++) {
 			s[i] = subjects[i] + ": " + notes[i] + (descriptions[i].length()<1?"":"  ("+ descriptions[i] +")");
-		}/*
-		final int[] notesf = notes;
-		showSuccessToast.postAtFrontOfQueue(new Runnable() {
-			public void run() {
-				Toast.makeText(context,"Nincs új jegyed! "+notesf[0], Toast.LENGTH_SHORT).show();
-			}
-		});*/
+		}
+
 		if (running) {Log.w(TAG,"A process is already running"); return -1;}
 		running = true;
 
@@ -308,8 +303,10 @@ public class ChangeListener extends BroadcastReceiver
 			if (numofnotes0-numofnotes>0) {
 				int i = numofnotes0-numofnotes;
 				String text ="";
+				DBHelper db1 = new DBHelper(context);
 				for (int i2 = 0; i2<i;i2++) {
 					text+=s[i2] +", \n";
+					db1.insertGrade(mygrades.get(mygrades.size()-i+i2));
 				}
 				text = text.substring(0,text.length()-2);
 				notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver,text);

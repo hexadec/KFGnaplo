@@ -36,7 +36,7 @@
     <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Notification icon: Freepik&lt;br/>App icon: ToffeeNut</string>
     <string name="error_no_grades">No grades were found! If you do have some, try it again later!</string>
     <string name="title_activity_table_view">My grades</string>
-    <string name="update_grades"><![CDATA[Do you want to update the grades database?<br/>It does not update automatically!!]]></string>
+    <string name="update_grades"><![CDATA[Do you want to update the grades database?<br/>It does not update automatically!]]></string>
     <string name="update">Update</string>
     <string name="not_now">Not now</string>
     <string name="upgrading">Updating database, please wait...</string>
@@ -44,5 +44,6 @@
     <string name="subjects">Subjects</string>
     <string name="ohno">Oh no! Something went wrong!</string>
     <string name="average">Avg.</string>
+    <string name="refresh">Refresh database</string>
 
 </resources>

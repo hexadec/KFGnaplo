@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.text.Html;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -51,6 +54,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 t.show();
             }
         } else {
+            doStuff(db);
+        } /*else {
             if (((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                 builder1.setMessage(Html.fromHtml(getString(R.string.update_grades)));
@@ -92,11 +97,12 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             } else {
                 doStuff(db);
             }
-        }
+        }*/
     }
 
     void doStuff(DBHelper db) {
         TableLayout table = (TableLayout) findViewById(R.id.table);
+        table.removeAllViews();
         ArrayList<String> subjects = db.getSubjects();
         for (int i = -1; i < subjects.size(); i++) {
             TableRow row = new TableRow(this);
@@ -144,7 +150,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
                     Values.setTypeface(null, Typeface.ITALIC);
                     Values.setText(j==-1?new DecimalFormat("#.##").format(avg):"" + grades.get(j).value);
-                    Values.setId(j!=-1?grades.get(j).id + 1000:grades.get(j+1).id-30000);
+                    Values.setId(j!=-1?grades.get(j).id + 1000000:grades.get(j+1).id-30000);
                     Values.setOnClickListener(this);
                     Values.setBackground(getResources().getDrawable(R.drawable.cell));
                     row.addView(Values);
@@ -181,7 +187,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
         }
         pdialog.cancel();
-        Toast.makeText(TableViewActivity.this, "" + upgraderesult + "/rows affected: " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(TableViewActivity.this, "" + db.numberOfRows(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -190,7 +196,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
         int clicked_id = v.getId();
         if (clicked_id > -1) {
-            Grade g = db.getGradeById(clicked_id - 1000);
+            Grade g = db.getGradeById(clicked_id - 1000000);
             AlertDialog.Builder adb = new AlertDialog.Builder(this);
             TextView Header2 = new TextView(this);
             Header2.setGravity(Gravity.CENTER);
@@ -213,6 +219,46 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.tablemenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                if (((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null
+                        && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
+                    updateDatabase(db);
+                    if (upgraderesult == 4) {
+                        Toast t = new Toast(TableViewActivity.this);
+                        t.setText(R.string.emptydb);
+                        t.setDuration(Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                    } else if (upgraderesult == 3) {
+                        doStuff(db);
+                    } else if (upgraderesult == 5) {
+                        Toast t = new Toast(TableViewActivity.this);
+                        t.setText(R.string.ohno);
+                        t.setDuration(Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                    }
+                } else {
+                    Toast t = Toast.makeText(this,R.string.no_network_conn,Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.TOP,0,0);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

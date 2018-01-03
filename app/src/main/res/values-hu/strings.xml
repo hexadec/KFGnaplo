@@ -35,7 +35,7 @@
     <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Értesítés ikonja: Freepik&lt;br/>Alkalmazás ikonja: ToffeeNut</string>
     <string name="error_no_grades">Nincs egy jegyed sem! Ha szerinted van, próbáld újra később!</string>
     <string name="title_activity_table_view">Jegyeim</string>
-    <string name="update_grades"><![CDATA[Frissíted a jegyeket?<br/>(Nincsen automatikus frissítés a háttérben!)!]]></string>
+    <string name="update_grades"><![CDATA[Frissíted a jegyeket?<br/>(Nincsen automatikus frissítés a háttérben!)]]></string>
     <string name="update">Frissítés</string>
     <string name="not_now">Most nem</string>
     <string name="upgrading">Frissítés, kérlek várj...</string>
@@ -43,6 +43,7 @@
     <string name="subjects">Tantárgyak</string>
     <string name="ohno">Jaj, ne! Valami hiba történt!</string>
     <string name="average">Átl.</string>
+    <string name="refresh">Adatok frissítése</string>
 
 
 </resources>

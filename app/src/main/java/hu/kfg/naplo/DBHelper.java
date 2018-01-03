@@ -22,6 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String GRADES_COLUMN_DATE = "date";
     public static final String GRADES_COLUMN_VALUE = "value";
     public static final String GRADES_COLUMN_TEACHER = "teacher";
+    public static final String GRADES_COLUMN_WEIGHTED = "weighted";
     private HashMap hp;
 
     public DBHelper(Context context) {
@@ -147,7 +148,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("teacher", teacher);
         contentValues.put("date", date);
         contentValues.put("subject", subject);
-        contentValues.put("grade", grade);
+        contentValues.put("value", grade);
         db.update("grades", contentValues, "id = ? ", new String[]{Integer.toString(id)});
         return true;
     }
