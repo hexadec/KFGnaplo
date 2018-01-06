@@ -100,7 +100,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\"", null);
+        Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\" order by date desc", null);
         res.moveToFirst();
         Grade g = new Grade((byte)0);
         while (res.isAfterLast() == false) {

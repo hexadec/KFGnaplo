@@ -306,7 +306,7 @@ public class ChangeListener extends BroadcastReceiver
 				DBHelper db1 = new DBHelper(context);
 				for (int i2 = 0; i2<i;i2++) {
 					text+=s[i2] +", \n";
-					if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(mygrades.size()-i+i2));
+					if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
 				}
 				text = text.substring(0,text.length()-2);
 				notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver,text);
