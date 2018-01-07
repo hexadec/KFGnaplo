@@ -38,66 +38,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         db = new DBHelper(this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
-            if (upgraderesult == 4) {
-                Toast t = new Toast(TableViewActivity.this);
-                t.setText(R.string.emptydb);
-                t.setDuration(Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
-            } else if (upgraderesult == 3) {
-                doStuff(db);
-            } else if (upgraderesult == 5) {
-                Toast t = new Toast(TableViewActivity.this);
-                t.setText(R.string.ohno);
-                t.setDuration(Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
-            }
         } else {
             doStuff(db);
-        } /*else {
-            if (((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-                builder1.setMessage(Html.fromHtml(getString(R.string.update_grades)));
-                builder1.setCancelable(false);
-
-                builder1.setNeutralButton(
-                        R.string.update,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                updateDatabase(db);
-                                if (upgraderesult == 4) {
-                                    Toast t = new Toast(TableViewActivity.this);
-                                    t.setText(R.string.emptydb);
-                                    t.setDuration(Toast.LENGTH_SHORT);
-                                    t.setGravity(Gravity.CENTER, 0, 0);
-                                    t.show();
-                                } else if (upgraderesult == 3) {
-                                    doStuff(db);
-                                } else if (upgraderesult == 5) {
-                                    Toast t = new Toast(TableViewActivity.this);
-                                    t.setText(R.string.ohno);
-                                    t.setDuration(Toast.LENGTH_SHORT);
-                                    t.setGravity(Gravity.CENTER, 0, 0);
-                                    t.show();
-                                }
-                            }
-                        });
-                builder1.setPositiveButton(
-                        R.string.not_now,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                doStuff(db);
-                            }
-                        });
-                AlertDialog alert11 = builder1.create();
-                alert11.show();
-            } else {
-                doStuff(db);
-            }
-        }*/
+        }
     }
 
     void doStuff(DBHelper db) {
@@ -171,7 +114,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     void updateDatabase(DBHelper db) {
         ProgressDialog pdialog = ProgressDialog.show(TableViewActivity.this, "",
                 getString(R.string.upgrading), true);
-        Thread t = new Thread(new Runnable() {
+        Thread thr = new Thread(new Runnable() {
             public void run() {
                 Intent intent = new Intent(TableViewActivity.this, ChangeListener.class);
                 intent.putExtra("dbupgrade", true);
@@ -180,14 +123,29 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
         });
         upgraderesult = -10;
-        t.start();
+        thr.start();
         try {
-            t.join(20000);
+            thr.join(20000);
         } catch (Exception e) {
 
         }
         pdialog.cancel();
         Toast.makeText(TableViewActivity.this, "" + db.numberOfRows(), Toast.LENGTH_SHORT).show();
+        if (upgraderesult == 4) {
+            Toast t = new Toast(TableViewActivity.this);
+            t.setText(R.string.emptydb);
+            t.setDuration(Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        } else if (upgraderesult == 3) {
+            doStuff(db);
+        } else if (upgraderesult == 5) {
+            Toast t = new Toast(TableViewActivity.this);
+            t.setText(R.string.ohno);
+            t.setDuration(Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
     }
 
     @Override
@@ -197,25 +155,25 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         int clicked_id = v.getId();
         if (clicked_id > -1) {
             Grade g = db.getGradeById(clicked_id - 1000000);
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
             TextView Header2 = new TextView(this);
             Header2.setGravity(Gravity.CENTER);
             Header2.setText(""+g.value);
             Header2.setTextSize(26.0f);
             Header2.setTextColor(Color.parseColor("#FFFFFF"));
             Header2.setTypeface(null, Typeface.BOLD);
-            Header2.setPadding(0,20,0,20);
-            adb.setCustomTitle(Header2);
-            adb.setPositiveButton(g.value>3?"OK :)":g.value>2?"OK :/":"OK :(", null);
-            adb.setIcon(android.R.drawable.ic_dialog_info);
-            adb.setCancelable(true);
             TextView messageText = new TextView(this);
             messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " + g.date + "<br/>&#9658; " + g.teacher + "<br/>&#9658; " + g.description + "</i>"));
             messageText.setGravity(Gravity.LEFT);
             messageText.setPadding(40, 10, 10, 10);
             messageText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-            adb.setView(messageText);
-            adb.show();
+            Header2.setPadding(0,20,0,20);
+            new AlertDialog.Builder(this)
+            .setCustomTitle(Header2)
+            .setPositiveButton(g.value>3?"OK :)":g.value>2?"OK :/":"OK :(", null)
+            .setIcon(android.R.drawable.ic_dialog_info)
+            .setCancelable(true)
+            .setView(messageText)
+            .show();
         }
 
 
@@ -236,21 +194,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 if (((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null
                         && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
                     updateDatabase(db);
-                    if (upgraderesult == 4) {
-                        Toast t = new Toast(TableViewActivity.this);
-                        t.setText(R.string.emptydb);
-                        t.setDuration(Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.CENTER, 0, 0);
-                        t.show();
-                    } else if (upgraderesult == 3) {
-                        doStuff(db);
-                    } else if (upgraderesult == 5) {
-                        Toast t = new Toast(TableViewActivity.this);
-                        t.setText(R.string.ohno);
-                        t.setDuration(Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.CENTER, 0, 0);
-                        t.show();
-                    }
                 } else {
                     Toast t = Toast.makeText(this,R.string.no_network_conn,Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.TOP,0,0);

@@ -44,6 +44,7 @@
     <string name="ohno">Jaj, ne! Valami hiba történt!</string>
     <string name="average">Átl.</string>
     <string name="refresh">Adatok frissítése</string>
+    <string name="job_name">Feladatütemező</string>
 
 
 </resources>

@@ -1,7 +1,6 @@
 package hu.kfg.naplo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -14,16 +13,15 @@ import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "Grades.db";
-    public static final String GRADES_TABLE_NAME= "grades";
-    public static final String GRADES_COLUMN_SUBJECT = "subject";
-    public static final String GRADES_COLUMN_ID = "id";
-    public static final String GRADES_COLUMN_DESCRIPTION = "description";
-    public static final String GRADES_COLUMN_DATE = "date";
-    public static final String GRADES_COLUMN_VALUE = "value";
-    public static final String GRADES_COLUMN_TEACHER = "teacher";
-    public static final String GRADES_COLUMN_WEIGHTED = "weighted";
-    private HashMap hp;
+    private static final String DATABASE_NAME = "Grades.db";
+    private static final String GRADES_TABLE_NAME= "grades";
+    private static final String GRADES_COLUMN_SUBJECT = "subject";
+    private static final String GRADES_COLUMN_ID = "id";
+    private static final String GRADES_COLUMN_DESCRIPTION = "description";
+    private static final String GRADES_COLUMN_DATE = "date";
+    private static final String GRADES_COLUMN_VALUE = "value";
+    private static final String GRADES_COLUMN_TEACHER = "teacher";
+    private static final String GRADES_COLUMN_WEIGHTED = "weighted";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -43,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertGrade(String description, String teacher, String date, String subject, byte grade) {
+    boolean insertGrade(String description, String teacher, String date, String subject, byte grade) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("description", description);
@@ -54,18 +52,18 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.insert("grades", null, contentValues)>-1;
     }
 
-    public boolean insertGrade(Grade grade) {
+    boolean insertGrade(Grade grade) {
         //Log.i("Grades",grade.description+grade.teacher+grade.date+grade.subject+grade.value);
         return insertGrade(grade.description, grade.teacher, grade.date, grade.subject, grade.value);
     }
 
-    public Cursor getData(int id) {
+    Cursor getData(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from grades where id=" + id + "", null);
         return res;
     }
 
-    public ArrayList<String> getSubjects() {
+    ArrayList<String> getSubjects() {
         ArrayList<String> array_list = new ArrayList<String>();
 
         //hp = new HashMap();
@@ -80,29 +78,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
-    public ArrayList<Short> getSubjectGrades(String subject) {
-        ArrayList<Short> array_list = new ArrayList<Short>();
-
-        //hp = new HashMap();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select value from grades where subject=\"" + subject + "\"", null);
-        res.moveToFirst();
-
-        while (res.isAfterLast() == false) {
-            array_list.add(res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
-            res.moveToNext();
-        }
-        return array_list;
-    }
-
-    public List<Grade> getSubjectGradesG(String subject) {
+    List<Grade> getSubjectGradesG(String subject) {
         List<Grade> array_list = new ArrayList<Grade>();
 
-        //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\" order by date desc", null);
         res.moveToFirst();
-        Grade g = new Grade((byte)0);
+        Grade g;
         while (res.isAfterLast() == false) {
             g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
             g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
@@ -116,9 +98,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
-    public Grade getGradeById(int id) {
-
-        //hp = new HashMap();
+    Grade getGradeById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from grades where id=\"" + id + "\"", null);
         res.moveToFirst();
@@ -135,47 +115,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return g;
     }
 
-    public int numberOfRows() {
+    int numberOfRows() {
         SQLiteDatabase db = this.getReadableDatabase();
         int numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);
         return numRows;
     }
 
-    public boolean updateGrade(Integer id, String description, String teacher, String date, String subject, byte grade) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("description", description);
-        contentValues.put("teacher", teacher);
-        contentValues.put("date", date);
-        contentValues.put("subject", subject);
-        contentValues.put("value", grade);
-        db.update("grades", contentValues, "id = ? ", new String[]{Integer.toString(id)});
-        return true;
-    }
-
-    public Integer deleteGrade(Integer id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("grades",
-                "id = ? ",
-                new String[]{Integer.toString(id)});
-    }
-
-    public ArrayList<String> getAllGrades() {
-        ArrayList<String> array_list = new ArrayList<String>();
-
-        //hp = new HashMap();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from grades", null);
-        res.moveToFirst();
-
-        while (res.isAfterLast() == false) {
-            array_list.add(res.getString(res.getColumnIndex(GRADES_TABLE_NAME)));
-            res.moveToNext();
-        }
-        return array_list;
-    }
-
-    public boolean upgradeDatabase(List<Grade> grades) {
+    boolean upgradeDatabase(List<Grade> grades) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS grades");
         onCreate(db);

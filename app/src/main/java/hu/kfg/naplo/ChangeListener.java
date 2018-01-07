@@ -1,5 +1,6 @@
 package hu.kfg.naplo;
 
+import android.app.job.JobScheduler;
 import android.content.*;
 import android.preference.*;
 
@@ -20,13 +21,10 @@ import java.text.*;
 
 public class ChangeListener extends BroadcastReceiver
 {
-	
 	private static final Handler showSuccessToast = new Handler() {
 		public void handleMessage(Message msg) {
-			
 		}
 	};
-
 	public static final int NIGHTMODE_START = 2230;
 	public static final int NIGHTMODE_STOP = 530;
 	final static String TAG = "KFGnaplo-check";
@@ -37,53 +35,21 @@ public class ChangeListener extends BroadcastReceiver
 	public void onReceive(final Context context, final Intent intent){
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!pref.getBoolean("notify",false)) {
-			AlarmManager alarmManager=(AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-			Intent intente = new Intent(context, ChangeListener.class);
-			intente.putExtra("triggered",true);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intente, PendingIntent.FLAG_UPDATE_CURRENT);
-			alarmManager.cancel(pendingIntent);
+			JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+				jobScheduler.cancelAll();
+			}
 			return;
 		}
-		if (intent.hasExtra("triggered")){
-			if (pref.getBoolean("nightmode",false)) {
-				SimpleDateFormat sdf = new SimpleDateFormat("HHmm");
-				int time = Integer.valueOf(sdf.format(new Date()));
-			if (time < NIGHTMODE_STOP || time > NIGHTMODE_START) {
-				KeyguardManager mKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-				if( mKM.inKeyguardRestrictedInputMode() ) {
-					return;
-				} else {
-					PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-					if (!powerManager.isScreenOn()){ return; }
-				}
-			}
-			}
-		} else {
-		if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")||intent.getAction().equals("hu.kfg.wifimanager.LOGGED_IN")){
-			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","300"))*60000)){
-				return;
-			}
-			Log.w(TAG,""+(System.currentTimeMillis()+"//"+pref.getLong("last_check",0)));
+		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+			JobManagerService.scheduleJob(context);
+			return;
 		}
+		if (!intent.hasExtra("runnomatterwhat")){
 		if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&!pref.getBoolean("nightmode",false)) {
 			return;
-		} else if (!intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&pref.getBoolean("nightmode",false)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("HHmm",Locale.US);
-			int time = Integer.valueOf(sdf.format(new Date()));
-			if (time < NIGHTMODE_STOP || time > NIGHTMODE_START) {
-				KeyguardManager mKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-				if( mKM.inKeyguardRestrictedInputMode() ) {
-					return;
-				} else {
-					PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-					if (!powerManager.isScreenOn()){ return; }
-				}
-			}
-			if (!intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")&&System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","180"))*60000)){
-				return;
-			}
 		} else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&pref.getBoolean("nightmode",false)) {
-			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","180"))*60000/2)){
+			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","300"))*60000/2)){
 				return;
 			}
 			SimpleDateFormat sdf = new SimpleDateFormat("HHmm",Locale.US);
@@ -92,27 +58,6 @@ public class ChangeListener extends BroadcastReceiver
 				return;
 			}
 		}
-		if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")){
-			AlarmManager alarmManager=(AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-			Intent intente = new Intent(context, ChangeListener.class);
-			intente.putExtra("triggered",true);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intente, PendingIntent.FLAG_UPDATE_CURRENT);
-			alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,Long.valueOf(pref.getString("auto_check_interval","180"))*60000,pendingIntent);
-			return;
-		}
-		}
-		if (((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()==null){
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")){
-			showSuccessToast.postAtFrontOfQueue(new Runnable() {
-					public void run() {
-						Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
-					}
-				});
-				}
-			return;
-		}
-		if (!((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()){
-			return;
 		}
 		new Thread(new Runnable() {
 			public void run(){
@@ -316,6 +261,10 @@ public class ChangeListener extends BroadcastReceiver
 				if (!SHA512(notes).equals(pref.getString("lastSHA","ABCD"))) {
 					pref.edit().putString("lastSHA",SHA512(notes)).commit();
 					notifyIfChanged(new int[]{0,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,kfgserver, context.getString(R.string.unknown_change));
+					//If a grade was modified, it's easier to update the whole DB
+					Intent intent2 = new Intent(context, ChangeListener.class);
+					intent2.putExtra("dbupgrade", true);
+					doCheck(context, intent);
 					running = false;
 					return 0;
 				} else

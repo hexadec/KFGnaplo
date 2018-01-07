@@ -29,11 +29,9 @@ public class MainActivity extends PreferenceActivity
 		final Preference vibrate = findPreference("vibrate");
 		final Preference flash = findPreference("flash");
 		final Preference open_in_browser = findPreference("open_in_browser");
-//		final Preference ignore_lessons = findPreference("ignore_lessons");
 		final Preference nightmode = findPreference("nightmode");
 		final EditTextPreference url2 = (EditTextPreference)url;
 		final CheckBoxPreference notify2 = (CheckBoxPreference)notify;
-		final ListPreference interval2 = (ListPreference)interval;
 		if (url2.getText()!=null){
 		if (url2.getText().length()>=URL_MIN_LENGTH){
 			url2.setSummary(getString(R.string.click2edit));
@@ -44,7 +42,6 @@ public class MainActivity extends PreferenceActivity
 			vibrate.setEnabled(false);
 			flash.setEnabled(false);
 			manual_check.setEnabled(false);
-//			ignore_lessons.setEnabled(false);
 			nightmode.setEnabled(false);
 		}
 		if (!prefs.getBoolean("inst",false)) {
@@ -84,7 +81,12 @@ public class MainActivity extends PreferenceActivity
 					return true;
 				}
 				Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
+				if (((ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()==null
+						||!((ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()){
+					Toast.makeText(MainActivity.this, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
+				}
 				Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
+				i.putExtra("runnomatterwhat",true);
 				sendBroadcast(i);
 				return true;
 			}
