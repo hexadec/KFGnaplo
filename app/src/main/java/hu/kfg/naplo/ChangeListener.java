@@ -59,6 +59,10 @@ public class ChangeListener extends BroadcastReceiver
 			}
 		}
 		}
+		if (((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()==null
+				||!((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()){
+			return;
+		}
 		new Thread(new Runnable() {
 			public void run(){
 				doCheck(context,intent);
@@ -76,7 +80,7 @@ public class ChangeListener extends BroadcastReceiver
 			.getDefaultSharedPreferences(context);
 		String kfgserver = pref.getString("url","1");
 		if (kfgserver.length() < MainActivity.URL_MIN_LENGTH){
-			if (intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
@@ -101,7 +105,7 @@ public class ChangeListener extends BroadcastReceiver
 			urlConnection.setInstanceFollowRedirects(true);
 		} catch (IOException e) {
 			Log.e(TAG,"Cannot load website!");
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
@@ -112,7 +116,7 @@ public class ChangeListener extends BroadcastReceiver
 			return -1;
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -136,7 +140,7 @@ public class ChangeListener extends BroadcastReceiver
 			if (urlConnection.getResponseCode()%300<100) {
 				notifyIfChanged(new int[]{1,0,0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
 				Log.w(TAG,urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
-				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+				if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 					showSuccessToast.postAtFrontOfQueue(new Runnable() {
 						public void run() {
 							Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
@@ -192,7 +196,7 @@ public class ChangeListener extends BroadcastReceiver
 			}
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -212,7 +216,7 @@ public class ChangeListener extends BroadcastReceiver
 		} catch (IndexOutOfBoundsException e) {
 			Log.e(TAG, e.getMessage());
 			Log.w(TAG, ""+(subjects[0]==null));
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
@@ -222,7 +226,7 @@ public class ChangeListener extends BroadcastReceiver
 			return -1;
 		} catch (Exception e) {
 			Log.e(TAG,e.getMessage());
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -268,7 +272,7 @@ public class ChangeListener extends BroadcastReceiver
 					running = false;
 					return 0;
 				} else
-				if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+				if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 					showSuccessToast.postAtFrontOfQueue(new Runnable() {
 						public void run() {
 							Toast.makeText(context, context.getString(R.string.no_new_grade) + " "+numofnotes0+"/"+numofnotes, Toast.LENGTH_SHORT).show();
@@ -280,7 +284,7 @@ public class ChangeListener extends BroadcastReceiver
 			}
 		} catch (Exception e) {
 			Log.e(TAG,"Unknown error!");
-			if (!intent.hasExtra("triggered")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();

@@ -87,6 +87,7 @@ public class MainActivity extends PreferenceActivity
 				}
 				Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
 				i.putExtra("runnomatterwhat",true);
+				i.putExtra("error",true);
 				sendBroadcast(i);
 				return true;
 			}

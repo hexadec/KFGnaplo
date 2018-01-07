@@ -118,6 +118,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             public void run() {
                 Intent intent = new Intent(TableViewActivity.this, ChangeListener.class);
                 intent.putExtra("dbupgrade", true);
+                intent.putExtra("error",true);
+                intent.setAction("hu.kfg.naplo.CHECK_NOW");
                 upgraderesult = ChangeListener.doCheck(TableViewActivity.this, intent);
             }
 
@@ -132,17 +134,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         pdialog.cancel();
         Toast.makeText(TableViewActivity.this, "" + db.numberOfRows(), Toast.LENGTH_SHORT).show();
         if (upgraderesult == 4) {
-            Toast t = new Toast(TableViewActivity.this);
-            t.setText(R.string.emptydb);
-            t.setDuration(Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(TableViewActivity.this,R.string.emptydb,Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         } else if (upgraderesult == 3) {
             doStuff(db);
-        } else if (upgraderesult == 5) {
-            Toast t = new Toast(TableViewActivity.this);
-            t.setText(R.string.ohno);
-            t.setDuration(Toast.LENGTH_SHORT);
+        } else {
+            Toast t = Toast.makeText(TableViewActivity.this,R.string.ohno,Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
