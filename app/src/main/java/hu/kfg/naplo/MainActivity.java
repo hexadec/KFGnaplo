@@ -1,6 +1,7 @@
 package hu.kfg.naplo;
 
 import android.app.*;
+import android.app.job.JobScheduler;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
@@ -43,6 +44,12 @@ public class MainActivity extends PreferenceActivity
 			flash.setEnabled(false);
 			manual_check.setEnabled(false);
 			nightmode.setEnabled(false);
+		} else {
+			JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+				jobScheduler.cancelAll();
+			}
+			JobManagerService.scheduleJob(this);
 		}
 		if (!prefs.getBoolean("inst",false)) {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -102,14 +109,17 @@ public class MainActivity extends PreferenceActivity
 					manual_check.setEnabled(((Boolean)obj));
 //					ignore_lessons.setEnabled(((Boolean)obj));
 					nightmode.setEnabled(((Boolean)obj));
-					AlarmManager alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
-					Intent intente = new Intent(MainActivity.this, ChangeListener.class);
-					intente.putExtra("triggered",true);
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intente,PendingIntent.FLAG_UPDATE_CURRENT );
 					if (((Boolean)obj)){
-						alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,Long.valueOf(prefs.getString("auto_check_interval","180"))*60000,pendingIntent);
+						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+							jobScheduler.cancelAll();
+						}
+						JobManagerService.scheduleJob(MainActivity.this);
 					} else {
-						alarmManager.cancel(pendingIntent);
+						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+							jobScheduler.cancelAll();
+						}
 					}
 					
 				}
@@ -142,13 +152,11 @@ public class MainActivity extends PreferenceActivity
 			
 		interval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
 				public boolean onPreferenceChange(Preference pref, Object obj){
-					AlarmManager alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
-					Intent intente = new Intent(MainActivity.this, ChangeListener.class);
-					intente.putExtra("triggered",true);
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intente,PendingIntent.FLAG_UPDATE_CURRENT );
-					alarmManager.cancel(pendingIntent);
-					alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+5000,Long.valueOf((String)obj)*60000,pendingIntent);
-					
+					JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+					if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+						jobScheduler.cancelAll();
+					}
+					JobManagerService.scheduleJob(MainActivity.this);
 					return true;
 				}
 			});

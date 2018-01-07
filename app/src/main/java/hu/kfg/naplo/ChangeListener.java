@@ -1,6 +1,5 @@
 package hu.kfg.naplo;
 
-import android.app.job.JobScheduler;
 import android.content.*;
 import android.preference.*;
 
@@ -35,10 +34,6 @@ public class ChangeListener extends BroadcastReceiver
 	public void onReceive(final Context context, final Intent intent){
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!pref.getBoolean("notify",false)) {
-			JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
-				jobScheduler.cancelAll();
-			}
 			return;
 		}
 		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
