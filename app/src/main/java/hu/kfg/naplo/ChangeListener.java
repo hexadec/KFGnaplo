@@ -20,10 +20,7 @@ import java.text.*;
 
 public class ChangeListener extends BroadcastReceiver
 {
-	private static final Handler showSuccessToast = new Handler() {
-		public void handleMessage(Message msg) {
-		}
-	};
+	/*private static */
 	public static final int NIGHTMODE_START = 2230;
 	public static final int NIGHTMODE_STOP = 530;
 	final static String TAG = "KFGnaplo-check";
@@ -71,6 +68,11 @@ public class ChangeListener extends BroadcastReceiver
 	
 	
 	public static int doCheck(final Context context,final Intent intent) {
+		final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
+			@Override
+			public void handleMessage(Message message) {
+			}
+		};
 		final SharedPreferences pref = PreferenceManager
 			.getDefaultSharedPreferences(context);
 		String kfgserver = pref.getString("url","1");
