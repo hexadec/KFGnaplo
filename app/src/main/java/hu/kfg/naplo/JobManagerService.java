@@ -26,8 +26,7 @@ public class JobManagerService extends JobService {
     public static final int NIGHTMODE_STOP = 530;
 
     @Override
-    public boolean onStartJob(JobParameters params) {
-        scheduleJob(getApplicationContext()); //schedule before anything else
+    public boolean onStartJob(JobParameters params) { //schedule before anything else
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         if (pref.getBoolean("nightmode",false)) {
             SimpleDateFormat sdf = new SimpleDateFormat("HHmm", Locale.US);
@@ -35,14 +34,19 @@ public class JobManagerService extends JobService {
             if (time < NIGHTMODE_STOP || time > NIGHTMODE_START) {
                 KeyguardManager mKM = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
                 if(mKM != null && mKM.inKeyguardRestrictedInputMode() ) {
+                    scheduleJob(getApplicationContext(), true);
                     return true;
                 } else {
                     PowerManager powerManager = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-                    if (powerManager==null||!powerManager.isInteractive()){ return true; }
+                    if (powerManager==null||!powerManager.isInteractive()){ 
+                        scheduleJob(getApplicationContext(), true);
+                        return true; 
+                    }
                 }
             }
 
         }
+        scheduleJob(getApplicationContext(), false);
         Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
         i.putExtra("runnomatterwhat",true);
         sendBroadcast(i);
@@ -54,13 +58,14 @@ public class JobManagerService extends JobService {
         return true;
     }
 
-    public static void scheduleJob(Context context) {
+    public static void scheduleJob(Context context, boolean nighttime) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         long repeate = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
+        repeate /= nighttime?4:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(repeate-MINUTE*20);
-        builder.setOverrideDeadline(Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE+MINUTE*30);
+        builder.setOverrideDeadline(repeate+MINUTE*30);
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(builder.build());
