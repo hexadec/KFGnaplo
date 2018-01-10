@@ -1,5 +1,6 @@
 package hu.kfg.naplo;
 
+import android.app.job.JobScheduler;
 import android.content.*;
 import android.preference.*;
 
@@ -34,8 +35,14 @@ public class ChangeListener extends BroadcastReceiver
 			return;
 		}
 		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-			JobManagerService.scheduleJob(context);
+			JobManagerService.scheduleJob(context, true);
 			return;
+		}
+		if (intent.hasExtra("triggered")) {
+			JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()==0) {
+				JobManagerService.scheduleJob(context,false);
+			}
 		}
 		if (!intent.hasExtra("runnomatterwhat")){
 		if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&!pref.getBoolean("nightmode",false)) {

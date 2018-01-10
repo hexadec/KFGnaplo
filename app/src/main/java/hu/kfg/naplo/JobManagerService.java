@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -61,11 +62,11 @@ public class JobManagerService extends JobService {
     public static void scheduleJob(Context context, boolean nighttime) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         long repeate = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
-        repeate /= nighttime?4:1;
+        repeate /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(repeate-MINUTE*20);
-        builder.setOverrideDeadline(repeate+MINUTE*30);
+        builder.setOverrideDeadline(repeate+MINUTE*40);
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(builder.build());

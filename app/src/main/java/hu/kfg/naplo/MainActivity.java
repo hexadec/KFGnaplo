@@ -36,6 +36,8 @@ public class MainActivity extends PreferenceActivity
 		if (url2.getText()!=null){
 		if (url2.getText().length()>=URL_MIN_LENGTH){
 			url2.setSummary(getString(R.string.click2edit));
+		} else {
+			findPreference("grades").setEnabled(false);
 		}
 		}
 		if (!notify2.isChecked()){
@@ -49,7 +51,7 @@ public class MainActivity extends PreferenceActivity
 			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 				jobScheduler.cancelAll();
 			}
-			JobManagerService.scheduleJob(this);
+			JobManagerService.scheduleJob(this,false);
 		}
 		if (!prefs.getBoolean("inst",false)) {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -114,7 +116,7 @@ public class MainActivity extends PreferenceActivity
 						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 							jobScheduler.cancelAll();
 						}
-						JobManagerService.scheduleJob(MainActivity.this);
+						JobManagerService.scheduleJob(MainActivity.this, false);
 					} else {
 						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
@@ -137,13 +139,16 @@ public class MainActivity extends PreferenceActivity
 						Toast t = Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT);
 						t.setGravity(Gravity.TOP,0,point.y/4);
 						t.show();
+						findPreference("grades").setEnabled(false);
 						return false;
 					} else if (((String)obj).startsWith("http://naplo.karinthy.hu/app")||((String)obj).startsWith("https://naplo.karinthy.hu/app")){
 						url2.setSummary(getString(R.string.click2edit));
+						findPreference("grades").setEnabled(true);
 					} else {
 						url2.setSummary(getString(R.string.copythelink));
 						url2.setText("");
 						Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT).show();
+						findPreference("grades").setEnabled(false);
 						return false;
 					}
 					return true;
@@ -156,7 +161,7 @@ public class MainActivity extends PreferenceActivity
 					if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 						jobScheduler.cancelAll();
 					}
-					JobManagerService.scheduleJob(MainActivity.this);
+					JobManagerService.scheduleJob(MainActivity.this, false);
 					return true;
 				}
 			});
@@ -195,6 +200,14 @@ public class MainActivity extends PreferenceActivity
 					return true;
 				}
 			});
+		findPreference("grades").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+			public boolean onPreferenceClick(Preference pref){
+				Intent intent = new Intent(MainActivity.this, TableViewActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+				startActivity(intent);
+				return true;
+			}
+		});
     }
 
     /*public static void showLilla(String[] args) {

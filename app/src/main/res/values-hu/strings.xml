@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Napló</string>
+    <string name="main_activity">KFGNapló Beállítások</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
 1. Lépj be a KFG Napló oldalra<br/>
 2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
@@ -45,6 +46,8 @@
     <string name="average">Átl.</string>
     <string name="refresh">Adatok frissítése</string>
     <string name="job_name">Feladatütemező</string>
+    <string name="table">Táblázatok</string>
+    <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattintás a részletekhez</string>
 
 
 </resources>

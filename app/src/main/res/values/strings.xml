@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Naplo</string>
+    <string name="main_activity">KFGNaplo Settings</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>
 2. Open okostelefonos hozzáférés (GYIA)<br/>
@@ -46,5 +47,7 @@
     <string name="average">Avg.</string>
     <string name="refresh">Refresh database</string>
     <string name="job_name">Job trigger</string>
+    <string name="table">Tables</string>
+    <string name="grades_expl">Ordered by subject, with averages, click on grades for details</string>
 
 </resources>

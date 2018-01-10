@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/table"
+        android:key="grades_container">
+        <Preference
+            android:key="grades"
+            android:title="@string/title_activity_table_view"
+            android:summary="@string/grades_expl"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="Beállítások">
         <CheckBoxPreference
             android:defaultValue="false"
