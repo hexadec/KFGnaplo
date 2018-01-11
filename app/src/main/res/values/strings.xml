@@ -21,7 +21,7 @@
     <string name="vibrate">Vibrating notifications</string>
     <string name="light">Notification light</string>
     <string name="nightmode">Sleep-friendly mode</string>
-    <string name="nightmode_explained">Doesn\'t send notifications between 22:30 and 5:30 unless you unlock the phone</string>
+    <string name="nightmode_explained">Doesn\'t send notifications between 22:30 and 5:30 unless you are using your phone</string>
     <string name="manual">Manual</string>
     <string name="browser">Open page in browser</string>
     <string name="info" translatable="false">Info</string>
@@ -49,5 +49,6 @@
     <string name="job_name">Job trigger</string>
     <string name="table">Tables</string>
     <string name="grades_expl">Ordered by subject, with averages, click on grades for details</string>
+    <string name="apprx">About %1$s</string>
 
 </resources>

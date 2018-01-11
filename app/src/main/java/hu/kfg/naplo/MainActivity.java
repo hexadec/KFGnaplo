@@ -40,6 +40,7 @@ public class MainActivity extends PreferenceActivity
 			findPreference("grades").setEnabled(false);
 		}
 		}
+		interval.setSummary(String.format(getString(R.string.apprx),interval.getSummary()));
 		if (!notify2.isChecked()){
 			interval.setEnabled(false);
 			vibrate.setEnabled(false);
@@ -157,6 +158,8 @@ public class MainActivity extends PreferenceActivity
 			
 		interval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
 				public boolean onPreferenceChange(Preference pref, Object obj){
+					ListPreference lp = (ListPreference) pref;
+					interval.setSummary(String.format(getString(R.string.apprx),lp.getEntries()[lp.findIndexOfValue((String)obj)]));
 					JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 					if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 						jobScheduler.cancelAll();
