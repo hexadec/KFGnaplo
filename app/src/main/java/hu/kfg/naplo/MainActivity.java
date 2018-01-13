@@ -112,7 +112,7 @@ public class MainActivity extends PreferenceActivity
 					manual_check.setEnabled(((Boolean)obj));
 //					ignore_lessons.setEnabled(((Boolean)obj));
 					nightmode.setEnabled(((Boolean)obj));
-					if (((Boolean)obj)){
+					if (((Boolean)obj)&&url2.getText()!=null&&url2.getText().length()>=URL_MIN_LENGTH){
 						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 							jobScheduler.cancelAll();
