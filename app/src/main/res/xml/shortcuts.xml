@@ -1,0 +1,14 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="table"
+        android:enabled="true"
+        android:icon="@drawable/number_blocks"
+        android:shortcutShortLabel="@string/title_activity_table_view"
+        android:shortcutLongLabel="@string/grades_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="hu.kfg.naplo"
+            android:targetClass="hu.kfg.naplo.TableViewActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>
