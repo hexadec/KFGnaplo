@@ -197,6 +197,21 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     t.setGravity(Gravity.TOP,0,0);
                 }
                 return true;
+            case R.id.infomenu:
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                builder1.setMessage(Html.fromHtml(getString(R.string.grades_info_menu)));
+                builder1.setCancelable(false);
+
+                builder1.setPositiveButton(
+                        "Ok",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

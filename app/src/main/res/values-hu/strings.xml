@@ -50,6 +50,7 @@
     <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattintás a részletekhez</string>
     <string name="grades_long">Jegyek táblázatban, tantárgyak szerint rendezve</string>
     <string name="apprx">Kb. %1$s</string>
+    <string name="grades_info_menu"><![CDATA[A jegyek időrendben vannak, a legelsők a legújabbak. Kattints rájuk, hogy több mindent láss, például az időpontot, a tanárt, vagy hogy mire kaptad pontosan a jegyed.<br/>Kattints a frissítés ikonra, hogy újra letöltsd az összes jegyed.]]></string>
 
 
 </resources>
