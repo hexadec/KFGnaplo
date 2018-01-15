@@ -49,10 +49,10 @@ public class MainActivity extends PreferenceActivity
 			nightmode.setEnabled(false);
 		} else {
 			JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
+			if (jobScheduler.getAllPendingJobs()==null||jobScheduler.getAllPendingJobs().size()<1) {
 				jobScheduler.cancelAll();
+				JobManagerService.scheduleJob(this,false);
 			}
-			JobManagerService.scheduleJob(this,false);
 		}
 		if (!prefs.getBoolean("inst",false)) {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
