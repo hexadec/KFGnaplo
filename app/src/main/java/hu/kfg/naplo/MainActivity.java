@@ -164,7 +164,13 @@ public class MainActivity extends PreferenceActivity
 					if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
 						jobScheduler.cancelAll();
 					}
-					JobManagerService.scheduleJob(MainActivity.this, false);
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							SystemClock.sleep(1000);
+							JobManagerService.scheduleJob(MainActivity.this, false);
+						}
+					}).start();
 					return true;
 				}
 			});

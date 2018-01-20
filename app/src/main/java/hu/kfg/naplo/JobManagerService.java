@@ -69,6 +69,12 @@ public class JobManagerService extends JobService {
         builder.setOverrideDeadline(repeate+MINUTE*40);
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        try {
+            jobScheduler.cancelAll();
+        } catch (Exception e) {
+        }
         jobScheduler.schedule(builder.build());
     }
+
+
 }
