@@ -141,6 +141,9 @@ public class MainActivity extends PreferenceActivity
 						t.setGravity(Gravity.TOP,0,point.y/4);
 						t.show();
 						findPreference("grades").setEnabled(false);
+						prefs.edit().putInt("numberofnotes",0).putString("lastSHA","AAA").commit();
+						DBHelper db = new DBHelper(MainActivity.this);
+						db.cleanDatabase();
 						return false;
 					} else if (((String)obj).startsWith("http://naplo.karinthy.hu/app")||((String)obj).startsWith("https://naplo.karinthy.hu/app")){
 						url2.setSummary(getString(R.string.click2edit));
@@ -150,6 +153,9 @@ public class MainActivity extends PreferenceActivity
 						url2.setText("");
 						Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT).show();
 						findPreference("grades").setEnabled(false);
+						prefs.edit().putInt("numberofnotes",0).putString("lastSHA","AAA").commit();
+						DBHelper db = new DBHelper(MainActivity.this);
+						db.cleanDatabase();
 						return false;
 					}
 					return true;

@@ -10,8 +10,8 @@ android {
         applicationId "hu.kfg.naplo"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 1604
-        versionName "0.16-RC4"
+        versionCode 1605
+        versionName "0.16-RC5"
     }
     buildTypes {
         release {

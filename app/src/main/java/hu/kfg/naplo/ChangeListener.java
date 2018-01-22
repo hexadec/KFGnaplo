@@ -151,7 +151,7 @@ public class ChangeListener extends BroadcastReceiver
 						}
 					});
 				}
-				return -1;
+				return -7;
 			}
 			BufferedReader rd = new BufferedReader
 					(new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
@@ -304,7 +304,7 @@ public class ChangeListener extends BroadcastReceiver
 	}
 	
 	public static void notifyIfChanged(int[] state,Context context,String url, String subjects){
-		Intent intent = new Intent(context, MainActivity.class);
+		Intent intent = new Intent(context, TableViewActivity.class);
 		Intent eintent = new Intent(Intent.ACTION_VIEW);
 		eintent.setData(Uri.parse(url));
 
@@ -319,7 +319,7 @@ public class ChangeListener extends BroadcastReceiver
 				oldtext = pref.getString("oldtext",null);
 			}
 		}
-		//PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
 		Notification.Builder n  = new Notification.Builder(context)
 			.setContentTitle(context.getString(R.string.app_name))
@@ -341,6 +341,7 @@ public class ChangeListener extends BroadcastReceiver
 				n.setVisibility(Notification.VISIBILITY_PUBLIC);
 			}
 		n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
+		n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
 		Notification notification = new Notification.BigTextStyle(n)
             .bigText(((state[0]==0?context.getString(R.string.new_grade)+"\n":"") + subjects + (oldtext==null?"":"\n"+oldtext))).build();
 //				notification.number = numberoflessons;

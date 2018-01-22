@@ -139,6 +139,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             t.show();
         } else if (upgraderesult == 3) {
             doStuff(db);
+        } else if (upgraderesult == -7) {
+            Toast t = Toast.makeText(TableViewActivity.this,R.string.gyia_expired_or_faulty,Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
         } else {
             Toast t = Toast.makeText(TableViewActivity.this,R.string.ohno,Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);

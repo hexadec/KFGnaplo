@@ -130,4 +130,11 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return true;
     }
+
+    boolean cleanDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS grades");
+        onCreate(db);
+        return true;
+    }
 }

@@ -32,7 +32,7 @@
     <string name="no_new_grade">Nincs új jegyed!</string>
     <string name="unknown_change">Valami változás történt, talán beírtak egy hiányzást?</string>
     <string name="new_grade">Új jegyet kaptál!</string>
-    <string name="open">Megnyitás</string>
+    <string name="open">Napló</string>
     <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Értesítés ikonja: Freepik&lt;br/>Alkalmazás ikonja: ToffeeNut</string>
     <string name="error_no_grades">Nincs egy jegyed sem! Ha szerinted van, próbáld újra később!</string>
     <string name="title_activity_table_view">Jegyeim</string>
@@ -51,6 +51,6 @@
     <string name="grades_long">Jegyek táblázatban, tantárgyak szerint rendezve</string>
     <string name="apprx">Kb. %1$s</string>
     <string name="grades_info_menu"><![CDATA[A jegyek időrendben vannak, a legelsők a legújabbak. Kattints rájuk, hogy több mindent láss, például az időpontot, a tanárt, vagy hogy mire kaptad pontosan a jegyed.<br/>Kattints a frissítés ikonra, hogy újra letöltsd az összes jegyed.]]></string>
-
+    <string name="grade_table">Megnyitás táblázatban</string>
 
 </resources>
