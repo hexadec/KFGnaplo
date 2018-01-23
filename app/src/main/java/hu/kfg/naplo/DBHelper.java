@@ -116,9 +116,13 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     int numberOfRows() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        int numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);
-        return numRows;
+        int numRows = 0;
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            numRows = (int) DatabaseUtils.queryNumEntries(db, GRADES_TABLE_NAME);
+        } finally {
+            return numRows;
+        }
     }
 
     boolean upgradeDatabase(List<Grade> grades) {
