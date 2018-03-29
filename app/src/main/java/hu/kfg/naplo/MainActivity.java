@@ -48,11 +48,7 @@ public class MainActivity extends PreferenceActivity
 			manual_check.setEnabled(false);
 			nightmode.setEnabled(false);
 		} else {
-			JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-			if (jobScheduler.getAllPendingJobs()==null||jobScheduler.getAllPendingJobs().size()<1) {
-				jobScheduler.cancelAll();
-				JobManagerService.scheduleJob(this,false);
-			}
+			JobManagerService.scheduleJob(this,false);
 		}
 		if (!prefs.getBoolean("inst",false)) {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -113,16 +109,10 @@ public class MainActivity extends PreferenceActivity
 //					ignore_lessons.setEnabled(((Boolean)obj));
 					nightmode.setEnabled(((Boolean)obj));
 					if (((Boolean)obj)&&url2.getText()!=null&&url2.getText().length()>=URL_MIN_LENGTH){
-						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
-							jobScheduler.cancelAll();
-						}
 						JobManagerService.scheduleJob(MainActivity.this, false);
 					} else {
 						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-						if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
-							jobScheduler.cancelAll();
-						}
+						jobScheduler.cancelAll();
 					}
 					
 				}
@@ -166,17 +156,7 @@ public class MainActivity extends PreferenceActivity
 				public boolean onPreferenceChange(Preference pref, Object obj){
 					ListPreference lp = (ListPreference) pref;
 					interval.setSummary(String.format(getString(R.string.apprx),lp.getEntries()[lp.findIndexOfValue((String)obj)]));
-					JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-					if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()>0) {
-						jobScheduler.cancelAll();
-					}
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							SystemClock.sleep(1000);
-							JobManagerService.scheduleJob(MainActivity.this, false);
-						}
-					}).start();
+					JobManagerService.scheduleJob(MainActivity.this, false);
 					return true;
 				}
 			});

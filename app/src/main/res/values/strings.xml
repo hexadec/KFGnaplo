@@ -21,7 +21,7 @@
     <string name="vibrate">Vibrating notifications</string>
     <string name="light">Notification light</string>
     <string name="nightmode">Sleep-friendly mode</string>
-    <string name="nightmode_explained">Doesn\'t send notifications between 22:30 and 5:30 unless you are using your phone</string>
+    <string name="nightmode_explained">Notifications between 22:30 and 5:30 do not vibrate and flash LED even if it is set</string>
     <string name="manual">Manual</string>
     <string name="browser">Open page in browser</string>
     <string name="info" translatable="false">Info</string>

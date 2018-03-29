@@ -310,6 +310,8 @@ public class ChangeListener extends BroadcastReceiver
 
 		final SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(context);
+		int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
+		boolean nightmode = pref.getBoolean("nightmode",false)&&(time > JobManagerService.NIGHTMODE_START || time < JobManagerService.NIGHTMODE_STOP);
 		String oldtext = oldtext = null;
 		NotificationManager notificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -331,10 +333,10 @@ public class ChangeListener extends BroadcastReceiver
 			n.setSmallIcon(R.drawable.number_blocks_mod);
 		}
 			//.setContentIntent(pIntent)
-			if (state[1]==1){
+			if (state[1]==1&&!nightmode){
 				n.setVibrate(new long[]{0,60,100,70,100,60});
 			}
-			if (state[2]==1){
+			if (state[2]==1&&!nightmode){
 				n.setLights(0xff00FF88,350,3000);
 			}
 			if (Build.VERSION.SDK_INT>=21){

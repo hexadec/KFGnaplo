@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ public class JobManagerService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) { //schedule before anything else
+        /* pointless?
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         if (pref.getBoolean("nightmode",false)) {
             SimpleDateFormat sdf = new SimpleDateFormat("HHmm", Locale.US);
@@ -47,6 +49,7 @@ public class JobManagerService extends JobService {
             }
 
         }
+        */
         scheduleJob(getApplicationContext(), false);
         Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
         i.putExtra("runnomatterwhat",true);
@@ -59,10 +62,10 @@ public class JobManagerService extends JobService {
         return true;
     }
 
-    public static void scheduleJob(Context context, boolean nighttime) {
+    public static void scheduleJob(Context context, boolean nighttime /* ignored*/) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         long repeate = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
-        repeate /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
+        // ignored repeate /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(repeate-MINUTE*20);
@@ -73,6 +76,7 @@ public class JobManagerService extends JobService {
             jobScheduler.cancelAll();
         } catch (Exception e) {
         }
+        SystemClock.sleep(100);
         jobScheduler.schedule(builder.build());
     }
 

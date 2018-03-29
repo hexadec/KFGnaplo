@@ -21,7 +21,7 @@
     <string name="vibrate">Rezgő értesítés</string>
     <string name="light">Villogás értesítéskor</string>
     <string name="nightmode">Alvásbarát mód</string>
-    <string name="nightmode_explained">22:30 és 5:30 között nem küld értesítést a jegyekről, csak ha épp használod a telefont</string>
+    <string name="nightmode_explained">22:30 és 5:30 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
     <string name="manual">Kézi</string>
     <string name="browser">Megnyitás a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
@@ -47,7 +47,7 @@
     <string name="refresh">Adatok frissítése</string>
     <string name="job_name">Feladatütemező</string>
     <string name="table">Táblázatok</string>
-    <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattintás a részletekhez</string>
+    <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattints a jegyekre részletekhez</string>
     <string name="grades_long">Jegyek táblázatban, tantárgyak szerint rendezve</string>
     <string name="apprx">Kb. %1$s</string>
     <string name="grades_info_menu"><![CDATA[A jegyek időrendben vannak, a legelsők a legújabbak. Kattints rájuk, hogy több mindent láss, például az időpontot, a tanárt, vagy hogy mire kaptad pontosan a jegyed.<br/>Kattints a frissítés ikonra, hogy újra letöltsd az összes jegyed.]]></string>
