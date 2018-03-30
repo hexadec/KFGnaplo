@@ -53,7 +53,9 @@ public class JobManagerService extends JobService {
         Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
         i.putExtra("runnomatterwhat",true);
         sendBroadcast(i);
-        scheduleJob(getApplicationContext(), false);
+        if (Build.VERSION.SDK_INT < 24) {
+            scheduleJob(getApplicationContext(), false);
+        }
         return true;
     }
 
@@ -68,8 +70,11 @@ public class JobManagerService extends JobService {
         // ignored repeat /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(repeat-MINUTE*25);
-        //builder.setOverrideDeadline(repeat+MINUTE*40);
+        if (Build.VERSION.SDK_INT >= 24) {
+            builder.setPeriodic(repeat - MINUTE * 10, MINUTE * 20);
+        } else {
+            builder.setMinimumLatency(repeat-MINUTE*20);
+        }
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         try {

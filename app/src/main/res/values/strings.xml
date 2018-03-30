@@ -53,4 +53,7 @@
     <string name="apprx">About %1$s</string>
     <string name="grades_info_menu"><![CDATA[Your grades are in descending order, ordered by date. Click on them to see more details, eg. the exact date or teacher.<br/>Click on the refresh icon, to redownload all your grades.]]></string>
     <string name="grade_table">Show in table</string>
+    <string name="battery_opt">In order for Karinthy Napló to work properly, please add it to the list of NOT OPTIMIZED, WHITELISTED or PROTECTED apps</string>
+    <string name="battery_opt_err">Oh shoot! You need to open the settings app and manually add Karinthy Napló to the whitelisted apps :(</string>
+    <string name="battery_opt_err_huawei">Oh shoot! You need to open the settings app and manually add Karinthy Napló to the protected apps :(</string>
 </resources>

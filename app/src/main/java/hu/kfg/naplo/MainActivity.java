@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
 import android.content.*;
+import android.provider.Settings;
 import android.widget.*;
 import android.text.*;
 import android.view.*;
@@ -50,6 +51,43 @@ public class MainActivity extends PreferenceActivity
 		} else {
 			JobManagerService.scheduleJob(this,false);
 		}
+		PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
+		if (Build.VERSION.SDK_INT>=23&&!pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
+			Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
+			if (Build.VERSION.SDK_INT<26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected",false)) {
+				Intent battOpt = new Intent();
+				battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+				try {
+					startActivity(battOpt);
+				} catch (Exception e) {
+					e.printStackTrace();
+					Toast.makeText(this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
+				} finally {
+					prefs.edit().putBoolean("huawei_protected",true).commit();
+				}
+				prefs.edit().putBoolean("huawei_protected",true).commit();
+			} else {
+				Intent battOpt = new Intent();
+				battOpt.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+				if (battOpt.resolveActivity(getPackageManager()) == null) {
+					Toast.makeText(this, R.string.battery_opt_err, Toast.LENGTH_LONG).show();
+				} else {
+					startActivity(battOpt);
+				}
+			}
+		} else if (Build.VERSION.SDK_INT<26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected",false)) {
+			Intent battOpt = new Intent();
+			battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+			try {
+				startActivity(battOpt);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Toast.makeText(this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
+			} finally {
+				prefs.edit().putBoolean("huawei_protected",true).commit();
+			}
+		}
+
 		if (!prefs.getBoolean("inst",false)) {
 			AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
 			builder1.setMessage(Html.fromHtml(getString(R.string.instructions)));
@@ -66,7 +104,9 @@ public class MainActivity extends PreferenceActivity
 			AlertDialog alert11 = builder1.create();
 			alert11.show();
 		}
-		
+
+
+
 		manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
 			public boolean onPreferenceClick(Preference pref){
 				ConnectivityManager cm =
