@@ -50,10 +50,10 @@ public class JobManagerService extends JobService {
 
         }
         */
-        scheduleJob(getApplicationContext(), false);
         Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
         i.putExtra("runnomatterwhat",true);
         sendBroadcast(i);
+        scheduleJob(getApplicationContext(), false);
         return true;
     }
 
@@ -64,12 +64,12 @@ public class JobManagerService extends JobService {
 
     public static void scheduleJob(Context context, boolean nighttime /* ignored*/) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        long repeate = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
-        // ignored repeate /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
+        long repeat = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
+        // ignored repeat /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(repeate-MINUTE*20);
-        builder.setOverrideDeadline(repeate+MINUTE*40);
+        builder.setMinimumLatency(repeat-MINUTE*25);
+        //builder.setOverrideDeadline(repeat+MINUTE*40);
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         try {

@@ -95,6 +95,7 @@ public class MainActivity extends PreferenceActivity
 				i.putExtra("runnomatterwhat",true);
 				i.putExtra("error",true);
 				sendBroadcast(i);
+				JobManagerService.scheduleJob(MainActivity.this, false);
 				return true;
 			}
 		});
@@ -156,7 +157,12 @@ public class MainActivity extends PreferenceActivity
 				public boolean onPreferenceChange(Preference pref, Object obj){
 					ListPreference lp = (ListPreference) pref;
 					interval.setSummary(String.format(getString(R.string.apprx),lp.getEntries()[lp.findIndexOfValue((String)obj)]));
-					JobManagerService.scheduleJob(MainActivity.this, false);
+					new Thread(new Runnable() {
+						public void run(){
+							JobManagerService.scheduleJob(MainActivity.this, false);
+						}
+
+					}).start();
 					return true;
 				}
 			});
@@ -204,13 +210,4 @@ public class MainActivity extends PreferenceActivity
 			}
 		});
     }
-
-    /*public static void showLilla(String[] args) {
-		String toworkwith = args[1];
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < toworkwith.length(); i++) {
-			if (i%2==0) sb.append(toworkwith.charAt(i));
-		}
-		System.out.println(sb.toString());
-	}*/
 }
