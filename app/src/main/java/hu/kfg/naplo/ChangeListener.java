@@ -19,7 +19,7 @@ import android.app.*;
 
 import java.text.*;
 
-public class ChangeListener extends BroadcastReceiver
+public abstract class ChangeListener extends BroadcastReceiver
 {
 	/*private static */
 	public static final int NIGHTMODE_START = 2230;
@@ -27,36 +27,16 @@ public class ChangeListener extends BroadcastReceiver
 	final static String TAG = "KFGnaplo-check";
 
 	static boolean running = false;
-	
-	@Override
-	public void onReceive(final Context context, final Intent intent){
+
+	public static void onRunJob(final Context context, final Intent intent){
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!pref.getBoolean("notify",false)) {
 			return;
 		}
-		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-			JobManagerService.scheduleJob(context, true);
+		if (intent!=null&&intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+			//JobManagerService.scheduleJob(context, false);
+			CheckerJob.runJobImmediately();
 			return;
-		}
-		if (intent.hasExtra("triggered")) {
-			JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-			if (jobScheduler.getAllPendingJobs()!=null&&jobScheduler.getAllPendingJobs().size()==0) {
-				JobManagerService.scheduleJob(context,false);
-			}
-		}
-		if (!intent.hasExtra("runnomatterwhat")){
-		if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&!pref.getBoolean("nightmode",false)) {
-			return;
-		} else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)&&pref.getBoolean("nightmode",false)) {
-			if (System.currentTimeMillis()-pref.getLong("last_check",0)<(Long.valueOf(pref.getString("auto_check_interval","300"))*60000/2)){
-				return;
-			}
-			SimpleDateFormat sdf = new SimpleDateFormat("HHmm",Locale.US);
-			int time = Integer.valueOf(sdf.format(new Date()));
-			if (!(time < NIGHTMODE_STOP || time > NIGHTMODE_START)) {
-				return;
-			}
-		}
 		}
 		if (((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()==null
 				||!((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()){
@@ -311,7 +291,7 @@ public class ChangeListener extends BroadcastReceiver
 		final SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
-		boolean nightmode = pref.getBoolean("nightmode",false)&&(time > JobManagerService.NIGHTMODE_START || time < JobManagerService.NIGHTMODE_STOP);
+		boolean nightmode = pref.getBoolean("nightmode",false)&&(time > NIGHTMODE_START || time < NIGHTMODE_STOP);
 		String oldtext = oldtext = null;
 		NotificationManager notificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

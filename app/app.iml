@@ -119,5 +119,8 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 27 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="com.evernote:android-job-1.2.5" level="project" />
+    <orderEntry type="library" name="com.android.support:support-compat-26.0.2" level="project" />
+    <orderEntry type="library" name="com.android.support:support-annotations:26.0.2@jar" level="project" />
   </component>
 </module>

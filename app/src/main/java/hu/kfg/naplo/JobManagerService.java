@@ -22,40 +22,20 @@ import java.util.Locale;
 
 public class JobManagerService extends JobService {
 
-    public static int MINUTE = 60000;
+    /*public static int MINUTE = 60000;
 
     public static final int NIGHTMODE_START = 2230;
-    public static final int NIGHTMODE_STOP = 530;
+    public static final int NIGHTMODE_STOP = 530;*/
 
     @Override
     public boolean onStartJob(JobParameters params) { //schedule before anything else
-        /* pointless?
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (pref.getBoolean("nightmode",false)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("HHmm", Locale.US);
-            int time = Integer.valueOf(sdf.format(new Date()));
-            if (time < NIGHTMODE_STOP || time > NIGHTMODE_START) {
-                KeyguardManager mKM = (KeyguardManager) this.getSystemService(Context.KEYGUARD_SERVICE);
-                if(mKM != null && mKM.inKeyguardRestrictedInputMode() ) {
-                    scheduleJob(getApplicationContext(), true);
-                    return true;
-                } else {
-                    PowerManager powerManager = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-                    if (powerManager==null||!powerManager.isInteractive()){ 
-                        scheduleJob(getApplicationContext(), true);
-                        return true; 
-                    }
-                }
-            }
-
-        }
-        */
+        /*
         Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
-        i.putExtra("runnomatterwhat",true);
+        i.putExtra("runnomatterwhat", true);
         sendBroadcast(i);
-        if (Build.VERSION.SDK_INT < 24) {
-            scheduleJob(getApplicationContext(), false);
-        }
+        scheduleJob(getApplicationContext(), false);
+        jobFinished(params, false);
+        */
         return true;
     }
 
@@ -64,17 +44,13 @@ public class JobManagerService extends JobService {
         return true;
     }
 
-    public static void scheduleJob(Context context, boolean nighttime /* ignored*/) {
+   /*  public static void scheduleJob(Context context, boolean nighttime) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        long repeat = Long.valueOf(pref.getString("auto_check_interval","300"))*MINUTE;
+        long repeat = Long.valueOf(pref.getString("auto_check_interval", "300")) * MINUTE;
         // ignored repeat /= nighttime&&Build.VERSION.SDK_INT>=26?8:1;
         ComponentName serviceComponent = new ComponentName(context, JobManagerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        if (Build.VERSION.SDK_INT >= 24) {
-            builder.setPeriodic(repeat - MINUTE * 10, MINUTE * 20);
-        } else {
-            builder.setMinimumLatency(repeat-MINUTE*20);
-        }
+        builder.setMinimumLatency(repeat - MINUTE * 20);
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         try {
@@ -83,7 +59,8 @@ public class JobManagerService extends JobService {
         }
         SystemClock.sleep(100);
         jobScheduler.schedule(builder.build());
-    }
 
+    }
+*/
 
 }

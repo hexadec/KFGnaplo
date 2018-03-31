@@ -12,6 +12,8 @@ import android.text.*;
 import android.view.*;
 import android.net.*;
 
+import com.evernote.android.job.JobManager;
+
 public class MainActivity extends PreferenceActivity
 {
 
@@ -49,7 +51,8 @@ public class MainActivity extends PreferenceActivity
 			manual_check.setEnabled(false);
 			nightmode.setEnabled(false);
 		} else {
-			JobManagerService.scheduleJob(this,false);
+			//JobManagerService.scheduleJob(this,false);
+			CheckerJob.scheduleJob();
 		}
 		PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
 		if (Build.VERSION.SDK_INT>=23&&!pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
@@ -131,11 +134,13 @@ public class MainActivity extends PreferenceActivity
 						||!((ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()){
 					Toast.makeText(MainActivity.this, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
 				}
-				Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
+				/*Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
 				i.putExtra("runnomatterwhat",true);
 				i.putExtra("error",true);
-				sendBroadcast(i);
-				JobManagerService.scheduleJob(MainActivity.this, false);
+				sendBroadcast(i);*/
+				//JobManagerService.scheduleJob(MainActivity.this, false);
+				ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
+				CheckerJob.scheduleJob();
 				return true;
 			}
 		});
@@ -150,10 +155,11 @@ public class MainActivity extends PreferenceActivity
 //					ignore_lessons.setEnabled(((Boolean)obj));
 					nightmode.setEnabled(((Boolean)obj));
 					if (((Boolean)obj)&&url2.getText()!=null&&url2.getText().length()>=URL_MIN_LENGTH){
-						JobManagerService.scheduleJob(MainActivity.this, false);
+						CheckerJob.scheduleJob();
 					} else {
-						JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-						jobScheduler.cancelAll();
+						//JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+						//jobScheduler.cancelAll();
+						JobManager.instance().cancelAll();
 					}
 					
 				}
@@ -199,7 +205,7 @@ public class MainActivity extends PreferenceActivity
 					interval.setSummary(String.format(getString(R.string.apprx),lp.getEntries()[lp.findIndexOfValue((String)obj)]));
 					new Thread(new Runnable() {
 						public void run(){
-							JobManagerService.scheduleJob(MainActivity.this, false);
+							CheckerJob.scheduleJob();
 						}
 
 					}).start();
