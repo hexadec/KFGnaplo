@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="check_interval">
-    <item>Every hour</item>
-    <item>Every second hour</item>
-	<item>Every 5 hour</item>
-	<item>Every 12 hour</item>
-	<item>Once a day</item>
-	<item>Once in 2 days</item>
-</string-array>
+    <string-array name="check_interval">
+        <item>Every hour</item>
+        <item>Every second hour</item>
+        <item>Every 5 hour</item>
+        <item>Every 12 hour</item>
+        <item>Once a day</item>
+        <item>Once in 2 days</item>
+    </string-array>
 
-<string-array name="check_interval_values">
-	<item>60</item>
-    <item>120</item>
-	<item>300</item>
-	<item>720</item>
-	<item>1440</item>
-	<item>2880</item>
-</string-array>
+    <string-array name="check_interval_values">
+        <item>60</item>
+        <item>120</item>
+        <item>300</item>
+        <item>720</item>
+        <item>1440</item>
+        <item>2880</item>
+    </string-array>
+
+    <string-array name="notification_mode">
+        <item>Notifications disabled</item>
+        <item>Napló notifications only</item>
+        <item>Stand-ins notifications only</item>
+        <item>Napló &amp; Stand-ins notifications</item>
+    </string-array>
+
+    <string-array name="notification_mode_values">
+        <item>false</item>
+        <item>naplo</item>
+        <item>standins</item>
+        <item>true</item>
+    </string-array>
 </resources>

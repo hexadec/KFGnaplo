@@ -23,7 +23,7 @@
     <string name="nightmode">Sleep-friendly mode</string>
     <string name="nightmode_explained">Notifications between 22:30 and 5:30 do not vibrate and flash LED even if it is set</string>
     <string name="manual">Manual</string>
-    <string name="browser">Open page in browser</string>
+    <string name="browser">Open Napló in browser</string>
     <string name="info" translatable="false">Info</string>
     <string name="find_changes_now">Find changes now</string>
     <string name="cannot_reach_site">Cannot reach KFG Naplo site!</string>
@@ -56,4 +56,13 @@
     <string name="battery_opt">In order for Karinthy Napló to work properly, please add it to the list of NOT OPTIMIZED, WHITELISTED or PROTECTED apps</string>
     <string name="battery_opt_err">Oh shoot! You need to open the settings app and manually add Karinthy Napló to the whitelisted apps :(</string>
     <string name="battery_opt_err_huawei">Oh shoot! You need to open the settings app and manually add Karinthy Napló to the protected apps :(</string>
+    <string name="no_new_substitution">No new substitution in your class!</string>
+    <string name="new_substitution">There is a new substitution in your class!</string>
+    <string name="substitution_canceled">Change! Some of your previously announced classes will be held!</string>
+    <string name="substitution_canceled_and_new">There is a new substitution, but also something has changed!</string>
+    <string name="open_site">Open</string>
+    <string name="yourclass">Class: </string>
+    <string name="yourclass_sum">Type in your class (using capital letters) eg. 9.AK/10.A</string>
+    <string name="mode">Notifications</string>
+    <string name="standins">Standins</string>
 </resources>

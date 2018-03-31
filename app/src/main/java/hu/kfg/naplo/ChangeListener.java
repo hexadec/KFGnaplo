@@ -17,20 +17,31 @@ import java.io.*;
 import android.widget.*;
 import android.app.*;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import java.text.*;
 
 public class ChangeListener
 {
 	/*private static */
-	public static final int NIGHTMODE_START = 2230;
-	public static final int NIGHTMODE_STOP = 530;
+	static final int NIGHTMODE_START = 2230;
+	static final int NIGHTMODE_STOP = 530;
 	final static String TAG = "KFGnaplo-check";
+	static final int STANDINS_ID = 100;
 
 	static boolean running = false;
 
 	public static void onRunJob(final Context context, final Intent intent){
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-		if (!pref.getBoolean("notify",false)) {
+		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		if (pref.getString("notification_mode","false").equals("false")) {
 			return;
 		}
 		if (intent!=null&&intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
@@ -44,7 +55,19 @@ public class ChangeListener
 		}
 		new Thread(new Runnable() {
 			public void run(){
-				doCheck(context,intent);
+				switch (pref.getString("notification_mode","false")) {
+					case "true":
+						doStandinsCheck(context,intent);
+						case "naplo":
+						doCheck(context,intent);
+						break;
+					case "standins":
+						doStandinsCheck(context,new Intent("hu.kfg.standins.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
+						break;
+					case "false":
+						break;
+
+				}
 			}
 			
 		}).start();
@@ -282,6 +305,264 @@ public class ChangeListener
 		running = false;
 		return 0;
 	}
+
+	public static boolean doStandinsCheck(final Context context,final Intent intent) {
+		final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
+			@Override
+			public void handleMessage(Message message) {
+			}
+		};
+		final String TAG = "KFGstandins-check";
+		final SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String classs = pref.getString("class","noclass");
+		if (classs.equals("noclass")) {
+			return false;
+		}
+		if (classs.length()<3){
+			showSuccessToast.postAtFrontOfQueue(new Runnable() {
+				public void run() {
+					Toast.makeText(context,"Írd be az osztályodat!", Toast.LENGTH_SHORT).show();
+				}
+			});
+			return false;
+		}
+		String kfgserver = "https://apps.karinthy.hu/helyettesites/";
+		final HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
+		HttpConnectionParams.setSoTimeout(httpParams, 10000);
+
+		HttpResponse response = null;
+		HttpClient client = new DefaultHttpClient(httpParams);
+		HttpUriRequest request = new HttpGet(kfgserver);
+		HttpEntity entity = null;
+
+
+		try {
+			response = client.execute(request);
+		} catch (IOException e3) {
+			Log.e(TAG,"Cannot load website!");
+			showSuccessToast.postAtFrontOfQueue(new Runnable() {
+				public void run() {
+					Toast.makeText(context,R.string.unknown_error, Toast.LENGTH_SHORT).show();
+				}
+			});
+			e3.printStackTrace();
+			return false;
+		}
+		Log.d(TAG,"Request executed");
+		try {
+			entity = response.getEntity();
+			if (!(response.getStatusLine().getStatusCode()==200)){
+				Log.d(TAG,"HttpResponse: "+ response.getStatusLine().getStatusCode());
+				throw new Exception();
+			}
+		} catch (Exception e){
+			Log.d(TAG, "Entity error!");
+			if (intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+				showSuccessToast.postAtFrontOfQueue(new Runnable() {
+					public void run() {
+						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+					}
+				});
+				e.printStackTrace();
+			}
+			return false;
+
+
+		}
+		Log.d(TAG, "Entity got...");
+
+		String langclass = "noclass";
+		String faculty = "nopenopenope";
+		if ((classs.endsWith("A")||classs.endsWith("B"))&&!classs.endsWith(".IB")){
+			int i = Integer.valueOf(classs.split("[.]")[0]);
+			if (i<11){
+				langclass = i+".AB";
+			} else {
+				langclass = i+".AB";
+				faculty = i+".A+";
+
+			}
+			Log.d(TAG,langclass);
+		} else {
+			int i = Integer.valueOf(classs.split("[.]")[0]);
+			if (classs.endsWith("C")||classs.endsWith("D")) {
+				faculty = i+".A+";
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		String lessonsToIgnore = pref.getString("ignore_lessons","semmitsemignoral") +", ";
+		String ilessons[] = null;
+		boolean ignore = false;
+		if (lessonsToIgnore.contains(",")) {
+			try {
+				ilessons = lessonsToIgnore.split(",");
+				ignore = true;
+			} catch (Exception e){
+				e.printStackTrace();
+			}
+		} else if (!lessonsToIgnore.equals("")) {
+			ilessons = new String[1];
+			ilessons[0] = lessonsToIgnore;
+			ignore = true;
+		}
+		String subjects = "";
+		int numoflessons = 0;
+		boolean megtartja = false;
+		boolean elmarad = false;
+		boolean marvolt = false;
+		boolean lyukasora = false;
+		int day = 0;
+		try {
+			BufferedReader reader =
+					new BufferedReader(new InputStreamReader(entity.getContent()), 65728);
+			String line = null;
+			boolean nextissubj = false;
+			int comment = 10;
+			int lesson = 0;
+			int counter = 0;
+			boolean tempmegtartja = false;
+			String plus = "";
+			while ((line = reader.readLine()) != null) {
+
+				if (line.contains("live")){
+					day = 1;
+				}
+				if (line.contains("live tomorrow")){
+					day = 2;
+				}
+				if (line.contains("\"stand_in\"")) {
+					counter = 0;
+				}
+				if (line.contains("\"subject\"")&&counter==3){
+					if (!marvolt) {
+						numoflessons++;
+						plus = lesson+". "+(day==2?"*":"")+(line.substring(20,line.length()-5).length()<1?"LYUKASÓRA":line.substring(20,line.length()-5))+", ";
+						if (ignore&&line.substring(20,line.length()-5).length()>0) {for (String s: ilessons) {
+							if (s.equalsIgnoreCase(line.substring(20,line.length()-5))) {
+								marvolt = true;
+								numoflessons--;
+							}
+						}}
+					}
+				}
+				if (line.contains("\"comment\"")&&counter==6){
+					if (!marvolt){
+						if (line.contains("megtartja")){
+							megtartja = true;
+							tempmegtartja = true;
+						} else {
+							elmarad = true;
+						}
+						if (!plus.equals(lesson+". "+(day==2?"*":""))){
+							if (!subjects.contains(plus.substring(3))){
+								subjects+=plus;
+							} else {
+								int pos = subjects.indexOf(plus.substring(3));
+								if (pos < 0) {
+									subjects+=plus;
+								} else {
+									subjects=subjects.substring(0,pos-1)+"/"+lesson+"."+subjects.substring(pos-1);
+								}
+								plus = "";
+							}
+						} else if (!tempmegtartja){
+							if (!subjects.contains(plus.substring(3))){
+								subjects+=plus;
+							} else {
+								int pos = subjects.indexOf(plus.substring(3));
+								if (pos < 0) {
+									subjects+=plus;
+								} else {
+									subjects=subjects.substring(0,pos-1)+"/"+lesson+"."+subjects.substring(pos-1);
+								}
+								plus = "";
+							}
+							lyukasora = true;
+							tempmegtartja = false;
+						} else if (tempmegtartja) {
+							lyukasora = true;
+							numoflessons--;
+							tempmegtartja = false;
+						}
+					}
+					marvolt = false;
+
+				}
+				if (line.contains("\"class\"")&&counter==2) {
+					if (line.contains(">" + classs + "<") || line.contains(">" + langclass + "<") || line.contains(">" + faculty + "<") || line.contains(">" + classs.toLowerCase() + "<") || line.contains(">" + langclass.toLowerCase() + "<") || line.contains(">" + faculty.toLowerCase() + "<")) {
+						if (!newSubstitution(lesson = Integer.valueOf(sb.substring(sb.length() - 7, sb.length() - 6)))) {
+							if (day == 1) {
+								marvolt = true;
+							}
+						}
+						//Log.d(TAG,marvolt+""+day);
+					} else {
+						counter = 0;
+					}
+				}
+				counter++;
+				sb.append(line);
+
+
+			}
+		}
+		catch (IOException e) { e.printStackTrace(); return false;}
+		catch (Exception e) { e.printStackTrace(); return false; }
+		pref.edit().putLong("last_check2",System.currentTimeMillis()).commit();
+		if (subjects.equals("")){
+			subjects+="LYUKASÓRA, ";
+		}
+		if (pref.getBoolean("onlyonce",false)&&pref.getString("last","nuller").equals(classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyy/DDD").format(new Date())))) {
+			if (pref.getBoolean("always_notify",false)){
+				notifyIfStandinsChanged(new int[]{3,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,classs,subjects,0);
+			} else {
+				if (intent.getAction() != null && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+					showSuccessToast.postAtFrontOfQueue(new Runnable() {
+						public void run() {
+							Toast.makeText(context, R.string.no_new_substitution, Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			}
+		} else {
+			if (elmarad){
+				Log.d(TAG, "Class found");
+				if (megtartja) {
+					notifyIfStandinsChanged(new int[]{2, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, subjects, numoflessons);
+
+				} else {
+					notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, subjects, numoflessons);
+				}
+			} else {
+				Log.d(TAG,"Class not found");
+				if (megtartja){
+					notifyIfStandinsChanged(new int[]{1,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,classs,subjects,numoflessons);
+				} else {
+					if (pref.getBoolean("always_notify",false)){
+						notifyIfStandinsChanged(new int[]{3,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,classs,subjects,0);
+					} else {
+						if (intent.getAction()!=null&&intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+							showSuccessToast.postAtFrontOfQueue(new Runnable() {
+								public void run() {
+									Toast.makeText(context, R.string.no_new_substitution, Toast.LENGTH_SHORT).show();
+								}
+							});
+						}
+					}
+				}
+			}
+		}
+		pref.edit().putString("last",classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyy/DDD").format(new Date()))).apply();
+		//Log.d(TAG,"finalResult " + sb.toString());
+		//Log.d(TAG, "Login form get: " + response.getStatusLine());
+
+
+
+
+		return false;
+	}
 	
 	public static void notifyIfChanged(int[] state,Context context,String url, String subjects){
 		Intent intent = new Intent(context, TableViewActivity.class);
@@ -351,6 +632,55 @@ public class ChangeListener
 			sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
 		}
 		return sb.toString();
+	}
+
+	public static void notifyIfStandinsChanged(int[] state,Context context, String classs, String subjects, int numberoflessons){
+		Intent intent = new Intent(context, MainActivity.class);
+		Intent eintent = new Intent(Intent.ACTION_VIEW);
+		eintent.setData(Uri.parse("https://apps.karinthy.hu/helyettesites"));
+		PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
+		Notification.Builder n  = new Notification.Builder(context)
+				.setContentTitle("KFG Stand-ins")
+				.setContentText(state[0]==0?context.getString(R.string.new_substitution)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):state[0]==1?context.getString(R.string.substitution_canceled)+" ("+classs+")":(state[0]==2?context.getString(R.string.substitution_canceled_and_new)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):context.getString(R.string.no_new_substitution)+" ("+classs+")"))
+				.setSmallIcon(R.drawable.ic_launcher)
+				//.setContentIntent(pIntent)
+				.setAutoCancel(true);
+		if (state[1]==1&&state[0]!=3){
+			n.setVibrate(new long[]{0,60,100,70,100,60});
+		}
+		if (state[2]==1&&state[0]!=3){
+			n.setLights(0xff00FF88,350,3000);
+		}
+		if (Build.VERSION.SDK_INT>=21){
+			n.setVisibility(Notification.VISIBILITY_PUBLIC);
+		}
+		NotificationManager notificationManager =
+				(NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+
+		if (Build.VERSION.SDK_INT>=16) {
+			n.addAction(android.R.drawable.ic_menu_view,context.getString(R.string.open_site), epIntent);
+			Notification notification = new Notification.BigTextStyle(n)
+					.bigText((state[0]==0?context.getString(R.string.new_substitution)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):state[0]==1?context.getString(R.string.substitution_canceled)+" ("+classs+")":(state[0]==2?context.getString(R.string.substitution_canceled_and_new)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):context.getString(R.string.no_new_substitution)+" ("+classs+")"))).build();
+			notification.number = numberoflessons;
+			notificationManager.notify(STANDINS_ID, notification);
+		} else {
+			Notification not = n.getNotification();
+			not.number = numberoflessons;
+			notificationManager.notify(STANDINS_ID, not);
+		}
+	}
+
+	public static boolean newSubstitution(int lesson) {
+		SimpleDateFormat sdf = new SimpleDateFormat("HHmm");
+		String currentime = sdf.format(new Date());
+		int time = 0;
+		time = (lesson + 7)*100+45;
+		//Log.d("KFG",lesson+" "+time+currentime);
+		if (time > Integer.valueOf(currentime)){
+			return true;
+		}
+		return false;
 	}
 	
 }

@@ -23,7 +23,7 @@
     <string name="nightmode">Alvásbarát mód</string>
     <string name="nightmode_explained">22:30 és 5:30 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
     <string name="manual">Kézi</string>
-    <string name="browser">Megnyitás a böngészőben</string>
+    <string name="browser">Napló megnyitása a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
     <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
     <string name="unknown_error">Karinthy Napló hiba!  Próbáld meg később!</string>
@@ -55,5 +55,13 @@
     <string name="battery_opt">Ahhoz hogy a Karinty Napló rendesen működhessen, add hozzá a NEM OPTIMALIZÁLT, ENGEDÉLYEZETTEK vagy VÉDETTEK listájához</string>
     <string name="battery_opt_err">Jaj ne! Meg kell nyitnod a beállításokat és kézzel hozzáadnod a Karinthy Naplót az engedélyezettek listájához :(</string>
     <string name="battery_opt_err_huawei">Jaj ne! Meg kell nyitnod a beállításokat és kézzel hozzáadnod a Karinthy Naplót a védett alkalmazások listájához :(</string>
-
+    <string name="no_new_substitution">Nincs új helyettesítés az osztályodban!</string>
+    <string name="new_substitution">Új helyettesítés az osztályodban!</string>
+    <string name="substitution_canceled">Valamelyik helyettesítésed mégis meg lesz tartva!</string>
+    <string name="substitution_canceled_and_new">Lesz helyettesítésed, de valamelyik órád mégis meg lesz tartva!</string>
+    <string name="open_site">Megnyitás</string>
+    <string name="yourclass">Osztály: </string>
+    <string name="yourclass_sum">Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
+    <string name="mode">Értesítések</string>
+    <string name="standins">Helyettesítések</string>
 </resources>

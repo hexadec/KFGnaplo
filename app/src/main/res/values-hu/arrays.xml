@@ -17,4 +17,18 @@
         <item>1440</item>
         <item>2880</item>
     </string-array>
+
+    <string-array name="notification_mode">
+        <item>Értesítések letiltva</item>
+        <item>Csak Napló</item>
+        <item>Csak helyettesítések</item>
+        <item>Napló &amp; helyettesítések</item>
+    </string-array>
+
+    <string-array name="notification_mode_values">
+        <item>false</item>
+        <item>naplo</item>
+        <item>standins</item>
+        <item>true</item>
+    </string-array>
 </resources>

@@ -1,14 +1,25 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
-        android:shortcutId="table"
         android:enabled="true"
         android:icon="@drawable/number_blocks"
-        android:shortcutShortLabel="@string/title_activity_table_view"
-        android:shortcutLongLabel="@string/grades_long">
+        android:shortcutId="table"
+        android:shortcutLongLabel="@string/grades_long"
+        android:shortcutShortLabel="@string/title_activity_table_view">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="hu.kfg.naplo"
-            android:targetClass="hu.kfg.naplo.TableViewActivity" />
+            android:targetClass="hu.kfg.naplo.TableViewActivity"
+            android:targetPackage="hu.kfg.naplo" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_standins"
+        android:shortcutId="standins"
+        android:shortcutLongLabel="@string/standins"
+        android:shortcutShortLabel="@string/standins">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://apps.karinthy.hu/helyettesites/" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

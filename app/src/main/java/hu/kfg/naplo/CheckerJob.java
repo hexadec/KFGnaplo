@@ -18,7 +18,8 @@ public class CheckerJob extends Job {
     @Override
     @NonNull
     protected Result onRunJob(Params params) {
-        ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
+        ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
         scheduleJob();
         return Result.SUCCESS;
     }
