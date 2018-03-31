@@ -68,7 +68,6 @@ public class MainActivity extends PreferenceActivity
 				} finally {
 					prefs.edit().putBoolean("huawei_protected",true).commit();
 				}
-				prefs.edit().putBoolean("huawei_protected",true).commit();
 			} else {
 				Intent battOpt = new Intent();
 				battOpt.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);

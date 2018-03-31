@@ -19,7 +19,7 @@ import android.app.*;
 
 import java.text.*;
 
-public abstract class ChangeListener extends BroadcastReceiver
+public class ChangeListener
 {
 	/*private static */
 	public static final int NIGHTMODE_START = 2230;

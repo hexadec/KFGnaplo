@@ -27,14 +27,6 @@
             android:resource="@xml/shortcuts" />
         </activity>
 
-        <receiver android:name=".ChangeListener">
-            <intent-filter android:priority="100">
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="hu.kfg.naplo.CHECK_NOW" />
-                <action android:name="android.intent.action.USER_PRESENT" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".TableViewActivity"
             android:label="@string/title_activity_table_view"
@@ -47,12 +39,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".JobManagerService"
-            android:enabled="true"
-            android:exported="true"
-            android:label="@string/job_name"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>
