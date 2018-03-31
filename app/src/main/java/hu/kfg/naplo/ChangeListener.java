@@ -57,8 +57,10 @@ public class ChangeListener
 			public void run(){
 				switch (pref.getString("notification_mode","false")) {
 					case "true":
-						doStandinsCheck(context,intent);
-						case "naplo":
+						doStandinsCheck(context,new Intent("hu.kfg.standins.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
+						doCheck(context,intent);
+						break;
+					case "naplo":
 						doCheck(context,intent);
 						break;
 					case "standins":
@@ -392,7 +394,7 @@ public class ChangeListener
 			}
 		}
 		StringBuilder sb = new StringBuilder();
-		String lessonsToIgnore = pref.getString("ignore_lessons","semmitsemignoral") +", ";
+		String lessonsToIgnore = pref.getString("ignore_lessons","semmitsemignoral").replace(" ","") +", ";
 		String ilessons[] = null;
 		boolean ignore = false;
 		if (lessonsToIgnore.contains(",")) {

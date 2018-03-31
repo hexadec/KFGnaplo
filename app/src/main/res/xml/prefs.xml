@@ -31,6 +31,11 @@
             android:singleLine="true"
             android:summary="@string/yourclass_sum"
             android:title="@string/yourclass" />
+        <EditTextPreference
+            android:key="ignore_lessons"
+            android:summary="@string/ignore_sum"
+            android:title="@string/ignore" />
+
         <ListPreference
             android:defaultValue="300"
             android:entries="@array/check_interval"
@@ -60,6 +65,13 @@
         <Preference
             android:key="open_in_browser"
             android:title="@string/browser" />
+        <Preference
+            android:key="open_standins_in_browser"
+            android:title="@string/open_standins">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://apps.karinthy.hu/helyettesites/" />
+        </Preference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/info">
         <Preference

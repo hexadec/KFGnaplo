@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Naplo</string>
-    <string name="main_activity">KFGNaplo Settings</string>
+    <string name="main_activity">KFGNaplo &amp; Stand-ins Settings</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>
 2. Open okostelefonos hozzáférés (GYIA)<br/>
@@ -65,4 +65,7 @@
     <string name="yourclass_sum">Type in your class (using capital letters) eg. 9.AK/10.A</string>
     <string name="mode">Notifications</string>
     <string name="standins">Standins</string>
+    <string name="ignore">Lessons to be ignored (standins)</string>
+    <string name="ignore_sum">Type in here those lessons of which you don\'t want to get a notification (separated by comma, use accented letters)</string>
+    <string name="open_standins">Open Stand-ins page in browser</string>
 </resources>

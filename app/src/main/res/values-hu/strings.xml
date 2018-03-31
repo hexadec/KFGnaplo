@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Karinthy Napló</string>
-    <string name="main_activity">KFGNapló Beállítások</string>
+    <string name="main_activity">KFGNapló &amp; Helyettesítések beállításai</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
 1. Lépj be a KFG Napló oldalra<br/>
 2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
@@ -64,4 +64,7 @@
     <string name="yourclass_sum">Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
     <string name="mode">Értesítések</string>
     <string name="standins">Helyettesítések</string>
+    <string name="ignore">Órák figyelmen kívül hagyása</string>
+    <string name="ignore_sum">Írd be azokat az órákat vesszővel elválasztva, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)</string>
+    <string name="open_standins">Helyettesítések oldal megnyitása</string>
 </resources>
