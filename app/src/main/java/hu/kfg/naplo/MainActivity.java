@@ -1,19 +1,16 @@
 package hu.kfg.naplo;
 
 import android.app.*;
-import android.app.job.JobScheduler;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
 import android.content.*;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.*;
 import android.text.*;
 import android.view.*;
 import android.net.*;
 
-import com.evernote.android.job.JobManager;
 
 public class MainActivity extends PreferenceActivity {
 

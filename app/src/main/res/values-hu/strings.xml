@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Karinthy Napló</string>
-    <string name="main_activity">KFGNapló &amp; Helyettesítések beállításai</string>
+    <string name="app_name">KFG App</string>
+    <string name="main_activity">KFGNapló &amp; Helyettesítések</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
 1. Lépj be a KFG Napló oldalra<br/>
 2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
@@ -33,7 +33,7 @@
     <string name="unknown_change">Valami változás történt, talán beírtak egy hiányzást?</string>
     <string name="new_grade">Új jegyet kaptál!</string>
     <string name="open">Napló</string>
-    <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Értesítés ikonja: Freepik&lt;br/>Alkalmazás ikonja: ToffeeNut&lt;br/>Felhasználva: Android-Job by evernote</string>
+    <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Ikonok: Freepik &amp; ToffeeNut&lt;br/>+ Android-Job by evernote</string>
     <string name="error_no_grades">Nincs egy jegyed sem! Ha szerinted van, próbáld újra később!</string>
     <string name="title_activity_table_view">Jegyeim</string>
     <string name="update_grades"><![CDATA[Frissíted a jegyeket?<br/>(Nincsen automatikus frissítés a háttérben!)]]></string>
@@ -61,11 +61,11 @@
     <string name="substitution_canceled_and_new">Lesz helyettesítésed, de valamelyik órád mégis meg lesz tartva!</string>
     <string name="open_site">Megnyitás</string>
     <string name="yourclass">Osztály: </string>
-    <string name="yourclass_sum">Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
+    <string name="yourclass_sum">HELYETTESÍTÉSEK: Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
     <string name="mode">Értesítések</string>
     <string name="standins">Helyettesítések</string>
     <string name="ignore">Órák figyelmen kívül hagyása</string>
-    <string name="ignore_sum">Írd be azokat az órákat vesszővel elválasztva, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)</string>
+    <string name="ignore_sum">HELYETTESÍTÉSEK: Írd be azokat az órákat vesszővel elválasztva, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)</string>
     <string name="open_standins">Helyettesítések oldal megnyitása</string>
     <string name="lyukasora">LYUKASÓRA</string>
 </resources>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Karinthy Naplo</string>
-    <string name="main_activity">KFGNaplo &amp; Stand-ins Settings</string>
+    <string name="app_name">KFG App</string>
+    <string name="main_activity">KFGNaplo &amp; Stand-ins</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>
 2. Open okostelefonos hozzáférés (GYIA)<br/>
@@ -34,7 +34,7 @@
     <string name="unknown_change">Something has changed. Maybe a missed lesson was registered?</string>
     <string name="new_grade">You got a new grade!</string>
     <string name="open">Open Naplo</string>
-    <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Notification icon: Freepik&lt;br/>App icon: ToffeeNut&lt;br/>This app uses Android-Job by evernote</string>
+    <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Icons by: Freepik &amp; ToffeeNut&lt;br/>Uses Android-Job by evernote</string>
     <string name="error_no_grades">No grades were found! If you do have some, try it again later!</string>
     <string name="title_activity_table_view">My grades</string>
     <string name="update_grades"><![CDATA[Do you want to update the grades database?<br/>It does not update automatically!]]></string>
@@ -62,11 +62,11 @@
     <string name="substitution_canceled_and_new">There is a new substitution, but also something has changed!</string>
     <string name="open_site">Open</string>
     <string name="yourclass">Class: </string>
-    <string name="yourclass_sum">Type in your class (using capital letters) eg. 9.AK/10.A</string>
+    <string name="yourclass_sum">STANDINS: Type in your class (using capital letters) eg. 9.AK/10.A</string>
     <string name="mode">Notifications</string>
     <string name="standins">Standins</string>
-    <string name="ignore">Lessons to be ignored (standins)</string>
-    <string name="ignore_sum">Type in here those lessons of which you don\'t want to get a notification (separated by comma, use accented letters)</string>
+    <string name="ignore">Lessons to be ignored</string>
+    <string name="ignore_sum">STANDINS: Type in here those lessons of which you don\'t want to get a notification (separated by comma, use accented letters)</string>
     <string name="open_standins">Open Stand-ins page in browser</string>
     <string name="lyukasora">FREE-PERIOD</string>
 </resources>

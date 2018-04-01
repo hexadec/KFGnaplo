@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.ResourceBusyException;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;

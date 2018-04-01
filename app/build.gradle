@@ -8,8 +8,8 @@ android {
         applicationId "hu.kfg.naplo"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 10001
-        versionName "1.0.beta1"
+        versionCode 10002
+        versionName "1.0.beta2"
     }
     buildTypes {
         release {
