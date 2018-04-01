@@ -1,6 +1,5 @@
 package hu.kfg.naplo;
 
-import android.app.job.JobScheduler;
 import android.content.*;
 import android.preference.*;
 
@@ -16,16 +15,6 @@ import java.util.*;
 import java.io.*;
 import android.widget.*;
 import android.app.*;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import java.text.*;
 
