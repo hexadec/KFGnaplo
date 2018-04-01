@@ -31,7 +31,7 @@ public class MainActivity extends PreferenceActivity {
         final Preference flash = findPreference("flash");
         final Preference open_in_browser = findPreference("open_in_browser");
         final Preference nightmode = findPreference("nightmode");
-        final Preference notification_mode = findPreference("notification_mode");
+        final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
         final EditTextPreference url2 = (EditTextPreference) url;
         //final CheckBoxPreference notify2 = (CheckBoxPreference)notify;
@@ -121,24 +121,12 @@ public class MainActivity extends PreferenceActivity {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                if (url2.getText() == null) {
-                    Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                if (url2.getText().length() < URL_MIN_LENGTH) {
+                if ((url2.getText() == null || url2.getText().length() < URL_MIN_LENGTH) && (notification_mode.getValue().equals("naplo") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
-                if (((ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() == null
-                        || !((ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
-                    Toast.makeText(MainActivity.this, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
-                }
-                /*Intent i = new Intent("hu.kfg.naplo.CHECK_NOW");
-				i.putExtra("runnomatterwhat",true);
-				i.putExtra("error",true);
-				sendBroadcast(i);*/
-                //JobManagerService.scheduleJob(MainActivity.this, false);
+
                 ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error", true));
                 CheckerJob.scheduleJob();
                 return true;
