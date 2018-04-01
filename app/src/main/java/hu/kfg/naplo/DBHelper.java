@@ -74,6 +74,7 @@ public class DBHelper extends SQLiteOpenHelper {
             array_list.add(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
             res.moveToNext();
         }
+        res.close();
         return array_list;
     }
 
@@ -94,6 +95,7 @@ public class DBHelper extends SQLiteOpenHelper {
             array_list.add(g);
             res.moveToNext();
         }
+        res.close();
         return array_list;
     }
 
@@ -111,6 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
             g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
             res.moveToNext();
         }
+        res.close();
         return g;
     }
 

@@ -198,6 +198,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 } else {
                     Toast t = Toast.makeText(this,R.string.no_network_conn,Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.TOP,0,0);
+                    t.show();
                 }
                 return true;
             case R.id.infomenu:

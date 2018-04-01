@@ -1,6 +1,7 @@
 package hu.kfg.naplo;
 
 import android.app.*;
+import android.app.job.JobInfo;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
@@ -298,7 +299,9 @@ public class MainActivity extends PreferenceActivity {
         findPreference("grades").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                if (Build.VERSION.SDK_INT>=21) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                }
                 startActivity(intent);
                 return true;
             }
