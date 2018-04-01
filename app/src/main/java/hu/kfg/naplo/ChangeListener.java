@@ -308,7 +308,7 @@ public class ChangeListener
 		return 0;
 	}
 
-	public static boolean doStandinsCheck(final Context context,final Intent intent) {
+	public static int doStandinsCheck(final Context context,final Intent intent) {
 		final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
 			@Override
 			public void handleMessage(Message message) {
@@ -319,7 +319,7 @@ public class ChangeListener
 				.getDefaultSharedPreferences(context);
 		String classs = pref.getString("class","noclass");
 		if (classs.equals("noclass")) {
-			return false;
+			return -1;
 		}
 		if (classs.length()<3){
 			showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -327,53 +327,46 @@ public class ChangeListener
 					Toast.makeText(context,"Írd be az osztályodat!", Toast.LENGTH_SHORT).show();
 				}
 			});
-			return false;
+			return -1;
 		}
 		String kfgserver = "https://apps.karinthy.hu/helyettesites/";
-		final HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
-		HttpConnectionParams.setSoTimeout(httpParams, 10000);
-
-		HttpResponse response = null;
-		HttpClient client = new DefaultHttpClient(httpParams);
-		HttpUriRequest request = new HttpGet(kfgserver);
-		HttpEntity entity = null;
-
-
+		/*String version = "0.0";
+		android.content.pm.PackageInfo pInfo = null;
 		try {
-			response = client.execute(request);
-		} catch (IOException e3) {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			version = pInfo.versionName;
+		} catch (Exception e){}*/
+
+		HttpURLConnection urlConnection;
+		try {
+			URL url = new URL(kfgserver);
+			urlConnection = (HttpURLConnection) url.openConnection();
+			//urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v"+ version + ")");
+			urlConnection.setInstanceFollowRedirects(true);
+		} catch (IOException e) {
 			Log.e(TAG,"Cannot load website!");
-			showSuccessToast.postAtFrontOfQueue(new Runnable() {
-				public void run() {
-					Toast.makeText(context,R.string.unknown_error, Toast.LENGTH_SHORT).show();
-				}
-			});
-			e3.printStackTrace();
-			return false;
-		}
-		Log.d(TAG,"Request executed");
-		try {
-			entity = response.getEntity();
-			if (!(response.getStatusLine().getStatusCode()==200)){
-				Log.d(TAG,"HttpResponse: "+ response.getStatusLine().getStatusCode());
-				throw new Exception();
-			}
-		} catch (Exception e){
-			Log.d(TAG, "Entity error!");
-			if (intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
 				showSuccessToast.postAtFrontOfQueue(new Runnable() {
 					public void run() {
 						Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
 					}
 				});
-				e.printStackTrace();
 			}
-			return false;
-
-
+			e.printStackTrace();
+			return -1;
+		} catch (Exception e) {
+			Log.e(TAG,"Unknown error!");
+			if (intent.hasExtra("error")&&intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+				showSuccessToast.postAtFrontOfQueue(new Runnable() {
+					public void run() {
+						Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+			e.printStackTrace();
+			return -1;
 		}
-		Log.d(TAG, "Entity got...");
+
 
 		String langclass = "noclass";
 		String faculty = "nopenopenope";
@@ -417,9 +410,9 @@ public class ChangeListener
 		boolean lyukasora = false;
 		int day = 0;
 		try {
-			BufferedReader reader =
-					new BufferedReader(new InputStreamReader(entity.getContent()), 65728);
-			String line = null;
+			BufferedReader reader = new BufferedReader
+					(new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
+			String line;
 			boolean nextissubj = false;
 			int comment = 10;
 			int lesson = 0;
@@ -440,7 +433,7 @@ public class ChangeListener
 				if (line.contains("\"subject\"")&&counter==3){
 					if (!marvolt) {
 						numoflessons++;
-						plus = lesson+". "+(day==2?"*":"")+(line.substring(20,line.length()-5).length()<1?"LYUKASÓRA":line.substring(20,line.length()-5))+", ";
+						plus = lesson+". "+(day==2?"*":"")+(line.substring(20,line.length()-5).length()<1?context.getString(R.string.lyukasora):line.substring(20,line.length()-5))+", ";
 						if (ignore&&line.substring(20,line.length()-5).length()>0) {for (String s: ilessons) {
 							if (s.equalsIgnoreCase(line.substring(20,line.length()-5))) {
 								marvolt = true;
@@ -510,11 +503,11 @@ public class ChangeListener
 
 			}
 		}
-		catch (IOException e) { e.printStackTrace(); return false;}
-		catch (Exception e) { e.printStackTrace(); return false; }
+		catch (IOException e) { e.printStackTrace(); return -1;}
+		catch (Exception e) { e.printStackTrace(); return -1; }
 		pref.edit().putLong("last_check2",System.currentTimeMillis()).commit();
 		if (subjects.equals("")){
-			subjects+="LYUKASÓRA, ";
+			subjects+=(context.getString(R.string.lyukasora)+", ");
 		}
 		if (pref.getBoolean("onlyonce",false)&&pref.getString("last","nuller").equals(classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyy/DDD").format(new Date())))) {
 			if (pref.getBoolean("always_notify",false)){
@@ -563,7 +556,7 @@ public class ChangeListener
 
 
 
-		return false;
+		return -1;
 	}
 	
 	public static void notifyIfChanged(int[] state,Context context,String url, String subjects){
@@ -648,10 +641,12 @@ public class ChangeListener
 				.setSmallIcon(R.drawable.ic_launcher)
 				//.setContentIntent(pIntent)
 				.setAutoCancel(true);
-		if (state[1]==1&&state[0]!=3){
+		int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
+		boolean nightmode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("nightmode",false)&&(time > NIGHTMODE_START || time < NIGHTMODE_STOP);
+		if (state[1]==1&&state[0]!=3&&!nightmode){
 			n.setVibrate(new long[]{0,60,100,70,100,60});
 		}
-		if (state[2]==1&&state[0]!=3){
+		if (state[2]==1&&state[0]!=3&&!nightmode){
 			n.setLights(0xff00FF88,350,3000);
 		}
 		if (Build.VERSION.SDK_INT>=21){
