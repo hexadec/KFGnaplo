@@ -34,7 +34,7 @@
     <string name="unknown_change">Something has changed. Maybe a missed lesson was registered?</string>
     <string name="new_grade">You got a new grade!</string>
     <string name="open">Open Naplo</string>
-    <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Icons by: Freepik &amp; ToffeeNut&lt;br/>Uses Android-Job by evernote</string>
+    <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Icons by: Freepik &amp; ToffeeNut&lt;br/>Uses Android-Job by evernote&lt;br/>&lt;i>Unofficial app!&lt;i/></string>
     <string name="error_no_grades">No grades were found! If you do have some, try it again later!</string>
     <string name="title_activity_table_view">My grades</string>
     <string name="update_grades"><![CDATA[Do you want to update the grades database?<br/>It does not update automatically!]]></string>
@@ -71,4 +71,5 @@
     <string name="lyukasora">FREE-PERIOD</string>
     <string name="next_time">Next time</string>
     <string name="hide_forever">Hide forever</string>
+    <string name="insert_class">Fill in the class field!</string>
 </resources>

@@ -16,7 +16,8 @@ import com.evernote.android.job.JobManager;
 
 public class MainActivity extends PreferenceActivity {
 
-    protected static int URL_MIN_LENGTH = 45;
+    protected static final int URL_MIN_LENGTH = 45;
+    protected static final int CLASS_MIN_LENGTH = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,10 @@ public class MainActivity extends PreferenceActivity {
                 }
                 if ((url2.getText() == null || url2.getText().length() < URL_MIN_LENGTH) && (notification_mode.getValue().equals("naplo") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                if ((clas.getText() == null || clas.getText().length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
+                    Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
