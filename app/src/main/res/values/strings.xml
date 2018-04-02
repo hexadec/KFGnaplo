@@ -69,4 +69,6 @@
     <string name="ignore_sum">STANDINS: Type in here those lessons of which you don\'t want to get a notification (separated by comma, use accented letters)</string>
     <string name="open_standins">Open Stand-ins page in browser</string>
     <string name="lyukasora">FREE-PERIOD</string>
+    <string name="next_time">Next time</string>
+    <string name="hide_forever">Hide forever</string>
 </resources>

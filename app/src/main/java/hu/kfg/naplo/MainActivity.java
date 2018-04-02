@@ -1,7 +1,6 @@
 package hu.kfg.naplo;
 
 import android.app.*;
-import android.app.job.JobInfo;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
@@ -11,6 +10,8 @@ import android.widget.*;
 import android.text.*;
 import android.view.*;
 import android.net.*;
+
+import com.evernote.android.job.JobManager;
 
 
 public class MainActivity extends PreferenceActivity {
@@ -25,7 +26,6 @@ public class MainActivity extends PreferenceActivity {
         final Preference url = findPreference("url");
         final Preference manual_check = findPreference("manual_check");
         final Preference about = findPreference("about");
-        //final Preference notify = findPreference("notify");
         final Preference interval = findPreference("auto_check_interval");
         final Preference vibrate = findPreference("vibrate");
         final Preference flash = findPreference("flash");
@@ -34,7 +34,6 @@ public class MainActivity extends PreferenceActivity {
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
         final EditTextPreference url2 = (EditTextPreference) url;
-        //final CheckBoxPreference notify2 = (CheckBoxPreference)notify;
         if (url2.getText() != null) {
             if (url2.getText().length() >= URL_MIN_LENGTH) {
                 url2.setSummary(getString(R.string.click2edit));
@@ -49,47 +48,12 @@ public class MainActivity extends PreferenceActivity {
             flash.setEnabled(false);
             manual_check.setEnabled(false);
             nightmode.setEnabled(false);
+            JobManager.instance().cancelAll();
         } else {
-            //JobManagerService.scheduleJob(this,false);
             CheckerJob.scheduleJob();
         }
         if (clas.getText() != null && clas.getText().length() > 2) {
             clas.setSummary(clas.getText());
-        }
-        PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
-        if (Build.VERSION.SDK_INT >= 23 && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
-            Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
-            if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
-                Intent battOpt = new Intent();
-                battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
-                try {
-                    startActivity(battOpt);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
-                } finally {
-                    prefs.edit().putBoolean("huawei_protected", true).commit();
-                }
-            } else {
-                Intent battOpt = new Intent();
-                battOpt.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                if (battOpt.resolveActivity(getPackageManager()) == null) {
-                    Toast.makeText(this, R.string.battery_opt_err, Toast.LENGTH_LONG).show();
-                } else {
-                    startActivity(battOpt);
-                }
-            }
-        } else if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
-            Intent battOpt = new Intent();
-            battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
-            try {
-                startActivity(battOpt);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
-            } finally {
-                prefs.edit().putBoolean("huawei_protected", true).commit();
-            }
         }
 
         if (!prefs.getBoolean("inst", false)) {
@@ -102,11 +66,22 @@ public class MainActivity extends PreferenceActivity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             prefs.edit().putBoolean("inst", true).commit();
+                            showOptimizationDialog(prefs);
+                            dialog.dismiss();
+                        }
+                    });
+            builder1.setNegativeButton(
+                    R.string.next_time,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            showOptimizationDialog(prefs);
                             dialog.cancel();
                         }
                     });
             AlertDialog alert11 = builder1.create();
             alert11.show();
+        } else {
+            showOptimizationDialog(prefs);
         }
 
 
@@ -143,28 +118,6 @@ public class MainActivity extends PreferenceActivity {
                 return true;
             }
         });
-		
-		/*notify2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-			public boolean onPreferenceChange(Preference pref, Object obj){
-				if (obj instanceof Boolean){
-					interval.setEnabled(((Boolean)obj));
-					vibrate.setEnabled(((Boolean)obj));
-					flash.setEnabled(((Boolean)obj));
-					manual_check.setEnabled(((Boolean)obj));
-//					ignore_lessons.setEnabled(((Boolean)obj));
-					nightmode.setEnabled(((Boolean)obj));
-					if (((Boolean)obj)&&url2.getText()!=null&&url2.getText().length()>=URL_MIN_LENGTH){
-						CheckerJob.scheduleJob();
-					} else {
-						//JobScheduler jobScheduler = (JobScheduler) MainActivity.this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-						//jobScheduler.cancelAll();
-						JobManager.instance().cancelAll();
-					}
-					
-				}
-				return true;
-			}
-		});*/
 
         url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
@@ -226,6 +179,7 @@ public class MainActivity extends PreferenceActivity {
                         nightmode.setEnabled(true);
                         clas.setEnabled(true);
                         url.setEnabled(true);
+                        CheckerJob.scheduleJob();
                         break;
                     case "false":
                         interval.setEnabled(false);
@@ -233,14 +187,17 @@ public class MainActivity extends PreferenceActivity {
                         flash.setEnabled(false);
                         manual_check.setEnabled(false);
                         nightmode.setEnabled(false);
+                        JobManager.instance().cancelAll();
                         break;
                     case "naplo":
                         clas.setEnabled(false);
                         url.setEnabled(true);
+                        CheckerJob.scheduleJob();
                         break;
                     case "standins":
                         clas.setEnabled(true);
                         url.setEnabled(false);
+                        CheckerJob.scheduleJob();
                         break;
                     default:
                         break;
@@ -294,5 +251,79 @@ public class MainActivity extends PreferenceActivity {
                 return true;
             }
         });
+    }
+
+    void showOptimizationDialog(final SharedPreferences prefs) {
+        if (prefs.getBoolean("never_show_opt_dialog",false)) {
+            return;
+        }
+        PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= 23 && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
+            //Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
+            if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+                optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent battOpt = new Intent();
+                        battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+                        try {
+                            startActivity(battOpt);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
+                        } finally {
+                            prefs.edit().putBoolean("huawei_protected", true).commit();
+                        }
+                    }
+                });
+            } else {
+                optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent battOpt = new Intent();
+                        battOpt.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        if (battOpt.resolveActivity(getPackageManager()) == null) {
+                            Toast.makeText(MainActivity.this, R.string.battery_opt_err, Toast.LENGTH_LONG).show();
+                        } else {
+                            startActivity(battOpt);
+                        }
+                    }
+                });
+            }
+        } else if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+            optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent battOpt = new Intent();
+                            battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+                            try {
+                                startActivity(battOpt);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
+                            } finally {
+                                prefs.edit().putBoolean("huawei_protected", true).commit();
+                            }
+                        }
+                    });
+
+        }
+    }
+
+    void optimizationDialogWithOnClickListener(int textResid, DialogInterface.OnClickListener runnable) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(textResid);
+        builder1.setCancelable(false);
+
+        builder1.setPositiveButton("OK",runnable);
+        builder1.setNegativeButton(R.string.hide_forever,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("never_show_opt_dialog",true).apply();
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
     }
 }
