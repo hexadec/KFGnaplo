@@ -585,7 +585,7 @@ public class ChangeListener
 				n.setLights(0xff00FF88,350,3000);
 			}
 			if (Build.VERSION.SDK_INT>=21){
-				n.setVisibility(Notification.VISIBILITY_PUBLIC);
+				n.setVisibility(Notification.VISIBILITY_PRIVATE);
 			}
 		n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
 		n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
@@ -627,7 +627,7 @@ public class ChangeListener
 		Notification.Builder n  = new Notification.Builder(context)
 				.setContentTitle("KFG Stand-ins")
 				.setContentText(state[0]==0?context.getString(R.string.new_substitution)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):state[0]==1?context.getString(R.string.substitution_canceled)+" ("+classs+")":(state[0]==2?context.getString(R.string.substitution_canceled_and_new)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):context.getString(R.string.no_new_substitution)+" ("+classs+")"))
-				.setSmallIcon(R.drawable.ic_launcher)
+				.setSmallIcon(R.drawable.ic_standins)
 				//.setContentIntent(pIntent)
 				.setAutoCancel(true);
 		int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
