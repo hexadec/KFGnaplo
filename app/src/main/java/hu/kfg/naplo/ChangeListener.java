@@ -498,7 +498,7 @@ public class ChangeListener
 		if (subjects.equals("")){
 			subjects+=(context.getString(R.string.lyukasora)+", ");
 		}
-		if (pref.getBoolean("onlyonce",false)&&pref.getString("last","nuller").equals(classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyy/DDD").format(new Date())))) {
+		if (pref.getBoolean("onlyonce",true)&&pref.getString("last","nuller").equals(classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyyy/DDD").format(new Date())))) {
 			if (pref.getBoolean("always_notify",false)){
 				notifyIfStandinsChanged(new int[]{3,pref.getBoolean("vibrate",false)?1:0,pref.getBoolean("flash",false)?1:0},context,classs,subjects,0);
 			} else {
@@ -538,7 +538,7 @@ public class ChangeListener
 				}
 			}
 		}
-		pref.edit().putString("last",classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyy/DDD").format(new Date()))).apply();
+		pref.edit().putString("last",classs+subjects+megtartja+numoflessons+(new SimpleDateFormat("yyyy/DDD").format(new Date()))).apply();
 		//Log.d(TAG,"finalResult " + sb.toString());
 		//Log.d(TAG, "Login form get: " + response.getStatusLine());
 
