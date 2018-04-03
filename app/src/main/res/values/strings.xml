@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">KFG App</string>
+    <string name="kfg_standins">KFG Stand-ins</string>
     <string name="main_activity">KFGNaplo &amp; Stand-ins</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>

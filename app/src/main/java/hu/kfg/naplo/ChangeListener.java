@@ -625,7 +625,7 @@ public class ChangeListener
 		PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
 		Notification.Builder n  = new Notification.Builder(context)
-				.setContentTitle("KFG Stand-ins")
+				.setContentTitle(context.getString(R.string.kfg_standins))
 				.setContentText(state[0]==0?context.getString(R.string.new_substitution)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):state[0]==1?context.getString(R.string.substitution_canceled)+" ("+classs+")":(state[0]==2?context.getString(R.string.substitution_canceled_and_new)+" ("+classs+")"+" \n"+subjects.substring(0,subjects.length()-2):context.getString(R.string.no_new_substitution)+" ("+classs+")"))
 				.setSmallIcon(R.drawable.ic_standins)
 				//.setContentIntent(pIntent)
