@@ -400,7 +400,7 @@ public class ChangeListener
 		int day = 0;
 		try {
 			BufferedReader reader = new BufferedReader
-					(new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
+					(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
 			String line;
 			boolean nextissubj = false;
 			int comment = 10;
