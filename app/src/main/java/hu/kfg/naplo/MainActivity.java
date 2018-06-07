@@ -42,16 +42,39 @@ public class MainActivity extends PreferenceActivity {
                 findPreference("grades").setEnabled(false);
             }
         }
+        final boolean not_disabled = prefs.getString("notification_mode", "false").equals("false");
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) && !not_disabled) {
+                    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    long checked = p.getLong("last_check", 0L);
+                    if (System.currentTimeMillis() - checked > (long) (Long.valueOf(
+                            p.getString("auto_check_interval", "300")) * 1.2 * CheckerJob.MINUTE)) {
+                        CheckerJob.runJobImmediately();
+                    }
+                }
+            }
+        }, new IntentFilter(Intent.ACTION_USER_PRESENT));
         interval.setSummary(String.format(getString(R.string.apprx), interval.getSummary()));
-        if (prefs.getString("notification_mode", "false").equals("false")) {
-            interval.setEnabled(false);
-            vibrate.setEnabled(false);
-            flash.setEnabled(false);
-            manual_check.setEnabled(false);
-            nightmode.setEnabled(false);
-            JobManager.instance().cancelAll();
-        } else {
-            CheckerJob.scheduleJob();
+        //SWITCH
+        switch (prefs.getString("notification_mode", "false")) {
+            case "false":
+                interval.setEnabled(false);
+                vibrate.setEnabled(false);
+                flash.setEnabled(false);
+                manual_check.setEnabled(false);
+                nightmode.setEnabled(false);
+                clas.setEnabled(false);
+                url.setEnabled(false);
+                JobManager.instance().cancelAll();
+                break;
+            case "naplo":
+                clas.setEnabled(false);
+            case "standins":
+                url.setEnabled(false);
+            default:
+                CheckerJob.scheduleJob();
         }
         if (clas.getText() != null && clas.getText().length() > 2) {
             clas.setSummary(clas.getText());
@@ -175,7 +198,7 @@ public class MainActivity extends PreferenceActivity {
                 //ListPreference lp = (ListPreference) pref;
                 //String value = (lp.getEntries()[lp.findIndexOfValue((String) obj)]).toString();
                 //Log.e("E",value);
-                switch ((String)obj) {
+                switch ((String) obj) {
                     case "true":
                         interval.setEnabled(true);
                         vibrate.setEnabled(true);
@@ -249,7 +272,7 @@ public class MainActivity extends PreferenceActivity {
         findPreference("grades").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);
-                if (Build.VERSION.SDK_INT>=21) {
+                if (Build.VERSION.SDK_INT >= 21) {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                 }
                 startActivity(intent);
@@ -259,7 +282,7 @@ public class MainActivity extends PreferenceActivity {
     }
 
     void showOptimizationDialog(final SharedPreferences prefs) {
-        if (prefs.getBoolean("never_show_opt_dialog",false)) {
+        if (prefs.getBoolean("never_show_opt_dialog", false)) {
             return;
         }
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
@@ -297,20 +320,20 @@ public class MainActivity extends PreferenceActivity {
             }
         } else if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
             optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent battOpt = new Intent();
-                            battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
-                            try {
-                                startActivity(battOpt);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
-                            } finally {
-                                prefs.edit().putBoolean("huawei_protected", true).commit();
-                            }
-                        }
-                    });
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent battOpt = new Intent();
+                    battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+                    try {
+                        startActivity(battOpt);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
+                    } finally {
+                        prefs.edit().putBoolean("huawei_protected", true).commit();
+                    }
+                }
+            });
 
         }
     }
@@ -320,11 +343,11 @@ public class MainActivity extends PreferenceActivity {
         builder1.setMessage(textResid);
         builder1.setCancelable(false);
 
-        builder1.setPositiveButton("OK",runnable);
+        builder1.setPositiveButton("OK", runnable);
         builder1.setNegativeButton(R.string.hide_forever,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("never_show_opt_dialog",true).apply();
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("never_show_opt_dialog", true).apply();
                         dialog.cancel();
                     }
                 });

@@ -11,36 +11,36 @@
     <application
         android:name=".App"
         android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_config"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="@xml/backup_config">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/main_activity"
-            android:documentLaunchMode="intoExisting">
+            android:documentLaunchMode="intoExisting"
+            android:label="@string/main_activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data android:name="android.app.shortcuts"
-            android:resource="@xml/shortcuts" />
-        </activity>
 
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
         <activity
             android:name=".TableViewActivity"
-            android:label="@string/title_activity_table_view"
+            android:documentLaunchMode="intoExisting"
             android:icon="@drawable/grades_launcher"
-            android:documentLaunchMode="intoExisting">
+            android:label="@string/title_activity_table_view">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
