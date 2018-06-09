@@ -72,4 +72,7 @@
     <string name="next_time">Majd máskor</string>
     <string name="hide_forever">Nem érdekel</string>
     <string name="insert_class">Írd be az osztályodat!</string>
+    <string name="teacher">Helyettesítés - tanári</string>
+    <string name="teacher_hint">Helyettesítés - tanári: Írja be ide a nevét. Ha a táblára többféleképp is fel szokott kerülni, írja be azokat vesszővel elválasztva (erősen ajánlott!)</string>
+    <string name="teacher_name">Tanár neve: </string>
 </resources>

@@ -6,12 +6,15 @@ import android.os.*;
 import android.preference.*;
 import android.content.*;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.*;
 import android.text.*;
 import android.view.*;
 import android.net.*;
 
 import com.evernote.android.job.JobManager;
+
+import java.security.Key;
 
 
 public class MainActivity extends PreferenceActivity {
@@ -52,6 +55,7 @@ public class MainActivity extends PreferenceActivity {
                     if (System.currentTimeMillis() - checked > (long) (Long.valueOf(
                             p.getString("auto_check_interval", "300")) * 1.2 * CheckerJob.MINUTE)) {
                         CheckerJob.runJobImmediately();
+                        Log.w(ChangeListener.TAG, "USER_PRESENT forced check...");
                     }
                 }
             }
@@ -71,6 +75,20 @@ public class MainActivity extends PreferenceActivity {
                 break;
             case "naplo":
                 clas.setEnabled(false);
+                CheckerJob.runJobImmediately();
+                break;
+            case "teacher":
+                clas.getEditText().setFilters(null);
+                clas.setSummary(R.string.teacher_hint);
+                clas.setTitle(R.string.teacher_name);
+                clas.getEditText().setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9)
+                            return true;
+                        return false;
+                    }
+                });
             case "standins":
                 url.setEnabled(false);
             default:
@@ -198,6 +216,15 @@ public class MainActivity extends PreferenceActivity {
                 //ListPreference lp = (ListPreference) pref;
                 //String value = (lp.getEntries()[lp.findIndexOfValue((String) obj)]).toString();
                 //Log.e("E",value);
+                if (notification_mode.getValue().equals("teacher")) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SystemClock.sleep(1000);
+                            finish();
+                        }
+                    }).start();
+                }
                 switch ((String) obj) {
                     case "true":
                         interval.setEnabled(true);
@@ -227,6 +254,14 @@ public class MainActivity extends PreferenceActivity {
                         url.setEnabled(false);
                         CheckerJob.scheduleJob();
                         break;
+                    case "teacher":
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                SystemClock.sleep(1000);
+                                finish();
+                            }
+                        }).start();
                     default:
                         break;
                 }

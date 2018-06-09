@@ -73,4 +73,7 @@
     <string name="next_time">Next time</string>
     <string name="hide_forever">Hide forever</string>
     <string name="insert_class">Fill in the class field!</string>
+    <string name="teacher">Standins - teacher</string>
+    <string name="teacher_hint">Standins - teacher: Enter your name here. If your name may be displayed other ways, separate those by comma (strongly recommended!)</string>
+    <string name="teacher_name">Teacher name: </string>
 </resources>
