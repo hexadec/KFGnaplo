@@ -1,7 +1,7 @@
 package hu.kfg.naplo;
 
 
-class Grade extends Object{
+public class Grade extends Object{
     byte value;
     String date;
     String teacher;

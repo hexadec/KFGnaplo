@@ -357,26 +357,27 @@ public class ChangeListener
 		}
 
 
-		String langclass = "noclass";
-		String faculty = "nopenopenope";
+		List<String> cls = new ArrayList<>();
+		cls.add(classs);
 		if ((classs.endsWith("A")||classs.endsWith("B"))&&!classs.endsWith(".IB")){
 			int i = Integer.valueOf(classs.split("[.]")[0]);
 			if (i<11){
-				langclass = i+".AB";
+				cls.add(i+".AB");
 			} else {
-				langclass = i+".AB";
-				faculty = i+".A+";
+				cls.add(i+".AB");
+				cls.add(i+".A+");
 
 			}
-			Log.d(TAG,langclass);
+			Log.d(TAG,i+".AB");
 		} else {
 			int i = Integer.valueOf(classs.split("[.]")[0]);
 			if (classs.endsWith("C")||classs.endsWith("D")) {
-				faculty = i+".A+";
+				cls.add(i+".A+");
 			}
 		}
 		StringBuilder sb = new StringBuilder();
-		String lessonsToIgnore = pref.getString("ignore_lessons","semmitsemignoral").replace(" ","") +", ";
+		String lessonsToIgnore = pref.getString("ignore_lessons","semmitsemignoral")
+				.replace(", ",",").replace(" ,","") +", ";
 		String ilessons[] = null;
 		boolean ignore = false;
 		if (lessonsToIgnore.contains(",")) {
@@ -391,23 +392,14 @@ public class ChangeListener
 			ilessons[0] = lessonsToIgnore;
 			ignore = true;
 		}
-		String subjects = "";
-		int numoflessons = 0;
-		boolean megtartja = false;
-		boolean elmarad = false;
-		boolean marvolt = false;
-		boolean lyukasora = false;
 		int day = 0;
+		List<Substitution> subs = new ArrayList<>();
 		try {
 			BufferedReader reader = new BufferedReader
 					(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
 			String line;
-			boolean nextissubj = false;
-			int comment = 10;
-			int lesson = 0;
 			int counter = 0;
-			boolean tempmegtartja = false;
-			String plus = "";
+			Substitution sub = new Substitution(context);
 			while ((line = reader.readLine()) != null) {
 
 				if (line.contains("live")){
@@ -418,73 +410,37 @@ public class ChangeListener
 				}
 				if (line.contains("\"stand_in\"")) {
 					counter = 0;
+					if (sub.getGroup() != null) {
+						subs.add(sub);
+						sub = new Substitution(context);
+					}
+					sub.setTeacher(line.substring(21,line.length()-5));
 				}
 				if (line.contains("\"subject\"")&&counter==3){
-					if (!marvolt) {
-						numoflessons++;
-						plus = lesson+". "+(day==2?"*":"")+(line.substring(20,line.length()-5).length()<1?context.getString(R.string.lyukasora):line.substring(20,line.length()-5))+", ";
-						if (ignore&&line.substring(20,line.length()-5).length()>0) {for (String s: ilessons) {
-							if (s.equalsIgnoreCase(line.substring(20,line.length()-5))) {
-								marvolt = true;
-								numoflessons--;
-							}
-						}}
-					}
+					sub.setSubject(line.substring(20,line.length()-5));
 				}
 				if (line.contains("\"comment\"")&&counter==6){
-					if (!marvolt){
-						if (line.contains("megtartja")){
-							megtartja = true;
-							tempmegtartja = true;
-						} else {
-							elmarad = true;
-						}
-						if (!plus.equals(lesson+". "+(day==2?"*":""))){
-							if (!subjects.contains(plus.substring(3))){
-								subjects+=plus;
-							} else {
-								int pos = subjects.indexOf(plus.substring(3));
-								if (pos < 0) {
-									subjects+=plus;
-								} else {
-									subjects=subjects.substring(0,pos-1)+"/"+lesson+"."+subjects.substring(pos-1);
-								}
-								plus = "";
-							}
-						} else if (!tempmegtartja){
-							if (!subjects.contains(plus.substring(3))){
-								subjects+=plus;
-							} else {
-								int pos = subjects.indexOf(plus.substring(3));
-								if (pos < 0) {
-									subjects+=plus;
-								} else {
-									subjects=subjects.substring(0,pos-1)+"/"+lesson+"."+subjects.substring(pos-1);
-								}
-								plus = "";
-							}
-							lyukasora = true;
-							tempmegtartja = false;
-						} else if (tempmegtartja) {
-							lyukasora = true;
-							numoflessons--;
-							tempmegtartja = false;
-						}
-					}
-					marvolt = false;
-
+					sub.setComment(line.substring(20,line.length()-5));
 				}
 				if (line.contains("\"class\"")&&counter==2) {
-					if (line.contains(">" + classs + "<") || line.contains(">" + langclass + "<") || line.contains(">" + faculty + "<") || line.contains(">" + classs.toLowerCase() + "<") || line.contains(">" + langclass.toLowerCase() + "<") || line.contains(">" + faculty.toLowerCase() + "<")) {
-						if (!newSubstitution(lesson = Integer.valueOf(sb.substring(sb.length() - 7, sb.length() - 6)))) {
-							if (day == 1) {
-								marvolt = true;
-							}
-						}
-						//Log.d(TAG,marvolt+""+day);
-					} else {
-						counter = 0;
-					}
+					sub.setGroup(line.substring(18,line.length()-5));
+				}
+				if (line.contains("\"lesson\"")&&counter==1) {
+					int period = -1;
+					try {
+						period = Integer.valueOf(line.substring(19,line.length()-6));
+					} catch (Exception e) {}
+					sub.setTime(period,day==1);
+				}
+				if (line.contains("\"room\"")&&counter==4) {
+					int room = 0;
+					try {
+						room = Integer.valueOf(line.substring(17,line.length()-5));
+					} catch (Exception e) {}
+					sub.setRoom(room);
+				}
+				if (line.contains("\"missing_teacher\"")&&counter == 5) {
+					sub.setMissingTeacher(line.substring(28,line.length()-5));
 				}
 				counter++;
 				sb.append(line);
@@ -495,6 +451,17 @@ public class ChangeListener
 		catch (IOException e) { e.printStackTrace(); return -1;}
 		catch (Exception e) { e.printStackTrace(); return -1; }
 		pref.edit().putLong("last_check2",System.currentTimeMillis()).commit();
+		StringBuilder subj = new StringBuilder();
+		for (Substitution sub : subs) {
+			for (String cla : cls) {
+				if (cla.equals(sub.getGroup())) {
+					subj.append("\n" + sub.toString("PDD. S: T C10 /G"));
+					Log.d(TAG,sub.toString("PDD. S: T C10 /G"));
+				}
+			}
+		}
+		//TODO output as notification
+		/*
 		if (subjects.equals("")){
 			subjects+=(context.getString(R.string.lyukasora)+", ");
 		}
@@ -544,7 +511,7 @@ public class ChangeListener
 
 
 
-
+		*/
 		return -1;
 	}
 	

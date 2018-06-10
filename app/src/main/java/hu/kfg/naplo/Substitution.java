@@ -1,9 +1,11 @@
 package hu.kfg.naplo;
 
+import android.content.Context;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class Substitution {
+public class Substitution extends Object {
 
     boolean today;
     int period;
@@ -13,14 +15,25 @@ class Substitution {
     String subject;
     String teacher;
     String comment;
+    String missing;
+    private Context context;
 
-    Substitution(String t) {
+    Substitution(Context con, String t) {
         teacher = t;
+        context = con;
+    }
+
+    Substitution(Context con) {
+        context = con;
     }
 
     void setTime(int per, boolean tod) {
         period = per;
         today = tod;
+        if (per == -1) {
+            over = true;
+            return;
+        }
         over = tod && Integer.valueOf(new SimpleDateFormat("HHmm").format(new Date())) < (per + 7) * 100 + 45;
     }
 
@@ -33,7 +46,11 @@ class Substitution {
     }
 
     void setSubject(String subject) {
-        this.subject = subject;
+        if (subject.length() < 2) {
+            this.subject = context.getString(R.string.lyukasora);
+        } else {
+            this.subject = subject;
+        }
     }
 
     void setComment(String c) {
@@ -42,6 +59,10 @@ class Substitution {
 
     void setGroup(String gr) {
         group = gr;
+    }
+
+    void setMissingTeacher(String name) {
+        missing = name;
     }
 
     String getGroup() {
@@ -56,25 +77,39 @@ class Substitution {
         return teacher;
     }
 
+    String getMissingTeacher() {
+        return missing;
+    }
+
     /**
-     *
      * @param format R for room,
-     *               C0 for full comment, C10 to limit to 10 characters,
+     *               CC for full comment, C10 to limit to 10 characters,
      *               G for group,
      *               T for teacher,
+     *               MM for missing teacher
      *               S for subject,
-     *               DD for a * mark if tomorrow
+     *               DD for a * mark if tomorrow,
+     *               P for period
      * @return formatted text to output
      */
     String toString(String format) {
         if (format == null || format.length() < 1) return null;
-        format = format.replace("R",""+room);
-        format = format.replace("DD","*");
-        format = format.replace("G",group);
-        format = format.replace("S",subject);
-        format = format.replace("T",teacher);
-        format = format.replace("C10",comment.substring(0,10)+"…");
-        format = format.replace("C0",comment);
+        if (room != 0) format = format.replace("R", "" + room);
+        format = format.replace("DD", "*");
+        format = format.replace("G", group);
+        format = format.replace("P", "" + period);
+        format = format.replace("S", subject);
+        format = format.replace("T", teacher);
+        format = format.replace("MM", missing);
+        try {
+            format = format.replace("C10", "(" + comment.substring(0, 10) + "…)");
+        } catch (Exception e) {
+            format = format.replace("C10", "CC");
+        }
+        if (comment.length() > 0)
+            format = format.replace("CC", "(" + comment + ")");
+        else
+            format = format.replace("CC","");
         return format;
 
     }

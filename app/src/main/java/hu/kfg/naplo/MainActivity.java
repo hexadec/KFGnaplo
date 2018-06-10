@@ -14,8 +14,6 @@ import android.net.*;
 
 import com.evernote.android.job.JobManager;
 
-import java.security.Key;
-
 
 public class MainActivity extends PreferenceActivity {
 
