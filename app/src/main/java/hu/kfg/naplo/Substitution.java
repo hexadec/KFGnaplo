@@ -82,8 +82,8 @@ public class Substitution extends Object {
     }
 
     /**
-     * @param format R for room,
-     *               CC for full comment, C10 to limit to 10 characters,
+     * @param format R for -room,
+     *               CC for full comment, C8 to limit to 8 characters,
      *               G for group,
      *               T for teacher,
      *               MM for missing teacher
@@ -94,7 +94,8 @@ public class Substitution extends Object {
      */
     String toString(String format) {
         if (format == null || format.length() < 1) return null;
-        if (room != 0) format = format.replace("R", "" + room);
+        if (room != 0) format = format.replace("R", "-" + room);
+        else format = format.replace("R","");
         format = format.replace("DD", "*");
         format = format.replace("G", group);
         format = format.replace("P", "" + period);
@@ -102,9 +103,9 @@ public class Substitution extends Object {
         format = format.replace("T", teacher);
         format = format.replace("MM", missing);
         try {
-            format = format.replace("C10", "(" + comment.substring(0, 10) + "…)");
+            format = format.replace("C8", "(" + comment.substring(0, 8) + "…)");
         } catch (Exception e) {
-            format = format.replace("C10", "CC");
+            format = format.replace("C8", "CC");
         }
         if (comment.length() > 0)
             format = format.replace("CC", "(" + comment + ")");

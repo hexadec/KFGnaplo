@@ -76,4 +76,6 @@
     <string name="teacher">Standins - teacher</string>
     <string name="teacher_hint">Standins - teacher: Enter your name here. If your name may be displayed other ways, separate those by comma (strongly recommended!)</string>
     <string name="teacher_name">Teacher name: </string>
+    <string name="no_new_substitution2">There is no new substitution for you!</string>
+    <string name="new_substitution2">You have a new substitution!</string>
 </resources>
