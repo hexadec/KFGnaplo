@@ -405,20 +405,14 @@ public class ChangeListener {
         }
         StringBuilder sb = new StringBuilder();
         String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
-                .replace(", ", ",").replace(" ,", "") + ", ";
+                .replace(", ", ",").replace(" ,", "");
         String ilessons[] = null;
         boolean ignore = false;
-        if (lessonsToIgnore.contains(",")) {
-            try {
-                ilessons = lessonsToIgnore.split(",");
-                ignore = true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (!lessonsToIgnore.equals("")) {
-            ilessons = new String[1];
-            ilessons[0] = lessonsToIgnore;
+        try {
+            ilessons = lessonsToIgnore.split(",");
             ignore = true;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         int day = 0;
         List<Substitution> subs = new ArrayList<>();
@@ -491,28 +485,35 @@ public class ChangeListener {
         if (mode.equals(MODE_TEACHER)) {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getTeacher())&&!sub.isOver()) {
-                        text.append("\n" + sub.toString("PDD. S: G C8 R"));
+                    if (cla.equals(sub.getTeacher()) && !sub.isOver()) {
+                        text.append("\n");
+                        text.append(sub.toString("PDD. S: G C8 R"));
                         Log.d(TAG, sub.toString("PDD. S: G C8 R"));
                         numoflessons++;
                     }
                 }
             }
         } else {
-            for (Substitution sub : subs) {
+            substitutions: for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getGroup())&&!sub.isOver()) {
-                        text.append("\n" + sub.toString("PDD. S: T C8 R, G"));
+                    if (cla.equals(sub.getGroup()) && !sub.isOver()) {
+                        if (ignore) {
+                            for (String toIgnore : ilessons)
+                                if (toIgnore.equals(sub.getSubject()))
+                                    continue substitutions;
+                        }
+                        text.append("\n");
+                        text.append(sub.toString("PDD. S: T C8 R, G"));
                         Log.d(TAG, sub.toString("PDD. S: T C8 R, G"));
                         numoflessons++;
                     }
                 }
             }
         }
-        //TODO output as notification
-        if (pref.getBoolean("onlyonce", true) && pref.getString("last", "nuller").equals(text.toString() + (new SimpleDateFormat("yyyy/DDD").format(new Date())))) {
+
+        if (pref.getBoolean("onlyonce", true) && pref.getString("last", "nuller").equals(text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date())))) {
             if (pref.getBoolean("always_notify", false)) {
-                notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), 0);
+                notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
                 if (intent.getAction() != null && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -527,7 +528,7 @@ public class ChangeListener {
                 notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
                 if (pref.getBoolean("always_notify", false)) {
-                    notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), 0);
+                    notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
                 } else {
                     if (intent.getAction() != null && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
                         showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -539,12 +540,12 @@ public class ChangeListener {
                 }
             }
         }
-        pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD").format(new Date()))).apply();
+        pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))).apply();
 
         return -1;
     }
 
-    public static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
+    private static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
         Intent intent = new Intent(context, TableViewActivity.class);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse(url));
@@ -556,7 +557,7 @@ public class ChangeListener {
         String oldtext = oldtext = null;
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (state[0] == 0) {
+        if (state[0] == 0 && notificationManager != null) {
             notificationManager.cancel(1);
             if (isNotificationVisible(context)) {
                 oldtext = pref.getString("oldtext", null);
@@ -602,7 +603,7 @@ public class ChangeListener {
         return false;
     }
 
-    public static String SHA512(byte[] data) throws Exception {
+    private static String SHA512(byte[] data) throws Exception {
         if (data == null) throw new Exception();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(data);
@@ -614,7 +615,7 @@ public class ChangeListener {
         return sb.toString();
     }
 
-    public static void notifyIfStandinsChanged(int[] state, Context context, String classs, String subjects, int numberoflessons) {
+    private static void notifyIfStandinsChanged(int[] state, Context context, String classs, String subjects, int numberoflessons) {
         Intent intent = new Intent(context, MainActivity.class);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse("https://apps.karinthy.hu/helyettesites"));

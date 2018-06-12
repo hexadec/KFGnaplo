@@ -1,6 +1,7 @@
 package hu.kfg.naplo;
 
 import android.app.*;
+import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
@@ -33,6 +34,7 @@ public class MainActivity extends PreferenceActivity {
         final Preference flash = findPreference("flash");
         final Preference open_in_browser = findPreference("open_in_browser");
         final Preference nightmode = findPreference("nightmode");
+        final Preference ignore = findPreference("ignore_lessons");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
         final EditTextPreference url2 = (EditTextPreference) url;
@@ -43,11 +45,36 @@ public class MainActivity extends PreferenceActivity {
                 findPreference("grades").setEnabled(false);
             }
         }
-        final boolean not_disabled = prefs.getString("notification_mode", "false").equals("false");
-        registerReceiver(new BroadcastReceiver() {
+
+        final InputFilter teacherFilter = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+                if (source != null && "0123456789?!".contains(("" + source))) {
+                    return "";
+                }
+                return null;
+            }
+        };
+
+
+        final InputFilter classFilter = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+                if (source != null && !"0129.ABCDEIK+".contains(("" + source))) {
+                    return "";
+                }
+                return null;
+            }
+        };
+
+        final BroadcastReceiver r = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) && !not_disabled) {
+                if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) && !prefs.getString("notification_mode", "false").equals("false")) {
                     SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     long checked = p.getLong("last_check", 0L);
                     if (System.currentTimeMillis() - checked > (long) (Long.valueOf(
@@ -57,11 +84,12 @@ public class MainActivity extends PreferenceActivity {
                     }
                 }
             }
-        }, new IntentFilter(Intent.ACTION_USER_PRESENT));
+        };
+        registerReceiver(r, new IntentFilter(Intent.ACTION_USER_PRESENT));
         interval.setSummary(String.format(getString(R.string.apprx), interval.getSummary()));
         //SWITCH
         switch (prefs.getString("notification_mode", "false")) {
-            case "false":
+            case ChangeListener.MODE_FALSE:
                 interval.setEnabled(false);
                 vibrate.setEnabled(false);
                 flash.setEnabled(false);
@@ -69,61 +97,28 @@ public class MainActivity extends PreferenceActivity {
                 nightmode.setEnabled(false);
                 clas.setEnabled(false);
                 url.setEnabled(false);
+                ignore.setEnabled(false);
                 JobManager.instance().cancelAll();
                 break;
-            case "naplo":
+            case ChangeListener.MODE_NAPLO:
                 clas.setEnabled(false);
+                ignore.setEnabled(false);
                 CheckerJob.runJobImmediately();
                 break;
-            case "teacher":
-                InputFilter filter = new InputFilter() {
-
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-
-                        if (source != null && "0123456789".contains(("" + source))) {
-                            return "";
-                        }
-                        return null;
-                    }
-                };
-                clas.getEditText().setFilters(new InputFilter[]{filter});
+            case ChangeListener.MODE_TEACHER:
+                clas.getEditText().setFilters(new InputFilter[]{teacherFilter});
                 clas.setSummary(R.string.teacher_hint);
                 clas.setTitle(R.string.teacher_name);
-                clas.getEditText().setOnKeyListener(new View.OnKeyListener() {
-                    @Override
-                    public boolean onKey(View v, int keyCode, KeyEvent event) {
-                        if (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9)
-                            return true;
-                        return false;
-                    }
-                });
                 url.setEnabled(false);
+                ignore.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
-            case "standins":
+            case ChangeListener.MODE_STANDINS:
                 url.setEnabled(false);
             default:
-                InputFilter fil = new InputFilter() {
-
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-
-                        if (source != null && !"0129.ABCDEIK+".contains(("" + source))) {
-                            return "";
-                        }
-                        return null;
-                    }
-                };
-                clas.getEditText().setFilters(new InputFilter[]{fil});
+                clas.getEditText().setFilters(new InputFilter[]{classFilter});
                 clas.setSummary(R.string.yourclass_sum);
                 clas.setTitle(R.string.yourclass);
-                clas.getEditText().setOnKeyListener(new View.OnKeyListener() {
-                    @Override
-                    public boolean onKey(View v, int keyCode, KeyEvent event) {
-                        return false;
-                    }
-                });
                 CheckerJob.scheduleJob();
         }
         if (clas.getText() != null && clas.getText().length() > 2) {
@@ -245,70 +240,32 @@ public class MainActivity extends PreferenceActivity {
 
         notification_mode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
-                //ListPreference lp = (ListPreference) pref;
-                //String value = (lp.getEntries()[lp.findIndexOfValue((String) obj)]).toString();
-                //Log.e("E",value);
-                if (notification_mode.getValue().equals("teacher")) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            SystemClock.sleep(1000);
-                            finish();
-                        }
-                    }).start();
-                }
-                switch ((String) obj) {
-                    case "true":
-                        interval.setEnabled(true);
-                        vibrate.setEnabled(true);
-                        flash.setEnabled(true);
-                        manual_check.setEnabled(true);
-                        nightmode.setEnabled(true);
-                        clas.setEnabled(true);
-                        url.setEnabled(true);
-                        CheckerJob.scheduleJob();
-                        break;
-                    case "false":
-                        interval.setEnabled(false);
-                        vibrate.setEnabled(false);
-                        flash.setEnabled(false);
-                        manual_check.setEnabled(false);
-                        nightmode.setEnabled(false);
-                        JobManager.instance().cancelAll();
-                        break;
-                    case "naplo":
-                        clas.setEnabled(false);
-                        url.setEnabled(true);
-                        CheckerJob.scheduleJob();
-                        break;
-                    case "standins":
-                        clas.setEnabled(true);
-                        url.setEnabled(false);
-                        CheckerJob.scheduleJob();
-                        break;
-                    case "teacher":
-                        new Thread(new Runnable() {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(250);
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                SystemClock.sleep(1000);
-                                finish();
+                                unregisterReceiver(r);
+                                onCreate(null);
                             }
-                        }).start();
-                    default:
-                        break;
-                }
+                        });
+                    }
+                }).start();
                 return true;
             }
         });
 
         about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
-                String version = "0.0";
-                android.content.pm.PackageInfo pInfo = null;
+                String version;
+                PackageInfo pInfo;
                 try {
                     pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
                     version = pInfo.versionName;
                 } catch (Exception e) {
+                    version = "ERR";
                 }
                 AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
                 adb.setTitle(R.string.about);
@@ -353,7 +310,7 @@ public class MainActivity extends PreferenceActivity {
             return;
         }
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
-        if (Build.VERSION.SDK_INT >= 23 && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
+        if (Build.VERSION.SDK_INT >= 23 && pwm!=null && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
             //Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
             if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {

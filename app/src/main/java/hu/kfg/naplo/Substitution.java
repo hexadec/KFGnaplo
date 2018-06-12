@@ -78,8 +78,8 @@ public class Substitution extends Object {
         return teacher;
     }
 
-    String getMissingTeacher() {
-        return missing;
+    String getSubject() {
+        return subject;
     }
 
     /**
