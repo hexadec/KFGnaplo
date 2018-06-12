@@ -1,6 +1,7 @@
 package hu.kfg.naplo;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +10,7 @@ public class Substitution extends Object {
 
     boolean today;
     int period;
-    boolean over;
+    boolean over = false;
     int room;
     String group;
     String subject;
@@ -34,7 +35,7 @@ public class Substitution extends Object {
             over = true;
             return;
         }
-        over = tod && Integer.valueOf(new SimpleDateFormat("HHmm").format(new Date())) < (per + 7) * 100 + 45;
+        over = tod && (Integer.valueOf(new SimpleDateFormat("HHmm").format(new Date())) > (per + 7) * 100 + 45);
     }
 
     void setTeacher(String t) {
@@ -94,9 +95,9 @@ public class Substitution extends Object {
      */
     String toString(String format) {
         if (format == null || format.length() < 1) return null;
-        if (room != 0) format = format.replace("R", "-" + room);
+        if (room != 0) format = format.replace("R", "/" + room);
         else format = format.replace("R","");
-        format = format.replace("DD", "*");
+        format = format.replace("DD", today?"":"*");
         format = format.replace("G", group);
         format = format.replace("P", "" + period);
         format = format.replace("S", subject);

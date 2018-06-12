@@ -25,9 +25,7 @@
             android:summary="@string/copythelink"
             android:title="Napló URL: " />
         <EditTextPreference
-            android:digits="01239.ABCDEIK+"
             android:key="class"
-            android:maxLength="5"
             android:singleLine="true"
             android:summary="@string/yourclass_sum"
             android:title="@string/yourclass" />

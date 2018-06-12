@@ -23,6 +23,7 @@
         <item>Csak Napló</item>
         <item>Csak helyettesítések</item>
         <item>Napló &amp; helyettesítések</item>
+        <item>Tanári helyettesítés</item>
     </string-array>
 
     <string-array name="notification_mode_values">
@@ -30,5 +31,6 @@
         <item>naplo</item>
         <item>standins</item>
         <item>true</item>
+        <item>teacher</item>
     </string-array>
 </resources>

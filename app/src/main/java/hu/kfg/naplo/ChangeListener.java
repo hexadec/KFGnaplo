@@ -491,7 +491,7 @@ public class ChangeListener {
         if (mode.equals(MODE_TEACHER)) {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getTeacher())) {
+                    if (cla.equals(sub.getTeacher())&&!sub.isOver()) {
                         text.append("\n" + sub.toString("PDD. S: G C8 R"));
                         Log.d(TAG, sub.toString("PDD. S: G C8 R"));
                         numoflessons++;
@@ -501,7 +501,7 @@ public class ChangeListener {
         } else {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getGroup())) {
+                    if (cla.equals(sub.getGroup())&&!sub.isOver()) {
                         text.append("\n" + sub.toString("PDD. S: T C8 R, G"));
                         Log.d(TAG, sub.toString("PDD. S: T C8 R, G"));
                         numoflessons++;

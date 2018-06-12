@@ -76,7 +76,18 @@ public class MainActivity extends PreferenceActivity {
                 CheckerJob.runJobImmediately();
                 break;
             case "teacher":
-                clas.getEditText().setFilters(null);
+                InputFilter filter = new InputFilter() {
+
+                    @Override
+                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+                        if (source != null && "0123456789".contains(("" + source))) {
+                            return "";
+                        }
+                        return null;
+                    }
+                };
+                clas.getEditText().setFilters(new InputFilter[]{filter});
                 clas.setSummary(R.string.teacher_hint);
                 clas.setTitle(R.string.teacher_name);
                 clas.getEditText().setOnKeyListener(new View.OnKeyListener() {
@@ -87,9 +98,32 @@ public class MainActivity extends PreferenceActivity {
                         return false;
                     }
                 });
+                url.setEnabled(false);
+                CheckerJob.scheduleJob();
+                break;
             case "standins":
                 url.setEnabled(false);
             default:
+                InputFilter fil = new InputFilter() {
+
+                    @Override
+                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+                        if (source != null && !"0129.ABCDEIK+".contains(("" + source))) {
+                            return "";
+                        }
+                        return null;
+                    }
+                };
+                clas.getEditText().setFilters(new InputFilter[]{fil});
+                clas.setSummary(R.string.yourclass_sum);
+                clas.setTitle(R.string.yourclass);
+                clas.getEditText().setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        return false;
+                    }
+                });
                 CheckerJob.scheduleJob();
         }
         if (clas.getText() != null && clas.getText().length() > 2) {
@@ -155,7 +189,7 @@ public class MainActivity extends PreferenceActivity {
         clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
                 if (((String) obj).length() < 3 || !((String) obj).contains(".")) {
-                    clas.setSummary("Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A");
+                    clas.setSummary(prefs.getString("notification_mode",ChangeListener.MODE_FALSE).equals(ChangeListener.MODE_TEACHER)? R.string.teacher_hint : R.string.insert_class);
                 } else {
                     clas.setSummary(((String) obj));
                 }
