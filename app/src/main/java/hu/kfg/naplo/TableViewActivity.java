@@ -22,8 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TableViewActivity extends Activity implements View.OnClickListener {
 
@@ -71,7 +74,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Header.setText(subjects.get(i).length() > 20 ? subjects.get(i).substring(0, 17) + "…" : subjects.get(i));
                 Header.setTextColor(getResources().getColor(android.R.color.holo_green_light));
                 Header.setTextSize(18.0f);
-                Header.setBackground(getResources().getDrawable(R.drawable.cell));
+                Header.setBackground(getResources().getDrawable(R.drawable.month_single));
             }
             Header.setPadding(15, 4, 15, 4);
             Header.setTypeface(null, Typeface.BOLD);
@@ -81,9 +84,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
                 double avg = 0;
                 for (Grade g : grades) {
-                    avg+=g.value;
+                    avg += g.value;
                 }
-                avg/=grades.size();
+                avg /= grades.size();
+                int month = 0;
                 for (int j = -1; j < grades.size(); j++) {
                     TextView Values = new TextView(this);
                     Values.setPadding(30, 4, 30, 4);
@@ -91,11 +95,32 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     Values.setTextSize(18.0f);
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
                     Values.setTypeface(null, Typeface.ITALIC);
-                    Values.setText(j==-1?new DecimalFormat("#.##").format(avg):"" + grades.get(j).value);
-                    Values.setId(j!=-1?grades.get(j).id + 1000000:grades.get(j+1).id-30000);
+                    Values.setText(j == -1 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
+                    Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
                     Values.setOnClickListener(this);
-                    Values.setBackground(getResources().getDrawable(R.drawable.cell));
+                    SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+                    SimpleDateFormat m = new SimpleDateFormat("MM", Locale.ENGLISH);
+                    int mo = 0;
+                    int mo2 = 0;
+                    try {
+                        Date d = s.parse(grades.get(j).date);
+                        mo = Integer.valueOf(m.format(d));
+                        Date dd = s.parse(grades.get(j + 1).date);
+                        mo2 = Integer.valueOf(m.format(dd));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if ((mo != month && mo == mo2) || j == 0) {
+                        Values.setBackground(getResources().getDrawable(R.drawable.month_start));
+                    } else if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
+                        Values.setBackground(getResources().getDrawable(R.drawable.month_end));
+                    } else if (j == -1 || (mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
+                        Values.setBackground(getResources().getDrawable(R.drawable.month_single));
+                    } else {
+                        Values.setBackground(getResources().getDrawable(R.drawable.cell));
+                    }
                     row.addView(Values);
+                    month = mo;
                 }
             } else {
                 TextView Header2 = new TextView(this);
@@ -117,7 +142,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             public void run() {
                 Intent intent = new Intent(TableViewActivity.this, ChangeListener.class);
                 intent.putExtra("dbupgrade", true);
-                intent.putExtra("error",true);
+                intent.putExtra("error", true);
                 intent.setAction("hu.kfg.naplo.CHECK_NOW");
                 upgraderesult = ChangeListener.doCheck(TableViewActivity.this, intent);
             }
@@ -133,17 +158,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         pdialog.cancel();
         Toast.makeText(TableViewActivity.this, "" + db.numberOfRows(), Toast.LENGTH_SHORT).show();
         if (upgraderesult == 4) {
-            Toast t = Toast.makeText(TableViewActivity.this,R.string.emptydb,Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(TableViewActivity.this, R.string.emptydb, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         } else if (upgraderesult == 3) {
             doStuff(db);
         } else if (upgraderesult == -7) {
-            Toast t = Toast.makeText(TableViewActivity.this,R.string.gyia_expired_or_faulty,Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         } else {
-            Toast t = Toast.makeText(TableViewActivity.this,R.string.ohno,Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(TableViewActivity.this, R.string.ohno, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
@@ -158,7 +183,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Grade g = db.getGradeById(clicked_id - 1000000);
             TextView Header2 = new TextView(this);
             Header2.setGravity(Gravity.CENTER);
-            Header2.setText(""+g.value);
+            Header2.setText("" + g.value);
             Header2.setTextSize(26.0f);
             Header2.setTextColor(Color.parseColor("#FFFFFF"));
             Header2.setTypeface(null, Typeface.BOLD);
@@ -167,14 +192,14 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             messageText.setGravity(Gravity.LEFT);
             messageText.setPadding(40, 10, 10, 10);
             messageText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-            Header2.setPadding(0,20,0,20);
+            Header2.setPadding(0, 20, 0, 20);
             new AlertDialog.Builder(this)
-            .setCustomTitle(Header2)
-            .setPositiveButton(g.value>3?"OK :)":g.value>2?"OK :/":"OK :(", null)
-            .setIcon(android.R.drawable.ic_dialog_info)
-            .setCancelable(true)
-            .setView(messageText)
-            .show();
+                    .setCustomTitle(Header2)
+                    .setPositiveButton(g.value > 3 ? "OK :)" : g.value > 2 ? "OK :/" : "OK :(", null)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setCancelable(true)
+                    .setView(messageText)
+                    .show();
         }
 
 
@@ -196,8 +221,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
                     updateDatabase(db);
                 } else {
-                    Toast t = Toast.makeText(this,R.string.no_network_conn,Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.TOP,0,0);
+                    Toast t = Toast.makeText(this, R.string.no_network_conn, Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.TOP, 0, 0);
                     t.show();
                 }
                 return true;
