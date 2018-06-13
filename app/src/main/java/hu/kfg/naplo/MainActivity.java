@@ -50,8 +50,8 @@ public class MainActivity extends PreferenceActivity {
 
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-
-                if (source != null && "0123456789?!".contains(("" + source))) {
+                String notAllowed = "0123456789?!";
+                if (source != null && notAllowed.contains(source)) {
                     return "";
                 }
                 return null;
@@ -63,8 +63,8 @@ public class MainActivity extends PreferenceActivity {
 
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-
-                if (source != null && !"0129.ABCDEIK+".contains(("" + source))) {
+                String notAllowed = "345678?!:-+abcdeiknyNY";
+                if (source != null && notAllowed.contains(source)) {
                     return "";
                 }
                 return null;
@@ -183,8 +183,9 @@ public class MainActivity extends PreferenceActivity {
 
         clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
-                if (((String) obj).length() < 3 || !((String) obj).contains(".")) {
-                    clas.setSummary(prefs.getString("notification_mode",ChangeListener.MODE_FALSE).equals(ChangeListener.MODE_TEACHER)? R.string.teacher_hint : R.string.insert_class);
+                String mode = prefs.getString("notification_mode",ChangeListener.MODE_FALSE);
+                if (((String) obj).length() < 3 || (!((String) obj).contains(".") && !mode.equals(ChangeListener.MODE_TEACHER))) {
+                    clas.setSummary(mode.equals(ChangeListener.MODE_TEACHER)? R.string.teacher_hint : R.string.insert_class);
                 } else {
                     clas.setSummary(((String) obj));
                 }

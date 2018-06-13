@@ -22,8 +22,8 @@
     <string name="vibrate">Rezgő értesítés</string>
     <string name="light">Villogás értesítéskor</string>
     <string name="nightmode">Alvásbarát mód</string>
-    <string name="nightmode_explained">22:30 és 5:30 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
-    <string name="manual">Kézi</string>
+    <string name="nightmode_explained">22:30 és 6:00 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
+    <string name="manual">Kézi ellenőrzés</string>
     <string name="browser">Napló megnyitása a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
     <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
@@ -71,7 +71,7 @@
     <string name="lyukasora">LYUKASÓRA</string>
     <string name="next_time">Majd máskor</string>
     <string name="hide_forever">Nem érdekel</string>
-    <string name="insert_class">Írd be az osztályodat!</string>
+    <string name="insert_class">Írd be az osztályodat! (nagybetűkkel)</string>
     <string name="teacher">Helyettesítés - tanári</string>
     <string name="teacher_hint">Helyettesítés - tanári: Írja be ide a nevét. Ha a táblára többféleképp is fel szokott kerülni, írja be azokat a neveket vesszővel elválasztva (erősen ajánlott!)</string>
     <string name="teacher_name">Tanár neve: </string>

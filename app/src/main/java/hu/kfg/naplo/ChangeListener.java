@@ -22,7 +22,7 @@ import java.text.*;
 public class ChangeListener {
     /*private static */
     static final int NIGHTMODE_START = 2230;
-    static final int NIGHTMODE_STOP = 530;
+    static final int NIGHTMODE_STOP = 600;
     static final String MODE_TEACHER = "teacher";
     static final String MODE_TRUE = "true";
     static final String MODE_STANDINS = "standins";

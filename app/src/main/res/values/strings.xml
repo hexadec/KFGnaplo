@@ -22,8 +22,8 @@
     <string name="vibrate">Vibrating notifications</string>
     <string name="light">Notification light</string>
     <string name="nightmode">Sleep-friendly mode</string>
-    <string name="nightmode_explained">Notifications between 22:30 and 5:30 do not vibrate and flash LED even if it is set</string>
-    <string name="manual">Manual</string>
+    <string name="nightmode_explained">Notifications between 22:30 and 6:00 do not vibrate and flash LED even if it is set</string>
+    <string name="manual">Manual check</string>
     <string name="browser">Open Napló in browser</string>
     <string name="info" translatable="false">Info</string>
     <string name="find_changes_now">Find changes now</string>
@@ -72,7 +72,7 @@
     <string name="lyukasora">FREE-PERIOD</string>
     <string name="next_time">Next time</string>
     <string name="hide_forever">Hide forever</string>
-    <string name="insert_class">Fill in the class field!</string>
+    <string name="insert_class">Fill in the class field! (use capital letters!)</string>
     <string name="teacher">Standins - teacher</string>
     <string name="teacher_hint">Standins - teacher: Enter your name here. If your name may be displayed other ways, separate those by comma (strongly recommended!)</string>
     <string name="teacher_name">Teacher name: </string>
