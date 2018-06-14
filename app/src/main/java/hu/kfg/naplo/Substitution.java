@@ -56,6 +56,9 @@ public class Substitution extends Object {
 
     void setComment(String c) {
         comment = c;
+        if (comment.contains("megtartja")) {
+            subject = "??";
+        }
     }
 
     void setGroup(String gr) {
@@ -101,7 +104,7 @@ public class Substitution extends Object {
         format = format.replace("G", group);
         format = format.replace("P", "" + period);
         format = format.replace("S", subject);
-        format = format.replace("T", teacher);
+        format = format.replace("T", subject.equals("??")?missing:teacher);
         format = format.replace("MM", missing);
         try {
             format = format.replace("C8", "(" + comment.substring(0, 8) + "…)");
