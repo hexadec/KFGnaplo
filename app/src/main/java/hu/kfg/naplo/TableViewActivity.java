@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -88,6 +90,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 }
                 avg /= grades.size();
                 int month = 0;
+                boolean which = false;
                 for (int j = -1; j < grades.size(); j++) {
                     TextView Values = new TextView(this);
                     Values.setPadding(30, 4, 30, 4);
@@ -110,14 +113,32 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    if ((mo != month && mo == mo2) || j == 0) {
-                        Values.setBackground(getResources().getDrawable(R.drawable.month_start));
+                    if ((mo != month && mo == mo2)) {
+                        if (which) {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_start));
+                        } else {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_start2));
+                        }
                     } else if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
-                        Values.setBackground(getResources().getDrawable(R.drawable.month_end));
+                        if (which) {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_end));
+                        } else {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
+                        }
+                        which = !which;
                     } else if (j == -1 || (mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
-                        Values.setBackground(getResources().getDrawable(R.drawable.month_single));
+                        if (which) {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_single));
+                        } else {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_single2));
+                        }
+                        which = !which;
                     } else {
-                        Values.setBackground(getResources().getDrawable(R.drawable.cell));
+                        if (which) {
+                            Values.setBackground(getResources().getDrawable(R.drawable.cell));
+                        } else {
+                            Values.setBackground(getResources().getDrawable(R.drawable.cell2));
+                        }
                     }
                     row.addView(Values);
                     month = mo;
