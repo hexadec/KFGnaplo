@@ -11,6 +11,8 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.text.Html;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +34,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
     DBHelper db;
     int upgraderesult = 0;
+    int VIEW_HEIGHT = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     void doStuff(DBHelper db) {
         TableLayout table = (TableLayout) findViewById(R.id.table);
         table.removeAllViews();
+        table.setMeasureWithLargestChildEnabled(true);
         ArrayList<String> subjects = db.getSubjects();
         for (int i = -1; i < subjects.size(); i++) {
             TableRow row = new TableRow(this);
@@ -76,7 +80,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Header.setTextSize(18.0f);
                 Header.setBackground(getResources().getDrawable(R.drawable.month_single));
             }
-            Header.setPadding(15, 4, 15, 4);
+            Header.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+            Header.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
             Header.setTypeface(null, Typeface.BOLD);
 
             row.addView(Header);
@@ -90,15 +98,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 int month = 0;
                 boolean which = false;
                 for (int j = -1; j < grades.size(); j++) {
-                    TextView Values = new TextView(this);
-                    Values.setPadding(30, 4, 30, 4);
-                    Values.setGravity(Gravity.CENTER);
-                    Values.setTextSize(18.0f);
-                    Values.setTextColor(Color.parseColor("#FFFFFF"));
-                    Values.setTypeface(null, Typeface.ITALIC);
-                    Values.setText(j == -1 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
-                    Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
-                    Values.setOnClickListener(this);
                     SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
                     SimpleDateFormat m = new SimpleDateFormat("MM", Locale.ENGLISH);
                     int mo = 0;
@@ -106,25 +105,43 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     try {
                         Date d = s.parse(grades.get(j).date);
                         mo = Integer.valueOf(m.format(d));
+                        if ((mo != month) || (j + 1 == grades.size() && mo != month)) {
+                            Log.w("month","m");
+                            row.addView(monthSpelled(d, which));
+                        }
                         Date dd = s.parse(grades.get(j + 1).date);
                         mo2 = Integer.valueOf(m.format(dd));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    if ((mo != month && mo == mo2)) {
-                        if (which) {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_start));
-                        } else {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_start2));
-                        }
-                    } else if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
+                    TextView Values = new TextView(this);
+                    Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+                    Values.setGravity(Gravity.CENTER);
+                    Values.setTextSize(18.0f);
+                    Values.setTextColor(Color.parseColor("#FFFFFF"));
+                    Values.setTypeface(null, Typeface.ITALIC);
+                    Values.setText(j == -1 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
+                    Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
+                    Values.setOnClickListener(this);
+                    Values.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
+                    if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
                         if (which) {
                             Values.setBackground(getResources().getDrawable(R.drawable.month_end));
                         } else {
                             Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
                         }
                         which = !which;
-                    } else if (j == -1 || (mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
+                    } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
+                        if (which) {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_end));
+                        } else {
+                            Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
+                        }
+                        which = !which;
+                    } else if (j==-1) {
                         if (which) {
                             Values.setBackground(getResources().getDrawable(R.drawable.month_single));
                         } else {
@@ -263,6 +280,33 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private View monthSpelled(Date d, boolean whichColor) {
+        String month_spelled = "-";
+        try {
+            month_spelled = new SimpleDateFormat("MMM", Locale.getDefault()).format(d);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        TextView Values = new TextView(this);
+        Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.5f, getResources().getDisplayMetrics()),
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()));
+        Values.setGravity(Gravity.CENTER);
+        Values.setTextSize(12.0f);
+        Values.setTextColor(Color.parseColor("#FFFFFF"));
+        Values.setTypeface(null, Typeface.ITALIC);
+        Values.setText(month_spelled);
+        Values.setOnClickListener(this);
+        Values.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
+        if (whichColor) {
+            Values.setBackground(getResources().getDrawable(R.drawable.month_start));
+        } else {
+            Values.setBackground(getResources().getDrawable(R.drawable.month_start2));
+        }
+        return Values;
     }
 
 }
