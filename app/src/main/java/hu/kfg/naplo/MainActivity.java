@@ -134,7 +134,7 @@ public class MainActivity extends PreferenceActivity {
                     "Ok",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            prefs.edit().putBoolean("inst", true).commit();
+                            prefs.edit().putBoolean("inst", true).apply();
                             showOptimizationDialog(prefs);
                             dialog.dismiss();
                         }

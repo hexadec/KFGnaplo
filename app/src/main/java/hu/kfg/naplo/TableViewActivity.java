@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
@@ -172,6 +173,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     void updateDatabase(DBHelper db) {
+        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("url","").length()<MainActivity.URL_MIN_LENGTH) {
+            Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_LONG);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+            finish();
+            return;
+        }
         ProgressDialog pdialog = ProgressDialog.show(TableViewActivity.this, "",
                 getString(R.string.upgrading), true);
         Thread thr = new Thread(new Runnable() {
@@ -253,12 +261,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.refresh:
-                if (((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null
+                if (getSystemService(Context.CONNECTIVITY_SERVICE) != null
+                        && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() != null
                         && ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
                     updateDatabase(db);
                 } else {
                     Toast t = Toast.makeText(this, R.string.no_network_conn, Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.TOP, 0, 0);
+                    t.setGravity(Gravity.TOP, 0, 30);
                     t.show();
                 }
                 return true;
@@ -290,9 +299,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             e.printStackTrace();
         }
         TextView Values = new TextView(this);
-        Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+        Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
                 (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.5f, getResources().getDisplayMetrics()),
-                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
                 (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()));
         Values.setGravity(Gravity.CENTER);
         Values.setTextSize(12.0f);
