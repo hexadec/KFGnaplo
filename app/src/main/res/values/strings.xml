@@ -78,4 +78,6 @@
     <string name="teacher_name">Teacher name: </string>
     <string name="no_new_substitution2">There is no new substitution for you!</string>
     <string name="new_substitution2">You have a new substitution!</string>
+    <string name="battery_opt_huawei_26">In order for Karinthy Napló to work properly on Huawei devices, additional settings need to be done. Please, in the next screen set KFGapp to manual control, but leave all other boxes enabled!</string>
+    <string name="battery_opt_err_huawei_26">Oh no, it did not work :(. Open settings app, select Battery->Startup, and in the next screen set KFGapp to manual control, but leave all other boxes enabled!</string>
 </resources>

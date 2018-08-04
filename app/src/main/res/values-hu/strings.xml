@@ -77,4 +77,6 @@
     <string name="teacher_name">Tanár neve: </string>
     <string name="no_new_substitution2">Nincs új helyettesítésed!</string>
     <string name="new_substitution2">Új helyettesítésed van!</string>
+    <string name="battery_opt_huawei_26">Ahhoz, hogy a KFGapp Huawei készülékeken is működjön, további beállításokra van szükség. A következő képernyőn a KFGapp-ot állítsd kézi kezelésre, de az összes többi dobozt hagyd engedélyezve!</string>
+    <string name="battery_opt_err_huawei_26">Ajaj, ez nem működött :(. Nyisd meg a beállításokat, majd Akkumulátor->Indítás, és a KFGapp-ot állítsd kézi kezelésre, de az összes többi dobozt hagyd engedélyezve!</string>
 </resources>

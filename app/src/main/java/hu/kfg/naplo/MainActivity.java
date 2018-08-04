@@ -1,7 +1,6 @@
 package hu.kfg.naplo;
 
 import android.app.*;
-import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
@@ -260,14 +259,7 @@ public class MainActivity extends PreferenceActivity {
 
         about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
-                String version;
-                PackageInfo pInfo;
-                try {
-                    pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                    version = pInfo.versionName;
-                } catch (Exception e) {
-                    version = "ERR";
-                }
+                String version = BuildConfig.VERSION_NAME;
                 AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
                 adb.setTitle(R.string.about);
                 adb.setPositiveButton("Ok", null);
@@ -330,6 +322,23 @@ public class MainActivity extends PreferenceActivity {
                     }
                 });
             } else {
+                if (Build.VERSION.SDK_INT >= 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+                    optimizationDialogWithOnClickListener(R.string.battery_opt_huawei_26, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent battOpt = new Intent();
+                            battOpt.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity"));
+                            try {
+                                startActivity(battOpt);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei_26, Toast.LENGTH_LONG).show();
+                            } finally {
+                                prefs.edit().putBoolean("huawei_protected", true).commit();
+                            }
+                        }
+                    });
+                }
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
