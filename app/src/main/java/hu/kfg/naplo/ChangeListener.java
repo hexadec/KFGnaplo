@@ -32,7 +32,7 @@ public class ChangeListener {
     final static String TAG = "KFGnaplo-check";
     static final int STANDINS_ID = 100;
 
-    static boolean running = false;
+    private static boolean running = false;
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -40,13 +40,14 @@ public class ChangeListener {
         if (mode.equals(MODE_FALSE)) {
             return;
         }
-        if (intent != null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            //JobManagerService.scheduleJob(context, false);
+        if (intent != null && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             CheckerJob.runJobImmediately();
             return;
         }
-        if (((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo() == null
-                || !((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo().isConnected()) {
+        ConnectivityManager cManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cManager == null
+                || cManager.getActiveNetworkInfo() == null
+                || !cManager.getActiveNetworkInfo().isConnected()) {
             return;
         }
         new Thread(new Runnable() {
@@ -85,7 +86,7 @@ public class ChangeListener {
                 .getDefaultSharedPreferences(context);
         String kfgserver = pref.getString("url", "1");
         if (kfgserver.length() < MainActivity.URL_MIN_LENGTH) {
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
@@ -95,23 +96,15 @@ public class ChangeListener {
             return -1;
         }
 
-        String version = "0.0";
-        android.content.pm.PackageInfo pInfo = null;
-        try {
-            pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            version = pInfo.versionName;
-        } catch (Exception e) {
-        }
-
         HttpURLConnection urlConnection;
         try {
             URL url = new URL(kfgserver);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + version + ")");
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + BuildConfig.VERSION_NAME + ")");
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
@@ -122,7 +115,7 @@ public class ChangeListener {
             return -1;
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -137,16 +130,15 @@ public class ChangeListener {
         int counter = 0;
         int notesc = 0;
         boolean hasstarted = false;
-        boolean hasended = false;
-        byte notes[] = new byte[512];
+        final byte notes[] = new byte[512];
         String subjects[] = new String[512];
         String descriptions[] = new String[512];
-        List<Grade> mygrades = new ArrayList<>();
+        final List<Grade> mygrades = new ArrayList<>();
         try {
             if (urlConnection.getResponseCode() % 300 < 100) {
                 notifyIfChanged(new int[]{1, 0, 0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
                 Log.w(TAG, urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
-                if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+                if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
@@ -158,14 +150,11 @@ public class ChangeListener {
             BufferedReader rd = new BufferedReader
                     (new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
             String line;
-            notesc = 0;
-            counter = 0;
             Grade grade = new Grade((byte) 0);
             while ((line = rd.readLine()) != null) {
                 if (!hasstarted && line.contains("<div data-role=\"content\" style=\"padding: 0px;\">"))
                     hasstarted = true;
-                if (line.contains("</article>") && !hasended) {
-                    hasended = true;
+                if (line.contains("</article>")) {
                     sb.append(line);
                     break;
                 }
@@ -194,7 +183,6 @@ public class ChangeListener {
                     int i = line.indexOf(">");
                     grade.addSubject(subjects[notesc - 1] = line.substring(i + 1, line.indexOf("<", i)));
                     mygrades.add(grade);
-                    //Log.i("Grades",grade.toString());
                 }
                 counter++;
                 sb.append(line);
@@ -202,12 +190,12 @@ public class ChangeListener {
             if (intent.hasExtra("dbupgrade")) {
                 Log.i("Grades", "Size: " + mygrades.size());
                 if (mygrades.size() < 1) return 4;
-                if (new DBHelper(context).upgradeDatabase(mygrades) == true) return 3;
+                if (new DBHelper(context).upgradeDatabase(mygrades)) return 3;
                 else return 5;
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -227,7 +215,7 @@ public class ChangeListener {
         } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, e.getMessage());
             Log.w(TAG, "" + (subjects[0] == null));
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
@@ -237,7 +225,7 @@ public class ChangeListener {
             return -1;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -258,13 +246,11 @@ public class ChangeListener {
         running = true;
 
         final int numofnotes = pref.getInt("numberofnotes", 0);
-        final int numofnotes0 = notesc;
         try {
 
-            pref.edit().putInt("numberofnotes", notesc).commit();
-            pref.edit().putLong("last_check", System.currentTimeMillis()).commit();
-            if (numofnotes0 - numofnotes > 0) {
-                int i = numofnotes0 - numofnotes;
+            pref.edit().putInt("numberofnotes", notesc).putLong("last_check", System.currentTimeMillis()).commit();
+            if (notesc - numofnotes > 0) {
+                int i = notesc - numofnotes;
                 String text = "";
                 DBHelper db1 = new DBHelper(context);
                 for (int i2 = 0; i2 < i; i2++) {
@@ -285,10 +271,10 @@ public class ChangeListener {
                     doCheck(context, intent);
                     running = false;
                     return 0;
-                } else if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+                } else if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
-                            Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + numofnotes0 + "/" + numofnotes, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + mygrades.size() + "/" + numofnotes, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -297,7 +283,7 @@ public class ChangeListener {
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.naplo.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -312,7 +298,7 @@ public class ChangeListener {
         return 0;
     }
 
-    public static int doStandinsCheck(final Context context, final Intent intent) {
+    static void doStandinsCheck(final Context context, final Intent intent) {
         final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
@@ -324,7 +310,7 @@ public class ChangeListener {
         String classs = pref.getString("class", "noclass");
         String mode = pref.getString("notification_mode", MODE_FALSE);
         if (classs.equals("noclass")) {
-            return -1;
+            return;
         }
         if (classs.length() < 3) {
             showSuccessToast.postAtFrontOfQueue(new Runnable() {
@@ -332,25 +318,18 @@ public class ChangeListener {
                     Toast.makeText(context, "Írd be az osztályodat!", Toast.LENGTH_SHORT).show();
                 }
             });
-            return -1;
+            return;
         }
         String kfgserver = "https://apps.karinthy.hu/helyettesites/";
-		/*String version = "0.0";
-		android.content.pm.PackageInfo pInfo = null;
-		try {
-			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-			version = pInfo.versionName;
-		} catch (Exception e){}*/
 
         HttpURLConnection urlConnection;
         try {
             URL url = new URL(kfgserver);
             urlConnection = (HttpURLConnection) url.openConnection();
-            //urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v"+ version + ")");
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.standins.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
@@ -358,10 +337,10 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            return -1;
+            return;
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
+            if (intent.hasExtra("error") && "hu.kfg.standins.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -369,7 +348,7 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            return -1;
+            return;
         }
 
 
@@ -378,9 +357,7 @@ public class ChangeListener {
             try {
                 String name = classs.replace(", ", ",").replace(" ,", ",");
                 String[] names = name.split(",");
-                for (String n : names) {
-                    cls.add(n);
-                }
+                cls.addAll(Arrays.asList(names));
             } catch (Exception e) {
                 cls.add(classs);
             }
@@ -403,7 +380,7 @@ public class ChangeListener {
                 }
             }
         }
-        StringBuilder sb = new StringBuilder();
+
         String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
                 .replace(", ", ",").replace(" ,", "");
         String ilessons[] = null;
@@ -452,6 +429,7 @@ public class ChangeListener {
                     try {
                         period = Integer.valueOf(line.substring(19, line.length() - 6));
                     } catch (Exception e) {
+                        Log.d(TAG, "No lesson specified");
                     }
                     sub.setTime(period, day == 1);
                 }
@@ -460,6 +438,7 @@ public class ChangeListener {
                     try {
                         room = Integer.valueOf(line.substring(17, line.length() - 5));
                     } catch (Exception e) {
+                        Log.d(TAG, "No room specified!");
                     }
                     sub.setRoom(room);
                 }
@@ -467,17 +446,12 @@ public class ChangeListener {
                     sub.setMissingTeacher(line.substring(28, line.length() - 5));
                 }
                 counter++;
-                sb.append(line);
-
 
             }
             reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
         } catch (Exception e) {
             e.printStackTrace();
-            return -1;
+            return;
         }
         pref.edit().putLong("last_check2", System.currentTimeMillis()).commit();
         StringBuilder text = new StringBuilder();
@@ -494,7 +468,8 @@ public class ChangeListener {
                 }
             }
         } else {
-            substitutions: for (Substitution sub : subs) {
+            substitutions:
+            for (Substitution sub : subs) {
                 for (String cla : cls) {
                     if (cla.equals(sub.getGroup()) && !sub.isOver()) {
                         if (ignore) {
@@ -541,8 +516,6 @@ public class ChangeListener {
             }
         }
         pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))).apply();
-
-        return -1;
     }
 
     private static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
@@ -554,13 +527,18 @@ public class ChangeListener {
                 .getDefaultSharedPreferences(context);
         int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
         boolean nightmode = pref.getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
-        String oldtext = oldtext = null;
+        String oldtext = "";
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (state[0] == 0 && notificationManager != null) {
+        if (notificationManager == null) {
+            Log.e(TAG, "NotificationManager instance is null!");
+            return;
+        }
+        if (state[0] == 0) {
             notificationManager.cancel(1);
             if (isNotificationVisible(context)) {
-                oldtext = pref.getString("oldtext", null);
+                oldtext += '\n';
+                oldtext += pref.getString("oldtext", "");
             }
         }
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
@@ -587,15 +565,16 @@ public class ChangeListener {
         n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
         n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText(((state[0] == 0 ? context.getString(R.string.new_grade) + "\n" : "") + subjects + (oldtext == null ? "" : "\n" + oldtext))).build();
+                .bigText(((state[0] == 0 ? context.getString(R.string.new_grade) + "\n" : "") + subjects + oldtext)).build();
 //				notification.number = numberoflessons;
         notificationManager.notify(state[0], notification);
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
     }
 
     private static boolean isNotificationVisible(Context context) {
-        if (Build.VERSION.SDK_INT < 23) return false;
-        StatusBarNotification[] notifications = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+        NotificationManager nManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT < 23 || nManager == null) return false;
+        StatusBarNotification[] notifications = nManager.getActiveNotifications();
         if (notifications.length == 0) return false;
         for (StatusBarNotification s : notifications) {
             if (s.getId() == 0) return true;
@@ -607,25 +586,22 @@ public class ChangeListener {
         if (data == null) throw new Exception();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(data);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         byte[] byteData = md.digest();
-        for (int i = 0; i < byteData.length; i++) {
-            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        for (byte byted : byteData) {
+            sb.append(Integer.toString((byted & 0xff) + 0x100, 16).substring(1));
         }
         return sb.toString();
     }
 
     private static void notifyIfStandinsChanged(int[] state, Context context, String classs, String subjects, int numberoflessons) {
-        Intent intent = new Intent(context, MainActivity.class);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse("https://apps.karinthy.hu/helyettesites"));
-        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
         PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
         Notification.Builder n = new Notification.Builder(context)
                 .setContentTitle(context.getString(R.string.kfg_standins))
                 .setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")
                 .setSmallIcon(R.drawable.ic_standins)
-                //.setContentIntent(pIntent)
                 .setAutoCancel(true);
         int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
         boolean nightmode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
@@ -639,19 +615,17 @@ public class ChangeListener {
             n.setVisibility(Notification.VISIBILITY_PUBLIC);
         }
         NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open_site), epIntent);
-            Notification notification = new Notification.BigTextStyle(n)
-                    .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
-            notification.number = numberoflessons;
-            notificationManager.notify(STANDINS_ID, notification);
-        } else {
-            Notification not = n.getNotification();
-            not.number = numberoflessons;
-            notificationManager.notify(STANDINS_ID, not);
+        if (notificationManager == null) {
+            Log.e(TAG, "NotificationManager instance is null!");
+            return;
         }
+        n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open_site), epIntent);
+        Notification notification = new Notification.BigTextStyle(n)
+                .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
+        notification.number = numberoflessons;
+        notificationManager.notify(STANDINS_ID, notification);
     }
 
 }

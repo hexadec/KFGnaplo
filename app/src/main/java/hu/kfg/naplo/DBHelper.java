@@ -22,15 +22,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String GRADES_COLUMN_TEACHER = "teacher";
     private static final String GRADES_COLUMN_WEIGHTED = "weighted";
 
-    public DBHelper(Context context) {
+    DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table grades " +
-                        "(id integer primary key, description text,teacher text,date text, subject text,value smallint)"
+                "create table grades (id integer primary key, description text,teacher text,date text, subject text,value smallint)"
         );
     }
 
@@ -52,25 +51,16 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     boolean insertGrade(Grade grade) {
-        //Log.i("Grades",grade.description+grade.teacher+grade.date+grade.subject+grade.value);
         return insertGrade(grade.description, grade.teacher, grade.date, grade.subject, grade.value);
-    }
-
-    Cursor getData(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from grades where id=" + id + "", null);
-        return res;
     }
 
     ArrayList<String> getSubjects() {
         ArrayList<String> array_list = new ArrayList<String>();
-
-        //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select distinct subject from grades order by subject", null);
         res.moveToFirst();
 
-        while (res.isAfterLast() == false) {
+        while (!res.isAfterLast()) {
             array_list.add(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
             res.moveToNext();
         }
@@ -85,7 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\" order by date desc", null);
         res.moveToFirst();
         Grade g;
-        while (res.isAfterLast() == false) {
+        while (!res.isAfterLast()) {
             g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
             g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
             g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
@@ -104,7 +94,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("select * from grades where id=\"" + id + "\"", null);
         res.moveToFirst();
         Grade g = new Grade((byte)0);
-        while (res.isAfterLast() == false) {
+        while (!res.isAfterLast()) {
             g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
             g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
             g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
@@ -137,10 +127,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    boolean cleanDatabase() {
+    void cleanDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS grades");
         onCreate(db);
-        return true;
     }
 }

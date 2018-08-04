@@ -220,8 +220,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
     @Override
     public void onClick(View v) {
-        // TODO Auto-generated method stub
-
         int clicked_id = v.getId();
         if (clicked_id > -1) {
             Grade g = db.getGradeById(clicked_id - 1000000);
@@ -258,7 +256,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.refresh:
                 if (getSystemService(Context.CONNECTIVITY_SERVICE) != null

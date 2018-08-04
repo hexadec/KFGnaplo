@@ -73,7 +73,7 @@ public class MainActivity extends PreferenceActivity {
         final BroadcastReceiver r = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) && !prefs.getString("notification_mode", "false").equals("false")) {
+                if (Intent.ACTION_USER_PRESENT.equals(intent.getAction()) && !prefs.getString("notification_mode", "false").equals("false")) {
                     SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     long checked = p.getLong("last_check", 0L);
                     if (System.currentTimeMillis() - checked > (long) (Long.valueOf(
@@ -86,7 +86,7 @@ public class MainActivity extends PreferenceActivity {
         };
         registerReceiver(r, new IntentFilter(Intent.ACTION_USER_PRESENT));
         interval.setSummary(String.format(getString(R.string.apprx), interval.getSummary()));
-        //SWITCH
+
         switch (prefs.getString("notification_mode", "false")) {
             case ChangeListener.MODE_FALSE:
                 interval.setEnabled(false);
@@ -157,6 +157,10 @@ public class MainActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference pref) {
                 ConnectivityManager cm =
                         (ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (cm == null || cm.getActiveNetworkInfo() == null) {
+                    Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 boolean isConnected = activeNetwork != null &&
                         activeNetwork.isConnected();

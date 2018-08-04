@@ -47,10 +47,6 @@ public class Grade extends Object{
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Grade) {
-            return toString().equals(((Grade)obj).toString());
-        } else {
-            return false;
-        }
+        return obj instanceof Grade && toString().equals(obj.toString());
     }
 }

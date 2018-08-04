@@ -16,7 +16,6 @@ public class CheckerJob extends Job {
     @Override
     @NonNull
     protected Result onRunJob(Params params) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
         ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
         scheduleJob();
         return Result.SUCCESS;
@@ -25,7 +24,7 @@ public class CheckerJob extends Job {
     static void scheduleJob() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(App.getContext());
         long repeat = Long.valueOf(pref.getString("auto_check_interval", "300")) * MINUTE;
-        int jobId = new JobRequest.Builder(CheckerJob.TAG)
+        new JobRequest.Builder(CheckerJob.TAG)
                 .setExecutionWindow(repeat-MINUTE*20, repeat+MINUTE*40)
                 .setBackoffCriteria(5_000L, JobRequest.BackoffPolicy.EXPONENTIAL)
                 .setRequiresDeviceIdle(false)

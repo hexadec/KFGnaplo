@@ -8,21 +8,16 @@ import java.util.Date;
 
 public class Substitution extends Object {
 
-    boolean today;
-    int period;
-    boolean over = false;
-    int room;
-    String group;
-    String subject;
-    String teacher;
-    String comment;
-    String missing;
+    private boolean today;
+    private int period;
+    private boolean over = false;
+    private int room;
+    private String group;
+    private String subject;
+    private String teacher;
+    private String comment;
+    private String missing;
     private Context context;
-
-    Substitution(Context con, String t) {
-        teacher = t;
-        context = con;
-    }
 
     Substitution(Context con) {
         context = con;
