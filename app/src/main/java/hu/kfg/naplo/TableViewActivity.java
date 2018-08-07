@@ -200,7 +200,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
         }
         pdialog.cancel();
-        Toast.makeText(TableViewActivity.this, "" + db.numberOfRows(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(TableViewActivity.this, TableViewActivity.this.getString(R.string.title_activity_table_view) + ": " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
         if (upgraderesult == 4) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.emptydb, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);

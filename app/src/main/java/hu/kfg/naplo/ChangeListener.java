@@ -130,9 +130,6 @@ public class ChangeListener {
         int counter = 0;
         int notesc = 0;
         boolean hasstarted = false;
-        final byte notes[] = new byte[512];
-        String subjects[] = new String[512];
-        String descriptions[] = new String[512];
         final List<Grade> mygrades = new ArrayList<>();
         try {
             if (urlConnection.getResponseCode() % 300 < 100) {
@@ -162,7 +159,7 @@ public class ChangeListener {
                     counter = 0;
                 }
                 if ((counter == 3 || counter == 2) && (line.contains("<div class=\"credit ini_fresh\">") || line.contains("<div class=\"credit ini_credit\">"))) {
-                    grade = new Grade(notes[notesc] = (byte) Character.getNumericValue(line.charAt(line.indexOf(">") + 1)));
+                    grade = new Grade((byte) Character.getNumericValue(line.charAt(line.indexOf(">") + 1)));
                     notesc++;
                 }
                 if ((counter == 4 || counter == 3) && (line.contains("<div class=\"teacher\">"))) {
@@ -176,12 +173,12 @@ public class ChangeListener {
                 if ((counter == 8 || counter == 9) && (line.contains("<div class=\"description\">"))) {
                     int i = line.indexOf(">");
                     String desc;
-                    descriptions[notesc - 1] = ((desc = line.substring(i + 1, line.indexOf("<", i))).length() > 21 ? desc.substring(0, 20) + "…" : desc);
+                    desc = line.substring(i + 1, line.indexOf("<", i));
                     grade.addDescription(desc);
                 }
                 if ((counter == 11 || counter == 10) && (line.contains("<div class=\"creditbox_footer\">"))) {
                     int i = line.indexOf(">");
-                    grade.addSubject(subjects[notesc - 1] = line.substring(i + 1, line.indexOf("<", i)));
+                    grade.addSubject(line.substring(i + 1, line.indexOf("<", i)));
                     mygrades.add(grade);
                 }
                 counter++;
@@ -210,11 +207,11 @@ public class ChangeListener {
                 Log.w(TAG, sb.toString());
                 throw new Exception("Content too small \nLength: " + sb.toString().length());
             }
-            if (subjects[0] == null || subjects[0].length() < 2)
-                throw new IndexOutOfBoundsException("Content too small \nLength: " + sb.toString());
+            //if (subjects[0] == null || subjects[0].length() < 2)
+            //    throw new IndexOutOfBoundsException("Content too small \nLength: " + sb.toString());
         } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, e.getMessage());
-            Log.w(TAG, "" + (subjects[0] == null));
+            Log.w(TAG, "Grades found: " + mygrades.size());
             if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
@@ -234,31 +231,37 @@ public class ChangeListener {
             }
             return -1;
         }
-        String[] s = new String[notesc];
-        for (int i = 0; i < notesc; i++) {
-            s[i] = subjects[i] + ": " + notes[i] + (descriptions[i].length() < 1 ? "" : "  (" + descriptions[i] + ")");
-        }
 
         if (running) {
             Log.w(TAG, "A process is already running");
             return -1;
         }
         running = true;
-
+        byte[] notes = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(mygrades);
+            notes = baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Cannot convert grades to byte array!");
+        }
         final int numofnotes = pref.getInt("numberofnotes", 0);
         try {
 
             pref.edit().putInt("numberofnotes", notesc).putLong("last_check", System.currentTimeMillis()).commit();
             if (notesc - numofnotes > 0) {
                 int i = notesc - numofnotes;
-                String text = "";
+                StringBuilder text = new StringBuilder();
                 DBHelper db1 = new DBHelper(context);
                 for (int i2 = 0; i2 < i; i2++) {
-                    text += s[i2] + ", \n";
+                    text.append(mygrades.get(i2).getNotificationFormat());
+                    text.append(", \n");
                     if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
                 }
-                text = text.substring(0, text.length() - 2);
-                notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, kfgserver, text);
+                text.deleteCharAt(text.length() - 2);
+                notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, kfgserver, text.toString());
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
                 running = false;
             } else {

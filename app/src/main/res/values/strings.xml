@@ -32,7 +32,7 @@
     <string name="gyia_expired_or_faulty">The GYIA code has expired or you gave a wrong code, open the Naplo to renew!</string>
     <string name="gyia_expired_not">The GYIA code is expired or wrong, please open to renew</string>
     <string name="no_new_grade">You haven\'t got a new grade!</string>
-    <string name="unknown_change">Something has changed. Maybe a missed lesson was registered?</string>
+    <string name="unknown_change">Something has changed. Maybe a grade was changed?</string>
     <string name="new_grade">You got a new grade!</string>
     <string name="open">Open Naplo</string>
     <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Icons by: Freepik &amp; ToffeeNut&lt;br/>Uses Android-Job by evernote&lt;br/>&lt;i>Unofficial app!&lt;i/></string>

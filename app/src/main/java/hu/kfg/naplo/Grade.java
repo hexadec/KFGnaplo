@@ -1,13 +1,16 @@
 package hu.kfg.naplo;
 
 
-public class Grade extends Object{
+import java.io.Serializable;
+
+public class Grade implements Serializable{
+    private static final long serialVersionUID = Integer.MAX_VALUE;
     byte value;
     String date;
     String teacher;
     String subject;
     String description;
-    int id;
+    transient int id;
 
     public Grade(byte value) {
         this.value = value;
@@ -15,7 +18,11 @@ public class Grade extends Object{
 
     public boolean addDescription(String s) {
         boolean returnv = description != null;
-        description = s;
+        if (s == null || s.length() < 1) {
+            description = "";
+        } else {
+            description = s;
+        }
         return returnv;
     }
 
@@ -38,6 +45,17 @@ public class Grade extends Object{
         boolean returnv = date != null;
         date = s;
         return returnv;
+    }
+
+    public String getNotificationFormat() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(subject);
+        builder.append(": ");
+        builder.append(value);
+        builder.append(" (");
+        builder.append(description.length() > 21 ? description.substring(0, 20) + "…" : description);
+        builder.append(')');
+        return builder.toString();
     }
 
     @Override
