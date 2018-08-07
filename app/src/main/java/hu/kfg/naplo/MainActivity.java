@@ -14,6 +14,10 @@ import android.net.*;
 
 import com.evernote.android.job.JobManager;
 
+import java.io.FileNotFoundException;
+
+import hu.hexadec.killerwhale.OrcaManager;
+
 
 public class MainActivity extends PreferenceActivity {
 
@@ -321,7 +325,7 @@ public class MainActivity extends PreferenceActivity {
                             e.printStackTrace();
                             Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
                         } finally {
-                            prefs.edit().putBoolean("huawei_protected", true).commit();
+                            prefs.edit().putBoolean("huawei_protected", true).apply();
                         }
                     }
                 });
@@ -338,7 +342,7 @@ public class MainActivity extends PreferenceActivity {
                                 e.printStackTrace();
                                 Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei_26, Toast.LENGTH_LONG).show();
                             } finally {
-                                prefs.edit().putBoolean("huawei_protected", true).commit();
+                                prefs.edit().putBoolean("huawei_protected", true).apply();
                             }
                         }
                     });
@@ -368,11 +372,32 @@ public class MainActivity extends PreferenceActivity {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
                     } finally {
-                        prefs.edit().putBoolean("huawei_protected", true).commit();
+                        prefs.edit().putBoolean("huawei_protected", true).apply();
                     }
                 }
             });
 
+        }
+        {
+            //Additional vendor specific optimizations, mainly untested
+            try {
+                final OrcaManager orcaManager = new OrcaManager(this, new String[]{"Huawei"});
+                Log.d("kk", "" + orcaManager.hasVendorOptimization());
+                if (orcaManager.hasVendorOptimization() && !prefs.getBoolean("vendor_optimizaion_dialog", false)) {
+                    optimizationDialogWithOnClickListener(R.string.battery_opt_vendor_specific, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            orcaManager.startIntents();
+                        }
+                    });
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(MainActivity.this, R.string.battery_opt_err_vendor_specific, Toast.LENGTH_LONG).show();
+            } finally {
+                prefs.edit().putBoolean("vendor_optimizaion_dialog", true).apply();
+            }
         }
     }
 

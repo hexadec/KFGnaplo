@@ -79,4 +79,6 @@
     <string name="new_substitution2">Új helyettesítésed van!</string>
     <string name="battery_opt_huawei_26">Ahhoz, hogy a KFGapp Huawei készülékeken is működjön, további beállításokra van szükség. A következő képernyőn a KFGapp-ot állítsd kézi kezelésre, de az összes többi dobozt hagyd engedélyezve!</string>
     <string name="battery_opt_err_huawei_26">Ajaj, ez nem működött :(. Nyisd meg a beállításokat, majd Akkumulátor->Indítás, és a KFGapp-ot állítsd kézi kezelésre, de az összes többi dobozt hagyd engedélyezve!</string>
+    <string name="battery_opt_vendor_specific">A készüléked gyártója módosította az eredeti Android rendszert, lehetetlenné téve számos appnak a háttérben futást. Ahhoz hogy a KFGapp normálisan működhessen add hozzá a kivételek listájához a következő képernyőn (vélhetően a kevesebb alkalmazást tartalmazó lista)</string>
+    <string name="battery_opt_err_vendor_specific">Jaj ne, ez nem működött :(. Nyisd meg a Beállítások vagy Készülékkezelő alkalmazást és keresd meg a megfelelő beállításokat. Amennyiben nem találod, a KFGapp vélhetően nem fog működni :(</string>
 </resources>
