@@ -153,7 +153,7 @@ public class MainActivity extends PreferenceActivity {
             AlertDialog alert11 = builder1.create();
             alert11.show();
         } else {
-            showOptimizationDialog(prefs);
+            showOptimizationDialog(getSharedPreferences("optimization_preferences",MODE_PRIVATE));
         }
 
 
@@ -311,7 +311,7 @@ public class MainActivity extends PreferenceActivity {
             return;
         }
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
-        if (Build.VERSION.SDK_INT >= 23 && pwm!=null && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
+        if (Build.VERSION.SDK_INT >= 23) {
             //Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
             if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
@@ -328,7 +328,7 @@ public class MainActivity extends PreferenceActivity {
                             prefs.edit().putBoolean("huawei_protected", true).apply();
                         }
                     }
-                });
+                }, prefs);
             } else {
                 if (Build.VERSION.SDK_INT >= 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
                     optimizationDialogWithOnClickListener(R.string.battery_opt_huawei_26, new DialogInterface.OnClickListener() {
@@ -345,8 +345,11 @@ public class MainActivity extends PreferenceActivity {
                                 prefs.edit().putBoolean("huawei_protected", true).apply();
                             }
                         }
-                    });
+                    }, prefs);
                 }
+            }
+
+            if (pwm != null && !pwm.isIgnoringBatteryOptimizations("hu.kfg.naplo")) {
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -358,9 +361,10 @@ public class MainActivity extends PreferenceActivity {
                             startActivity(battOpt);
                         }
                     }
-                });
+                }, prefs);
             }
-        } else if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+
+        } else if (Build.VERSION.SDK_INT < 23 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
             optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -375,21 +379,21 @@ public class MainActivity extends PreferenceActivity {
                         prefs.edit().putBoolean("huawei_protected", true).apply();
                     }
                 }
-            });
+            }, prefs);
 
         }
         {
             //Additional vendor specific optimizations, mainly untested
             try {
                 final OrcaManager orcaManager = new OrcaManager(this, new String[]{"Huawei"});
-                Log.d("kk", "" + orcaManager.hasVendorOptimization());
+                Log.d("Vendor opt", "" + orcaManager.hasVendorOptimization());
                 if (orcaManager.hasVendorOptimization() && !prefs.getBoolean("vendor_optimizaion_dialog", false)) {
                     optimizationDialogWithOnClickListener(R.string.battery_opt_vendor_specific, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             orcaManager.startIntents();
                         }
-                    });
+                    }, prefs);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -401,7 +405,7 @@ public class MainActivity extends PreferenceActivity {
         }
     }
 
-    void optimizationDialogWithOnClickListener(int textResid, DialogInterface.OnClickListener runnable) {
+    void optimizationDialogWithOnClickListener(int textResid, DialogInterface.OnClickListener runnable, final SharedPreferences prefs) {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(textResid);
         builder1.setCancelable(false);
@@ -410,7 +414,7 @@ public class MainActivity extends PreferenceActivity {
         builder1.setNegativeButton(R.string.hide_forever,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("never_show_opt_dialog", true).apply();
+                        prefs.edit().putBoolean("never_show_opt_dialog", true).apply();
                         dialog.cancel();
                     }
                 });
