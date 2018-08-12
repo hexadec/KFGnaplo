@@ -41,6 +41,15 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
+
+        if (Intent.ACTION_VIEW.equals(getIntent().getAction()) &&
+                "https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
+                getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
+            PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
+                    .putString("url",getIntent().getData().toString()).commit();
+            Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
+        }
+
         db = new DBHelper(this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);

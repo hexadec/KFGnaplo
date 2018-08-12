@@ -100,7 +100,9 @@ public class ChangeListener {
         try {
             URL url = new URL(kfgserver);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + BuildConfig.VERSION_NAME + ")");
+            String userAgentPrefix = System.getProperty("http.agent", "Mozilla/5.0 ");
+            userAgentPrefix = userAgentPrefix.substring(0, userAgentPrefix.indexOf("(")>0 ? userAgentPrefix.indexOf("(") : userAgentPrefix.length());
+            urlConnection.setRequestProperty("User-Agent", userAgentPrefix + "(Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + BuildConfig.VERSION_NAME + ")");
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");

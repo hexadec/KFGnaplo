@@ -71,7 +71,7 @@
     <string name="open_standins">Open Stand-ins page in browser</string>
     <string name="lyukasora">FREE-PERIOD</string>
     <string name="next_time">Next time</string>
-    <string name="hide_forever">Hide forever</string>
+    <string name="hide_forever">I don\'t care</string>
     <string name="insert_class">Fill in the class field! (use capital letters!)</string>
     <string name="teacher">Standins - teacher</string>
     <string name="teacher_hint">Standins - teacher: Enter your name here. If your name may be displayed other ways, separate those by comma (strongly recommended!)</string>
@@ -82,4 +82,5 @@
     <string name="battery_opt_err_huawei_26">Oh no, it did not work :(. Open settings app, select Battery->Launch, and in the next screen set KFGapp to manual control, but leave all other boxes enabled!</string>
     <string name="battery_opt_vendor_specific">The manufacturer of your device has made additional changes in the Android system, which make it impossible for some apps to run in the background. For the proper function of KFGapp please add this app to the list of the exceptions on the next screen (the list with the fewer apps, probably)</string>
     <string name="battery_opt_err_vendor_specific">Oh no, it did not work :(. Please open the Settings or Device optimizer app and try to find the proper settings manually, otherwise KFGapp will not work properly :(</string>
+    <string name="url_updated">The Napló (GYIA) URL has been updated!</string>
 </resources>
