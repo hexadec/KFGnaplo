@@ -34,6 +34,14 @@ public class ChangeListener {
 
     private static boolean running = false;
 
+    static final int STD_ERROR = -1;
+    static final int GYIA_ERROR = -7;
+    static final int DB_EMPTY = 4;
+    static final int UPGRADE_DONE = 3;
+    static final int UPGRADE_FAILED = 5;
+    static final int DONE = 0;
+    static final int DONE_NO_CHANGE = 1;
+
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         final String mode = pref.getString("notification_mode", MODE_FALSE);
@@ -76,7 +84,7 @@ public class ChangeListener {
     }
 
 
-    public static int doCheck(final Context context, final Intent intent) {
+    static int doCheck(final Context context, final Intent intent) {
         final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
@@ -93,7 +101,7 @@ public class ChangeListener {
                     }
                 });
             }
-            return -1;
+            return GYIA_ERROR;
         }
 
         HttpURLConnection urlConnection;
@@ -114,7 +122,7 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            return -1;
+            return STD_ERROR;
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
             if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
@@ -125,7 +133,7 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            return -1;
+            return STD_ERROR;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -144,7 +152,7 @@ public class ChangeListener {
                         }
                     });
                 }
-                return -7;
+                return GYIA_ERROR;
             }
             BufferedReader rd = new BufferedReader
                     (new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
@@ -188,9 +196,9 @@ public class ChangeListener {
             }
             if (intent.hasExtra("dbupgrade")) {
                 Log.i("Grades", "Size: " + mygrades.size());
-                if (mygrades.size() < 1) return 4;
-                if (new DBHelper(context).upgradeDatabase(mygrades)) return 3;
-                else return 5;
+                if (mygrades.size() < 1) return DB_EMPTY;
+                if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
+                else return UPGRADE_FAILED;
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
@@ -202,7 +210,7 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            return -1;
+            return STD_ERROR;
         }
         try {
             if (sb.toString().length() < 1000) {
@@ -221,7 +229,7 @@ public class ChangeListener {
                     }
                 });
             }
-            return -1;
+            return STD_ERROR;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
@@ -231,12 +239,12 @@ public class ChangeListener {
                     }
                 });
             }
-            return -1;
+            return STD_ERROR;
         }
 
         if (running) {
             Log.w(TAG, "A process is already running");
-            return -1;
+            return STD_ERROR;
         }
         running = true;
         byte[] notes = null;
@@ -266,6 +274,7 @@ public class ChangeListener {
                 notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, kfgserver, text.toString());
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
                 running = false;
+                return DONE;
             } else {
                 if (!SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
                     pref.edit().putString("lastSHA", SHA512(notes)).commit();
@@ -275,7 +284,7 @@ public class ChangeListener {
                     intent2.putExtra("dbupgrade", true);
                     doCheck(context, intent);
                     running = false;
-                    return 0;
+                    return DONE;
                 } else if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
@@ -284,7 +293,7 @@ public class ChangeListener {
                     });
                 }
                 running = false;
-                return -1;
+                return DONE_NO_CHANGE;
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
@@ -297,13 +306,11 @@ public class ChangeListener {
             }
             e.printStackTrace();
             running = false;
-            return -1;
+            return STD_ERROR;
         }
-        running = false;
-        return 0;
     }
 
-    static void doStandinsCheck(final Context context, final Intent intent) {
+    private static void doStandinsCheck(final Context context, final Intent intent) {
         final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {

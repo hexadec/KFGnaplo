@@ -74,21 +74,6 @@ public class MainActivity extends PreferenceActivity {
             }
         };
 
-        final BroadcastReceiver r = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (Intent.ACTION_USER_PRESENT.equals(intent.getAction()) && !prefs.getString("notification_mode", "false").equals("false")) {
-                    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    long checked = p.getLong("last_check", 0L);
-                    if (System.currentTimeMillis() - checked > (long) (Long.valueOf(
-                            p.getString("auto_check_interval", "300")) * 1.2 * CheckerJob.MINUTE)) {
-                        CheckerJob.runJobImmediately();
-                        Log.w(ChangeListener.TAG, "USER_PRESENT forced check...");
-                    }
-                }
-            }
-        };
-        registerReceiver(r, new IntentFilter(Intent.ACTION_USER_PRESENT));
         interval.setSummary(String.format(getString(R.string.apprx), interval.getSummary()));
 
         switch (prefs.getString("notification_mode", "false")) {
@@ -138,7 +123,7 @@ public class MainActivity extends PreferenceActivity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             prefs.edit().putBoolean("inst", true).apply();
-                            showOptimizationDialog(prefs);
+                            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
                             dialog.dismiss();
                         }
                     });
@@ -146,14 +131,14 @@ public class MainActivity extends PreferenceActivity {
                     R.string.next_time,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            showOptimizationDialog(prefs);
+                            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
                             dialog.cancel();
                         }
                     });
             AlertDialog alert11 = builder1.create();
             alert11.show();
         } else {
-            showOptimizationDialog(getSharedPreferences("optimization_preferences",MODE_PRIVATE));
+            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
         }
 
 
@@ -190,9 +175,9 @@ public class MainActivity extends PreferenceActivity {
 
         clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
-                String mode = prefs.getString("notification_mode",ChangeListener.MODE_FALSE);
+                String mode = prefs.getString("notification_mode", ChangeListener.MODE_FALSE);
                 if (((String) obj).length() < 3 || (!((String) obj).contains(".") && !mode.equals(ChangeListener.MODE_TEACHER))) {
-                    clas.setSummary(mode.equals(ChangeListener.MODE_TEACHER)? R.string.teacher_hint : R.string.insert_class);
+                    clas.setSummary(mode.equals(ChangeListener.MODE_TEACHER) ? R.string.teacher_hint : R.string.insert_class);
                 } else {
                     clas.setSummary(((String) obj));
                 }
@@ -255,7 +240,6 @@ public class MainActivity extends PreferenceActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                unregisterReceiver(r);
                                 onCreate(null);
                             }
                         });
@@ -306,14 +290,15 @@ public class MainActivity extends PreferenceActivity {
         });
     }
 
-    void showOptimizationDialog(final SharedPreferences prefs) {
-        if (prefs.getBoolean("never_show_opt_dialog", false)) {
+    void showOptimizationDialog(final SharedPreferences preferences) {
+        if (preferences.getBoolean("never_show_opt_dialog", false)) {
             return;
         }
+        final SharedPreferences.Editor editor = preferences.edit();
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
         if (Build.VERSION.SDK_INT >= 23) {
             //Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
-            if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+            if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !preferences.getBoolean("huawei_protected", false)) {
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -325,12 +310,13 @@ public class MainActivity extends PreferenceActivity {
                             e.printStackTrace();
                             Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
                         } finally {
-                            prefs.edit().putBoolean("huawei_protected", true).apply();
+                            editor.putBoolean("huawei_protected", true).apply();
                         }
+
                     }
-                }, prefs);
+                }, preferences);
             } else {
-                if (Build.VERSION.SDK_INT >= 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+                if (Build.VERSION.SDK_INT >= 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !preferences.getBoolean("huawei_protected", false)) {
                     optimizationDialogWithOnClickListener(R.string.battery_opt_huawei_26, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -342,10 +328,11 @@ public class MainActivity extends PreferenceActivity {
                                 e.printStackTrace();
                                 Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei_26, Toast.LENGTH_LONG).show();
                             } finally {
-                                prefs.edit().putBoolean("huawei_protected", true).apply();
+                                editor.putBoolean("huawei_protected", true).apply();
                             }
+
                         }
-                    }, prefs);
+                    }, preferences);
                 }
             }
 
@@ -361,10 +348,10 @@ public class MainActivity extends PreferenceActivity {
                             startActivity(battOpt);
                         }
                     }
-                }, prefs);
+                }, preferences);
             }
 
-        } else if (Build.VERSION.SDK_INT < 23 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !prefs.getBoolean("huawei_protected", false)) {
+        } else if (Build.VERSION.SDK_INT < 23 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !preferences.getBoolean("huawei_protected", false)) {
             optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -376,10 +363,11 @@ public class MainActivity extends PreferenceActivity {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this, R.string.battery_opt_err_huawei, Toast.LENGTH_LONG).show();
                     } finally {
-                        prefs.edit().putBoolean("huawei_protected", true).apply();
+                        editor.putBoolean("huawei_protected", true).apply();
                     }
+
                 }
-            }, prefs);
+            }, preferences);
 
         }
         {
@@ -387,22 +375,25 @@ public class MainActivity extends PreferenceActivity {
             try {
                 final OrcaManager orcaManager = new OrcaManager(this, new String[]{"Huawei"});
                 Log.d("Vendor opt", "" + orcaManager.hasVendorOptimization());
-                if (orcaManager.hasVendorOptimization() && !prefs.getBoolean("vendor_optimizaion_dialog", false)) {
+                if (orcaManager.hasVendorOptimization() && !preferences.getBoolean("vendor_optimization_dialog", false)) {
                     optimizationDialogWithOnClickListener(R.string.battery_opt_vendor_specific, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            orcaManager.startIntents();
+                            if (orcaManager.startEachIntent() == 0) {
+                                throw new ActivityNotFoundException();
+                            }
                         }
-                    }, prefs);
+                    }, preferences);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(MainActivity.this, R.string.battery_opt_err_vendor_specific, Toast.LENGTH_LONG).show();
             } finally {
-                prefs.edit().putBoolean("vendor_optimizaion_dialog", true).apply();
+                editor.putBoolean("vendor_optimization_dialog", true).apply();
             }
         }
+
     }
 
     void optimizationDialogWithOnClickListener(int textResid, DialogInterface.OnClickListener runnable, final SharedPreferences prefs) {
@@ -414,7 +405,7 @@ public class MainActivity extends PreferenceActivity {
         builder1.setNegativeButton(R.string.hide_forever,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        prefs.edit().putBoolean("never_show_opt_dialog", true).apply();
+                        prefs.edit().putBoolean("never_show_opt_dialog", true).commit();
                         dialog.cancel();
                     }
                 });

@@ -41,6 +41,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
+        db = new DBHelper(this);
 
         if (Intent.ACTION_VIEW.equals(getIntent().getAction()) &&
                 "https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
@@ -48,9 +49,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
                     .putString("url",getIntent().getData().toString()).commit();
             Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
+            updateDatabase(db);
         }
-
-        db = new DBHelper(this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {
@@ -210,13 +210,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
         pdialog.cancel();
         Toast.makeText(TableViewActivity.this, TableViewActivity.this.getString(R.string.title_activity_table_view) + ": " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
-        if (upgraderesult == 4) {
+        if (upgraderesult == ChangeListener.DB_EMPTY) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.emptydb, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
-        } else if (upgraderesult == 3) {
+        } else if (upgraderesult == ChangeListener.UPGRADE_DONE) {
             doStuff(db);
-        } else if (upgraderesult == -7) {
+        } else if (upgraderesult == ChangeListener.GYIA_ERROR) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
