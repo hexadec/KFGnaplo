@@ -65,6 +65,7 @@
     <string name="yourclass_sum">HELYETTESÍTÉSEK: Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
     <string name="mode">Értesítések</string>
     <string name="standins">Helyettesítések</string>
+    <string name="grades">Jegyek</string>
     <string name="ignore">Órák figyelmen kívül hagyása</string>
     <string name="ignore_sum">HELYETTESÍTÉSEK: Írd be azokat az órákat vesszővel elválasztva, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)</string>
     <string name="open_standins">Helyettesítések oldal megnyitása</string>
@@ -82,4 +83,10 @@
     <string name="battery_opt_vendor_specific">A készüléked gyártója módosította az eredeti Android rendszert, lehetetlenné téve számos appnak a háttérben futást. Ahhoz hogy a KFGapp normálisan működhessen add hozzá a kivételek listájához a következő képernyőn (vélhetően a kevesebb alkalmazást tartalmazó lista)</string>
     <string name="battery_opt_err_vendor_specific">Jaj ne, ez nem működött :(. Nyisd meg a Beállítások vagy Készülékkezelő alkalmazást és keresd meg a megfelelő beállításokat. Amennyiben nem találod, a KFGapp vélhetően nem fog működni :(</string>
     <string name="url_updated">A Napló (GYIA) link frissítve!</string>
+    <string name="only_gyia_url">A KFGapp csak GYIA linkeket tud megnyitni! \nEzek tartalmazzák a "view=v_slip" szöveget!</string>
+    <string name="night_notifications">Éjszakai értesítések</string>
+    <string name="ngrades">Jegyek értesítései</string>
+    <string name="ngrades_sum">Ide kattintva beállíthatod hogyan jelezze az új jegyeket (pl. rezgéssel, hanggal, villogással)</string>
+    <string name="nstandins">Helyettesítések értesítései</string>
+    <string name="nstandins_sum">Ide kattintva beállíthatod hogyan jelezze az új helyettesítéseket (pl. rezgéssel, hanggal, villogással)</string>
 </resources>

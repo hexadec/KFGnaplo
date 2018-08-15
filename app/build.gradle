@@ -7,18 +7,25 @@ android {
     defaultConfig {
         applicationId "hu.kfg.naplo"
         minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 10104
-        versionName "1.1.beta4"
+        targetSdkVersion 26
+        versionCode 10200
+        versionName "1.2.beta0"
     }
     buildTypes {
         release {
-            minifyEnabled false
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            minifyEnabled true
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    compile 'com.evernote:android-job:1.2.6'
+    implementation 'com.evernote:android-job:1.2.6'
 }

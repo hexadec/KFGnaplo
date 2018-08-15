@@ -1,6 +1,8 @@
 package hu.kfg.naplo;
 
 import android.content.*;
+import android.graphics.Color;
+import android.opengl.Visibility;
 import android.preference.*;
 
 import android.net.*;
@@ -41,6 +43,10 @@ public class ChangeListener {
     static final int UPGRADE_FAILED = 5;
     static final int DONE = 0;
     static final int DONE_NO_CHANGE = 1;
+
+    static final String CHANNEL_STANDINS = "standins";
+    static final String CHANNEL_GRADES = "grades";
+    static final String CHANNEL_NIGHT = "night";
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -109,7 +115,7 @@ public class ChangeListener {
             URL url = new URL(kfgserver);
             urlConnection = (HttpURLConnection) url.openConnection();
             String userAgentPrefix = System.getProperty("http.agent", "Mozilla/5.0 ");
-            userAgentPrefix = userAgentPrefix.substring(0, userAgentPrefix.indexOf("(")>0 ? userAgentPrefix.indexOf("(") : userAgentPrefix.length());
+            userAgentPrefix = userAgentPrefix.substring(0, userAgentPrefix.indexOf("(") > 0 ? userAgentPrefix.indexOf("(") : userAgentPrefix.length());
             urlConnection.setRequestProperty("User-Agent", userAgentPrefix + "(Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + BuildConfig.VERSION_NAME + ")");
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
@@ -153,6 +159,11 @@ public class ChangeListener {
                     });
                 }
                 return GYIA_ERROR;
+            } else {
+                NotificationManager notificationManager =
+                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null)
+                    notificationManager.cancel(1);
             }
             BufferedReader rd = new BufferedReader
                     (new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
@@ -531,6 +542,12 @@ public class ChangeListener {
     }
 
     private static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
+        try {
+            setUpNotificationChannels(context);
+        } catch (Exception e) {
+            Log.e(TAG, "Error while creating channels!");
+            e.printStackTrace();
+        }
         Intent intent = new Intent(context, TableViewActivity.class);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse(url));
@@ -555,8 +572,13 @@ public class ChangeListener {
         }
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
         PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
-        Notification.Builder n = new Notification.Builder(context)
-                .setContentTitle(context.getString(R.string.app_name))
+        Notification.Builder n;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            n = new Notification.Builder(context, nightmode || state[0] == 1 ? CHANNEL_NIGHT : CHANNEL_GRADES);
+        } else {
+            n = new Notification.Builder(context);
+        }
+        n.setContentTitle(context.getString(R.string.app_name))
                 .setContentText(state[0] == 0 ? context.getString(R.string.new_grade) : context.getString(R.string.gyia_expired_not))
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= 21) {
@@ -578,7 +600,6 @@ public class ChangeListener {
         n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
         Notification notification = new Notification.BigTextStyle(n)
                 .bigText(((state[0] == 0 ? context.getString(R.string.new_grade) + "\n" : "") + subjects + oldtext)).build();
-//				notification.number = numberoflessons;
         notificationManager.notify(state[0], notification);
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
     }
@@ -606,17 +627,65 @@ public class ChangeListener {
         return sb.toString();
     }
 
+    static void setUpNotificationChannels(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            //Setup standins channel
+            NotificationChannel notificationChannel =
+                    new NotificationChannel(CHANNEL_STANDINS, context.getString(R.string.standins), NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(0xff00FF88);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            notificationChannel.setSound(null, null);
+            notificationManager.createNotificationChannel(notificationChannel);
+
+            //Setup grades channel
+            notificationChannel =
+                    new NotificationChannel(CHANNEL_GRADES, context.getString(R.string.grades), NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(0xff00FF88);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            notificationManager.createNotificationChannel(notificationChannel);
+
+            //Setup nightmode channel
+            notificationChannel =
+                    new NotificationChannel(CHANNEL_NIGHT, context.getString(R.string.night_notifications), NotificationManager.IMPORTANCE_LOW);
+            notificationChannel.enableLights(false);
+            notificationChannel.enableVibration(false);
+            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+    }
+
     private static void notifyIfStandinsChanged(int[] state, Context context, String classs, String subjects, int numberoflessons) {
+        try {
+            setUpNotificationChannels(context);
+        } catch (Exception e) {
+            Log.e(TAG, "Error while creating channels!");
+            e.printStackTrace();
+        }
+        int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
+        boolean nightmode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse("https://apps.karinthy.hu/helyettesites"));
         PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
-        Notification.Builder n = new Notification.Builder(context)
-                .setContentTitle(context.getString(R.string.kfg_standins))
+        Notification.Builder n;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            n = new Notification.Builder(context, state[0] != 3 && !nightmode ? CHANNEL_STANDINS : CHANNEL_NIGHT);
+        } else {
+            n = new Notification.Builder(context);
+        }
+        n.setContentTitle(context.getString(R.string.kfg_standins))
                 .setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")
                 .setSmallIcon(R.drawable.ic_standins)
                 .setAutoCancel(true);
-        int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
-        boolean nightmode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
         if (state[1] == 1 && state[0] != 3 && !nightmode) {
             n.setVibrate(new long[]{0, 60, 100, 70, 100, 60});
         }

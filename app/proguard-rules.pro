@@ -15,3 +15,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keep class hu.hexadecimal.** { *; }
+-dontwarn hu.kfg.**
+-keepattributes Exceptions, Signature, InnerClasses
+-dontobfuscate
+#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*,!code/allocation/variable

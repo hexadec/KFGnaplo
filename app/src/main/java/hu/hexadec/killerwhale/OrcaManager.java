@@ -66,10 +66,10 @@ public final class OrcaManager {
             }
         } catch (IOException e) {
             throw new FileNotFoundException();
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException|ArrayIndexOutOfBoundsException e) {
             throw new FileNotFoundException("Invalid file!");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new FileNotFoundException("Invalid file!");
+        } catch (Exception e) {
+            throw new FileNotFoundException(e.getMessage());
         }
     }
 

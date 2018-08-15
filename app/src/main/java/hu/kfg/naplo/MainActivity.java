@@ -35,6 +35,8 @@ public class MainActivity extends PreferenceActivity {
         final Preference interval = findPreference("auto_check_interval");
         final Preference vibrate = findPreference("vibrate");
         final Preference flash = findPreference("flash");
+        final Preference ngrades = findPreference("not_grades");
+        final Preference nstandins = findPreference("not_standins");
         final Preference open_in_browser = findPreference("open_in_browser");
         final Preference nightmode = findPreference("nightmode");
         final Preference ignore = findPreference("ignore_lessons");
@@ -47,6 +49,36 @@ public class MainActivity extends PreferenceActivity {
             } else {
                 findPreference("grades").setEnabled(false);
             }
+        }
+
+        PreferenceCategory cat = (PreferenceCategory) findPreference("main");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            cat.removePreference(vibrate);
+            cat.removePreference(flash);
+            ChangeListener.setUpNotificationChannels(this);
+            ngrades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, ChangeListener.CHANNEL_GRADES);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                    startActivity(intent);
+                    return true;
+                }
+            });
+            nstandins.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, ChangeListener.CHANNEL_STANDINS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                    startActivity(intent);
+                    return true;
+                }
+            });
+        } else {
+            cat.removePreference(ngrades);
+            cat.removePreference(nstandins);
         }
 
         final InputFilter teacherFilter = new InputFilter() {
@@ -86,11 +118,14 @@ public class MainActivity extends PreferenceActivity {
                 clas.setEnabled(false);
                 url.setEnabled(false);
                 ignore.setEnabled(false);
+                ngrades.setEnabled(false);
+                nstandins.setEnabled(false);
                 JobManager.instance().cancelAll();
                 break;
             case ChangeListener.MODE_NAPLO:
                 clas.setEnabled(false);
                 ignore.setEnabled(false);
+                nstandins.setEnabled(false);
                 CheckerJob.runJobImmediately();
                 break;
             case ChangeListener.MODE_TEACHER:
@@ -99,10 +134,12 @@ public class MainActivity extends PreferenceActivity {
                 clas.setTitle(R.string.teacher_name);
                 url.setEnabled(false);
                 ignore.setEnabled(false);
+                ngrades.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
                 url.setEnabled(false);
+                ngrades.setEnabled(false);
             default:
                 clas.getEditText().setFilters(new InputFilter[]{classFilter});
                 clas.setSummary(R.string.yourclass_sum);

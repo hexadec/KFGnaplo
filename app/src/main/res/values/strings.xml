@@ -66,6 +66,7 @@
     <string name="yourclass_sum">STANDINS: Type in your class (using capital letters) eg. 9.AK/10.A</string>
     <string name="mode">Notifications</string>
     <string name="standins">Standins</string>
+    <string name="grades">Grades</string>
     <string name="ignore">Lessons to be ignored</string>
     <string name="ignore_sum">STANDINS: Type in here those lessons of which you don\'t want to get a notification (separated by comma, use accented letters)</string>
     <string name="open_standins">Open Stand-ins page in browser</string>
@@ -83,4 +84,10 @@
     <string name="battery_opt_vendor_specific">The manufacturer of your device has made additional changes in the Android system, which make it impossible for some apps to run in the background. For the proper function of KFGapp please add this app to the list of the exceptions on the next screen (the list with the fewer apps, probably)</string>
     <string name="battery_opt_err_vendor_specific">Oh no, it did not work :(. Please open the Settings or Device optimizer app and try to find the proper settings manually, otherwise KFGapp will not work properly :(</string>
     <string name="url_updated">The Napló (GYIA) URL has been updated!</string>
+    <string name="only_gyia_url">The KFGapp can only open GYIA links! \nThey always contain the text "view=v_slip"!</string>
+    <string name="night_notifications">Notifications at night</string>
+    <string name="ngrades">Grades:  Notification settings</string>
+    <string name="ngrades_sum">Configure how new grades should be shown (eg. with vibration, light, sound)</string>
+    <string name="nstandins">Stand-Ins:  Notification settings</string>
+    <string name="nstandins_sum">Configure how new stand-ins should be shown (eg. with vibration, light, sound)</string>
 </resources>

@@ -43,14 +43,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         setContentView(R.layout.activity_table_view);
         db = new DBHelper(this);
 
-        if (Intent.ACTION_VIEW.equals(getIntent().getAction()) &&
-                "https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
-                getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
-            PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
-                    .putString("url",getIntent().getData().toString()).commit();
-            Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
-            updateDatabase(db);
-        }
+        if (Intent.ACTION_VIEW.equals(getIntent().getAction()))
+            if ("https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
+                    getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
+                PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
+                        .putString("url", getIntent().getData().toString()).commit();
+                Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
+                updateDatabase(db);
+            } else {
+                Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG).show();
+                finish();
+            }
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {
@@ -90,11 +93,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Header.setTextSize(18.0f);
                 Header.setBackground(getResources().getDrawable(R.drawable.month_single));
             }
-            Header.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-            Header.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
+            Header.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+            Header.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
             Header.setTypeface(null, Typeface.BOLD);
 
             row.addView(Header);
@@ -116,7 +119,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         Date d = s.parse(grades.get(j).date);
                         mo = Integer.valueOf(m.format(d));
                         if ((mo != month) || (j + 1 == grades.size() && mo != month)) {
-                            Log.w("month","m");
+                            Log.w("month", "m");
                             row.addView(monthSpelled(d, which));
                         }
                         Date dd = s.parse(grades.get(j + 1).date);
@@ -125,10 +128,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         e.printStackTrace();
                     }
                     TextView Values = new TextView(this);
-                    Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
-                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
-                            (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+                    Values.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
+                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
                     Values.setGravity(Gravity.CENTER);
                     Values.setTextSize(18.0f);
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
@@ -136,7 +139,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     Values.setText(j == -1 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
                     Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
                     Values.setOnClickListener(this);
-                    Values.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
+                    Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                     if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
                         if (which) {
                             Values.setBackground(getResources().getDrawable(R.drawable.month_end));
@@ -151,7 +154,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
                         }
                         which = !which;
-                    } else if (j==-1) {
+                    } else if (j == -1) {
                         if (which) {
                             Values.setBackground(getResources().getDrawable(R.drawable.month_single));
                         } else {
@@ -182,7 +185,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     void updateDatabase(DBHelper db) {
-        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("url","").length()<MainActivity.URL_MIN_LENGTH) {
+        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("url", "").length() < MainActivity.URL_MIN_LENGTH) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_LONG);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
@@ -305,17 +308,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             e.printStackTrace();
         }
         TextView Values = new TextView(this);
-        Values.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
-                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.5f, getResources().getDisplayMetrics()),
-                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
-                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()));
+        Values.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.5f, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()));
         Values.setGravity(Gravity.CENTER);
         Values.setTextSize(12.0f);
         Values.setTextColor(Color.parseColor("#FFFFFF"));
         Values.setTypeface(null, Typeface.ITALIC);
         Values.setText(month_spelled);
         Values.setOnClickListener(this);
-        Values.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
+        Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
         if (whichColor) {
             Values.setBackground(getResources().getDrawable(R.drawable.month_start));
         } else {
