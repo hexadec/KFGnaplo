@@ -657,7 +657,8 @@ public class ChangeListener {
                     new NotificationChannel(CHANNEL_NIGHT, context.getString(R.string.night_notifications), NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
-            notificationChannel.setVibrationPattern(VIBR_PATTERN);
+            notificationChannel.setVibrationPattern(new long[]{0, 0});
+            notificationChannel.setSound(null, null);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             notificationManager.createNotificationChannel(notificationChannel);
         }

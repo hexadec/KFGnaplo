@@ -40,6 +40,7 @@ public class MainActivity extends PreferenceActivity {
         final Preference open_in_browser = findPreference("open_in_browser");
         final Preference nightmode = findPreference("nightmode");
         final Preference ignore = findPreference("ignore_lessons");
+        final Preference grades = findPreference("grades");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
         final EditTextPreference url2 = (EditTextPreference) url;
@@ -47,7 +48,7 @@ public class MainActivity extends PreferenceActivity {
             if (url2.getText().length() >= URL_MIN_LENGTH) {
                 url2.setSummary(getString(R.string.click2edit));
             } else {
-                findPreference("grades").setEnabled(false);
+                grades.setEnabled(false);
             }
         }
 
@@ -135,12 +136,14 @@ public class MainActivity extends PreferenceActivity {
                 url.setEnabled(false);
                 ignore.setEnabled(false);
                 ngrades.setEnabled(false);
+                grades.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
                 url.setEnabled(false);
                 ngrades.setEnabled(false);
             default:
+                clas.getEditText().setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                 clas.getEditText().setFilters(new InputFilter[]{classFilter});
                 clas.setSummary(R.string.yourclass_sum);
                 clas.setTitle(R.string.yourclass);
@@ -232,19 +235,19 @@ public class MainActivity extends PreferenceActivity {
                     Toast t = Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.TOP, 0, point.y / 4);
                     t.show();
-                    findPreference("grades").setEnabled(false);
+                    grades.setEnabled(false);
                     prefs.edit().putInt("numberofnotes", 0).putString("lastSHA", "AAA").commit();
                     DBHelper db = new DBHelper(MainActivity.this);
                     db.cleanDatabase();
                     return false;
                 } else if (((String) obj).startsWith("http://naplo.karinthy.hu/app") || ((String) obj).startsWith("https://naplo.karinthy.hu/app")) {
                     url2.setSummary(getString(R.string.click2edit));
-                    findPreference("grades").setEnabled(true);
+                    grades.setEnabled(true);
                 } else {
                     url2.setSummary(getString(R.string.copythelink));
                     url2.setText("");
                     Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT).show();
-                    findPreference("grades").setEnabled(false);
+                    grades.setEnabled(false);
                     prefs.edit().putInt("numberofnotes", 0).putString("lastSHA", "AAA").commit();
                     DBHelper db = new DBHelper(MainActivity.this);
                     db.cleanDatabase();
@@ -315,7 +318,7 @@ public class MainActivity extends PreferenceActivity {
                 return true;
             }
         });
-        findPreference("grades").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        grades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);
                 if (Build.VERSION.SDK_INT >= 21) {
