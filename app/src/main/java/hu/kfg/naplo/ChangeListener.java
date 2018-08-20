@@ -22,19 +22,21 @@ import android.app.*;
 import java.text.*;
 
 public class ChangeListener {
-    /*private static */
-    static final int NIGHTMODE_START = 2230;
-    static final int NIGHTMODE_STOP = 600;
+
+    private static final int NIGHTMODE_START = 2230;
+    private static final int NIGHTMODE_STOP = 600;
+    private static final long[] VIBR_PATTERN = new long[]{50, 60, 100, 70, 100, 60};
+    private static final int LED_COLOR = 0xff00FF88;
     static final String MODE_TEACHER = "teacher";
     static final String MODE_TRUE = "true";
     static final String MODE_STANDINS = "standins";
     static final String MODE_NAPLO = "naplo";
     static final String MODE_FALSE = "false";
 
-    final static String TAG = "KFGnaplo-check";
-    static final int STANDINS_ID = 100;
+    private static final String TAG = "KFGnaplo-check";
+    private static final int STANDINS_ID = 100;
 
-    private static boolean running = false;
+    private static boolean running = false; //From old workaround, probably not necessary?
 
     static final int STD_ERROR = -1;
     static final int GYIA_ERROR = -7;
@@ -68,7 +70,7 @@ public class ChangeListener {
             public void run() {
                 switch (mode) {
                     case MODE_TRUE:
-                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error", true));
+                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("error", true));
                         doCheck(context, intent);
                         break;
                     case MODE_NAPLO:
@@ -76,7 +78,7 @@ public class ChangeListener {
                         break;
                     case MODE_TEACHER:
                     case MODE_STANDINS:
-                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error", true));
+                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("error", true));
                         break;
                     case MODE_FALSE:
                         break;
@@ -100,7 +102,7 @@ public class ChangeListener {
                 .getDefaultSharedPreferences(context);
         String kfgserver = pref.getString("url", "1");
         if (kfgserver.length() < MainActivity.URL_MIN_LENGTH) {
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
@@ -120,7 +122,7 @@ public class ChangeListener {
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
@@ -131,7 +133,7 @@ public class ChangeListener {
             return STD_ERROR;
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -151,7 +153,7 @@ public class ChangeListener {
             if (urlConnection.getResponseCode() % 300 < 100) {
                 notifyIfChanged(new int[]{1, 0, 0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
                 Log.w(TAG, urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
-                if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+                if (intent.hasExtra("error")) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
@@ -213,7 +215,7 @@ public class ChangeListener {
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -233,7 +235,7 @@ public class ChangeListener {
         } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, e.getMessage());
             Log.w(TAG, "Grades found: " + mygrades.size());
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
@@ -243,7 +245,7 @@ public class ChangeListener {
             return STD_ERROR;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -255,6 +257,7 @@ public class ChangeListener {
 
         if (running) {
             Log.w(TAG, "A process is already running");
+            Log.w(TAG, "Action:\t" + intent.getAction());
             return STD_ERROR;
         }
         running = true;
@@ -296,7 +299,7 @@ public class ChangeListener {
                     doCheck(context, intent);
                     running = false;
                     return DONE;
-                } else if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+                } else if (intent.hasExtra("error")) {
                     showSuccessToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + mygrades.size() + "/" + numofnotes, Toast.LENGTH_SHORT).show();
@@ -308,7 +311,7 @@ public class ChangeListener {
             }
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && "hu.kfg.naplo.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -352,7 +355,7 @@ public class ChangeListener {
             urlConnection.setInstanceFollowRedirects(true);
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
-            if (intent.hasExtra("error") && "hu.kfg.standins.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
@@ -363,7 +366,7 @@ public class ChangeListener {
             return;
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error") && "hu.kfg.standins.CHECK_NOW".equals(intent.getAction())) {
+            if (intent.hasExtra("error")) {
                 showSuccessToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -513,13 +516,11 @@ public class ChangeListener {
             if (pref.getBoolean("always_notify", false)) {
                 notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
-                if (intent.getAction() != null && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
-                    showSuccessToast.postAtFrontOfQueue(new Runnable() {
-                        public void run() {
-                            Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         } else {
             if (text.toString().length() > 5) {
@@ -528,13 +529,11 @@ public class ChangeListener {
                 if (pref.getBoolean("always_notify", false)) {
                     notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
                 } else {
-                    if (intent.getAction() != null && intent.getAction().equals("hu.kfg.standins.CHECK_NOW")) {
-                        showSuccessToast.postAtFrontOfQueue(new Runnable() {
-                            public void run() {
-                                Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+                    showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                        public void run() {
+                            Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         }
@@ -588,10 +587,10 @@ public class ChangeListener {
         }
         //.setContentIntent(pIntent)
         if (state[1] == 1 && !nightmode) {
-            n.setVibrate(new long[]{0, 60, 100, 70, 100, 60});
+            n.setVibrate(VIBR_PATTERN);
         }
         if (state[2] == 1 && !nightmode) {
-            n.setLights(0xff00FF88, 350, 3000);
+            n.setLights(LED_COLOR, 350, 3000);
         }
         if (Build.VERSION.SDK_INT >= 21) {
             n.setVisibility(Notification.VISIBILITY_PRIVATE);
@@ -636,9 +635,9 @@ public class ChangeListener {
             NotificationChannel notificationChannel =
                     new NotificationChannel(CHANNEL_STANDINS, context.getString(R.string.standins), NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(0xff00FF88);
+            notificationChannel.setLightColor(LED_COLOR);
             notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setVibrationPattern(VIBR_PATTERN);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             notificationChannel.setSound(null, null);
             notificationManager.createNotificationChannel(notificationChannel);
@@ -647,9 +646,9 @@ public class ChangeListener {
             notificationChannel =
                     new NotificationChannel(CHANNEL_GRADES, context.getString(R.string.grades), NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(0xff00FF88);
+            notificationChannel.setLightColor(LED_COLOR);
             notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setVibrationPattern(VIBR_PATTERN);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             notificationManager.createNotificationChannel(notificationChannel);
 
@@ -658,7 +657,7 @@ public class ChangeListener {
                     new NotificationChannel(CHANNEL_NIGHT, context.getString(R.string.night_notifications), NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
-            notificationChannel.setVibrationPattern(new long[]{0, 60, 100, 70, 100, 60});
+            notificationChannel.setVibrationPattern(VIBR_PATTERN);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             notificationManager.createNotificationChannel(notificationChannel);
         }
@@ -687,10 +686,10 @@ public class ChangeListener {
                 .setSmallIcon(R.drawable.ic_standins)
                 .setAutoCancel(true);
         if (state[1] == 1 && state[0] != 3 && !nightmode) {
-            n.setVibrate(new long[]{0, 60, 100, 70, 100, 60});
+            n.setVibrate(VIBR_PATTERN);
         }
         if (state[2] == 1 && state[0] != 3 && !nightmode) {
-            n.setLights(0xff00FF88, 350, 3000);
+            n.setLights(LED_COLOR, 350, 3000);
         }
         if (Build.VERSION.SDK_INT >= 21) {
             n.setVisibility(Notification.VISIBILITY_PUBLIC);

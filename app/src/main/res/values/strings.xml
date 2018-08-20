@@ -90,4 +90,5 @@
     <string name="ngrades_sum">Configure how new grades should be shown (eg. with vibration, light, sound)</string>
     <string name="nstandins">Stand-Ins:  Notification settings</string>
     <string name="nstandins_sum">Configure how new stand-ins should be shown (eg. with vibration, light, sound)</string>
+    <string name="settings">Settings</string>
 </resources>

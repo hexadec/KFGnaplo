@@ -89,4 +89,5 @@
     <string name="ngrades_sum">Ide kattintva beállíthatod hogyan jelezze az új jegyeket (pl. rezgéssel, hanggal, villogással)</string>
     <string name="nstandins">Helyettesítések értesítései</string>
     <string name="nstandins_sum">Ide kattintva beállíthatod hogyan jelezze az új helyettesítéseket (pl. rezgéssel, hanggal, villogással)</string>
+    <string name="settings">Beállítások</string>
 </resources>
