@@ -51,7 +51,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
                 updateDatabase(db);
             } else {
-                Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG).show();
+                Toast t = Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 finish();
             }
         if (db.numberOfRows() < 1) {
@@ -93,10 +95,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Header.setTextSize(18.0f);
                 Header.setBackground(getResources().getDrawable(R.drawable.month_single));
             }
-            Header.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+            Header.setPadding(applyDimension(5),
+                    applyDimension(1),
+                    applyDimension(5),
+                    applyDimension(1));
             Header.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
             Header.setTypeface(null, Typeface.BOLD);
 
@@ -128,10 +130,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         e.printStackTrace();
                     }
                     TextView Values = new TextView(this);
-                    Values.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
-                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()),
-                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+                    Values.setPadding(applyDimension(10),
+                            applyDimension(1),
+                            applyDimension(10),
+                            applyDimension(1));
                     Values.setGravity(Gravity.CENTER);
                     Values.setTextSize(18.0f);
                     Values.setTextColor(Color.parseColor("#FFFFFF"));
@@ -308,10 +310,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             e.printStackTrace();
         }
         TextView Values = new TextView(this);
-        Values.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.5f, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()));
+        Values.setPadding(applyDimension(6),
+                applyDimension(7.5f),
+                applyDimension(6),
+                applyDimension(3));
         Values.setGravity(Gravity.CENTER);
         Values.setTextSize(12.0f);
         Values.setTextColor(Color.parseColor("#FFFFFF"));
@@ -325,6 +327,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Values.setBackground(getResources().getDrawable(R.drawable.month_start2));
         }
         return Values;
+    }
+
+    int applyDimension(float value) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
 
 }
