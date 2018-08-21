@@ -22,7 +22,7 @@
     <string name="vibrate">Vibrating notifications</string>
     <string name="light">Notification light</string>
     <string name="nightmode">Sleep-friendly mode</string>
-    <string name="nightmode_explained">Notifications between 22:30 and 6:00 do not vibrate and flash LED even if it is set</string>
+    <string name="nightmode_explained">Notifications between 22:00 and 6:00 do not vibrate and flash LED even if it is set</string>
     <string name="manual">Manual check</string>
     <string name="browser">Open Napló in browser</string>
     <string name="info" translatable="false">Info</string>

@@ -33,4 +33,15 @@
         <item>true</item>
         <item>teacher</item>
     </string-array>
+
+    <integer-array name="backgrounds">
+        <item>@drawable/month_start</item>
+        <item>@drawable/month_start2</item>
+        <item>@drawable/cell</item>
+        <item>@drawable/cell2</item>
+        <item>@drawable/month_end</item>
+        <item>@drawable/month_end2</item>
+        <item>@drawable/month_single</item>
+        <item>@drawable/month_single2</item>
+    </integer-array>
 </resources>

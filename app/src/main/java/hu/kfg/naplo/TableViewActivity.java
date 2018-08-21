@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -143,32 +144,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     Values.setOnClickListener(this);
                     Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                     if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
-                        if (which) {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_end));
-                        } else {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
-                        }
-                        which = !which;
+                        which = setBackground(Values, 2, which);
                     } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
-                        if (which) {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_end));
-                        } else {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_end2));
-                        }
-                        which = !which;
+                        which = setBackground(Values, 2, which);
                     } else if (j == -1) {
-                        if (which) {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_single));
-                        } else {
-                            Values.setBackground(getResources().getDrawable(R.drawable.month_single2));
-                        }
-                        which = !which;
+                        which = setBackground(Values, 3, which);
                     } else {
-                        if (which) {
-                            Values.setBackground(getResources().getDrawable(R.drawable.cell));
-                        } else {
-                            Values.setBackground(getResources().getDrawable(R.drawable.cell2));
-                        }
+                        setBackground(Values, 1, which);
                     }
                     row.addView(Values);
                     month = mo;
@@ -320,17 +302,21 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Values.setTypeface(null, Typeface.ITALIC);
         Values.setText(month_spelled);
         Values.setOnClickListener(this);
-        Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
-        if (whichColor) {
-            Values.setBackground(getResources().getDrawable(R.drawable.month_start));
-        } else {
-            Values.setBackground(getResources().getDrawable(R.drawable.month_start2));
-        }
+        Values.setHeight(applyDimension(VIEW_HEIGHT));
+        setBackground(Values, 0, whichColor);
         return Values;
     }
 
     int applyDimension(float value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
+    }
+
+    boolean setBackground(TextView Values, int id, boolean which) {
+        TypedArray resources = getResources().obtainTypedArray(R.array.backgrounds);
+        id = id * 2 + (which ? 0 : 1);
+        Values.setBackground(getResources().getDrawable(resources.getResourceId(id, R.drawable.cell)));
+        resources.recycle();
+        return !which;
     }
 
 }

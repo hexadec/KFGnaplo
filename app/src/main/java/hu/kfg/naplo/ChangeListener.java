@@ -23,7 +23,7 @@ import java.text.*;
 
 public class ChangeListener {
 
-    private static final int NIGHTMODE_START = 2230;
+    private static final int NIGHTMODE_START = 2200;
     private static final int NIGHTMODE_STOP = 600;
     private static final long[] VIBR_PATTERN = new long[]{50, 60, 100, 70, 100, 60};
     private static final int LED_COLOR = 0xff00FF88;

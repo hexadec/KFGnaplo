@@ -22,7 +22,7 @@
     <string name="vibrate">Rezgő értesítés</string>
     <string name="light">Villogás értesítéskor</string>
     <string name="nightmode">Alvásbarát mód</string>
-    <string name="nightmode_explained">22:30 és 6:00 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
+    <string name="nightmode_explained">22:00 és 6:00 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
     <string name="manual">Kézi ellenőrzés</string>
     <string name="browser">Napló megnyitása a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
