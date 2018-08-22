@@ -154,29 +154,7 @@ public class MainActivity extends PreferenceActivity {
         }
 
         if (!prefs.getBoolean("inst", false)) {
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-            builder1.setMessage(Html.fromHtml(getString(R.string.instructions)));
-            builder1.setCancelable(false);
-
-            builder1.setPositiveButton(
-                    "Ok",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            prefs.edit().putBoolean("inst", true).apply();
-                            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
-                            dialog.dismiss();
-                        }
-                    });
-            builder1.setNegativeButton(
-                    R.string.next_time,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert11 = builder1.create();
-            alert11.show();
+            showWelcomeDialog();
         } else {
             showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
         }
@@ -446,6 +424,32 @@ public class MainActivity extends PreferenceActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         prefs.edit().putBoolean("never_show_opt_dialog", true).commit();
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
+    void showWelcomeDialog() {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(Html.fromHtml(getString(R.string.instructions)));
+        builder1.setCancelable(false);
+
+        builder1.setPositiveButton(
+                "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("inst", true).apply();
+                        showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
+                        dialog.dismiss();
+                    }
+                });
+        builder1.setNegativeButton(
+                R.string.next_time,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
                         dialog.cancel();
                     }
                 });

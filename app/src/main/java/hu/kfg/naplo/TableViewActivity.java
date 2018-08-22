@@ -44,7 +44,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         setContentView(R.layout.activity_table_view);
         db = new DBHelper(this);
 
-        if (Intent.ACTION_VIEW.equals(getIntent().getAction()))
+        if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null)
             if ("https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
                     getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
                 PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
@@ -52,6 +52,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
                 updateDatabase(db);
             } else {
+                Log.w("TableView Intent error", getIntent().toString());
                 Toast t = Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG);
                 t.setGravity(Gravity.CENTER, 0, 0);
                 t.show();
@@ -122,7 +123,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         Date d = s.parse(grades.get(j).date);
                         mo = Integer.valueOf(m.format(d));
                         if ((mo != month) || (j + 1 == grades.size() && mo != month)) {
-                            Log.w("month", "m");
                             row.addView(monthSpelled(d, which));
                         }
                         Date dd = s.parse(grades.get(j + 1).date);
