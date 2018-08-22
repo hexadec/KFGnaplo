@@ -639,7 +639,6 @@ public class ChangeListener {
             notificationChannel.enableVibration(true);
             notificationChannel.setVibrationPattern(VIBR_PATTERN);
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            notificationChannel.setSound(null, null);
             notificationManager.createNotificationChannel(notificationChannel);
 
             //Setup grades channel
@@ -655,6 +654,7 @@ public class ChangeListener {
             //Setup nightmode channel
             notificationChannel =
                     new NotificationChannel(CHANNEL_NIGHT, context.getString(R.string.night_notifications), NotificationManager.IMPORTANCE_LOW);
+            notificationChannel.setLightColor(LED_COLOR);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
             notificationChannel.setVibrationPattern(new long[]{0, 0});

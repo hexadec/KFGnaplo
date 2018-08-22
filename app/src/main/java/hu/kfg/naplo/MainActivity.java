@@ -56,7 +56,11 @@ public class MainActivity extends PreferenceActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             cat.removePreference(vibrate);
             cat.removePreference(flash);
-            ChangeListener.setUpNotificationChannels(this);
+            try {
+                ChangeListener.setUpNotificationChannels(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             ngrades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

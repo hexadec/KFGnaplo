@@ -9,7 +9,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 10202
-        versionName "1.2.beta2"
+        versionName "1.2.gamma2"
     }
     buildTypes {
         release {
