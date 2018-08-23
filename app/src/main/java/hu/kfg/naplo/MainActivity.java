@@ -148,7 +148,7 @@ public class MainActivity extends PreferenceActivity {
                 ngrades.setEnabled(false);
             default:
                 clas.getEditText().setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                clas.getEditText().setFilters(new InputFilter[]{classFilter});
+                clas.getEditText().setFilters(new InputFilter[]{classFilter, new InputFilter.LengthFilter(5)});
                 clas.setSummary(R.string.yourclass_sum);
                 clas.setTitle(R.string.yourclass);
                 CheckerJob.scheduleJob();
@@ -157,10 +157,41 @@ public class MainActivity extends PreferenceActivity {
             clas.setSummary(clas.getText());
         }
 
-        if (!prefs.getBoolean("inst", false)) {
+        if (!prefs.getBoolean("inst", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
             showWelcomeDialog();
         } else {
-            showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
+            if (Intent.ACTION_SEND.equals(getIntent().getAction()) && getIntent().hasExtra(Intent.EXTRA_TEXT)) {
+                if (!getIntent().getStringExtra(Intent.EXTRA_TEXT)
+                        .startsWith("https://naplo.karinthy.hu/app/interface.php?view=v_slip")) {
+                    Log.w("MainActivity share err", getIntent().toString());
+                    Toast t = Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
+                    finish();
+                } else {
+                    AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
+                    adb.setIcon(android.R.drawable.ic_dialog_alert);
+                    adb.setMessage(R.string.override_gyia);
+                    adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            prefs.edit().putString("url", getIntent().getStringExtra(Intent.EXTRA_TEXT)).commit();
+                            Toast.makeText(MainActivity.this, R.string.url_updated, Toast.LENGTH_SHORT).show();
+                            setIntent(new Intent(Intent.ACTION_MAIN));
+                            onCreate(null);
+                        }
+                    });
+                    adb.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    adb.show();
+                }
+            } else {
+                showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
+            }
         }
 
 

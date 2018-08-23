@@ -90,4 +90,7 @@
     <string name="nstandins">Helyettesítések értesítései</string>
     <string name="nstandins_sum">Ide kattintva beállíthatod hogyan jelezze az új helyettesítéseket (pl. rezgéssel, hanggal, villogással)</string>
     <string name="settings">Beállítások</string>
+    <string name="import_gyia">GYIA kód importálása a KFGapp-ba</string>
+    <string name="override_gyia">Biztos vagy benne hogy importálod a GYIA kódot és felülírod az előzőt?</string>
+    <string name="cancel">Mégsem</string>
 </resources>

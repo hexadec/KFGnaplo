@@ -49,7 +49,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
                 PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
                         .putString("url", getIntent().getData().toString()).commit();
-                Toast.makeText(this, R.string.url_updated, Toast.LENGTH_SHORT).show();
+                Toast t = Toast.makeText(this, R.string.url_updated, Toast.LENGTH_LONG);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 updateDatabase(db);
             } else {
                 Log.w("TableView Intent error", getIntent().toString());
