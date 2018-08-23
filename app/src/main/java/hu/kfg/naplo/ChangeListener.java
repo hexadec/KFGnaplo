@@ -52,7 +52,7 @@ public class ChangeListener {
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        final String mode = pref.getString("notification_mode", MODE_FALSE);
+        final String mode = pref.getString("notification_mode", MODE_TRUE);
         if (mode.equals(MODE_FALSE)) {
             return;
         }
@@ -334,7 +334,7 @@ public class ChangeListener {
         final SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         String classs = pref.getString("class", "noclass");
-        String mode = pref.getString("notification_mode", MODE_FALSE);
+        String mode = pref.getString("notification_mode", MODE_TRUE);
         if (classs.equals("noclass")) {
             return;
         }
