@@ -90,8 +90,9 @@ public final class OrcaManager {
      * Start all intents matching vendor name and API level
      *
      * @throws ActivityNotFoundException
+     * @throws IllegalArgumentException
      */
-    public void startIntents() throws ActivityNotFoundException {
+    public void startIntents() throws ActivityNotFoundException, IllegalArgumentException {
         Intent[] intents = getIntents();
         if (intents.length == 0) throw new ActivityNotFoundException("No intents found");
         context.startActivities(getIntents());
@@ -110,7 +111,7 @@ public final class OrcaManager {
             try {
                 context.startActivity(i);
                 activitiesStarted++;
-            } catch (ActivityNotFoundException e) {
+            } catch (ActivityNotFoundException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }

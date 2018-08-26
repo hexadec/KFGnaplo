@@ -433,14 +433,14 @@ public class MainActivity extends PreferenceActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (orcaManager.startEachIntent() == 0) {
-                                throw new ActivityNotFoundException();
+                                Toast.makeText(MainActivity.this, R.string.battery_opt_err_vendor_specific, Toast.LENGTH_LONG).show();
                             }
                         }
                     }, preferences);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            } catch (ActivityNotFoundException e) {
+            } catch (Exception e) {
                 Toast.makeText(MainActivity.this, R.string.battery_opt_err_vendor_specific, Toast.LENGTH_LONG).show();
             } finally {
                 editor.putBoolean("vendor_optimization_dialog", true).apply();

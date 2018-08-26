@@ -230,8 +230,7 @@ public class ChangeListener {
                 Log.w(TAG, sb.toString());
                 throw new Exception("Content too small \nLength: " + sb.toString().length());
             }
-            //if (subjects[0] == null || subjects[0].length() < 2)
-            //    throw new IndexOutOfBoundsException("Content too small \nLength: " + sb.toString());
+            if (mygrades.size() == 0) throw new IndexOutOfBoundsException("No grades!");
         } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, e.getMessage());
             Log.w(TAG, "Grades found: " + mygrades.size());
@@ -242,7 +241,7 @@ public class ChangeListener {
                     }
                 });
             }
-            return STD_ERROR;
+            return DB_EMPTY;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             if (intent.hasExtra("error")) {
@@ -261,8 +260,9 @@ public class ChangeListener {
             return STD_ERROR;
         }
         running = true;
-        byte[] notes = null;
+        byte[] notes = new byte[1];
         try {
+            if (mygrades.size() == 0) throw new Exception("No grades were found!");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeObject(mygrades);
