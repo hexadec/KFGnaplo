@@ -26,6 +26,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -117,7 +119,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
                     row.addView(Header);
                     if (i != -1) {
-                        List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
+                        final List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
                         double avg = 0;
                         for (Grade g : grades) {
                             avg += g.value;
@@ -125,6 +127,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         avg /= grades.size();
                         int month = 0;
                         boolean which = false;
+                        int doublegrade = 0;
                         for (int j = -1; j < grades.size(); j++) {
                             SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
                             SimpleDateFormat m = new SimpleDateFormat("MM", Locale.ENGLISH);
@@ -133,13 +136,34 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             try {
                                 Date d = s.parse(grades.get(j).date);
                                 mo = Integer.valueOf(m.format(d));
-                                if ((mo != month) || (j + 1 == grades.size() && mo != month)) {
+                                if (((mo != month) || (j + 1 == grades.size() && mo != month)) && doublegrade == 0) {
                                     row.addView(monthSpelled(d, which));
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
+                                if (j != -1 && j + 1 < grades.size()) {
+                                    if (grades.get(j).description.equals(grades.get(j + 1).description)) {
+                                        if (Math.abs(d.getTime() -  dd.getTime()) < 40 * 1000) {
+                                            doublegrade++;
+                                            continue;
+                                        }
+                                    }
+                                }
                                 mo2 = Integer.valueOf(m.format(dd));
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            }
+                            if (doublegrade > 0) {
+                                int sum = 0;
+                                for (int k = 0; k < doublegrade + 1; k++) {
+                                    sum += grades.get(j - k).value;
+                                }
+                                BigDecimal bd = new BigDecimal(sum);
+                                Log.e("mm", bd.toString());
+                                bd = bd.setScale(1, RoundingMode.HALF_UP);
+                                Log.e("mm", sum + "//" + doublegrade);
+                                avg = bd.divide(new BigDecimal(doublegrade + 1), 2, RoundingMode.HALF_UP).doubleValue();
+                                Log.e("mm", avg + "");
+                                avg = ((double) sum) / (doublegrade + 1);
                             }
                             TextView Values = new TextView(TableViewActivity.this);
                             Values.setPadding(applyDimension(10),
@@ -148,11 +172,19 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                     applyDimension(1));
                             Values.setGravity(Gravity.CENTER);
                             Values.setTextSize(18.0f);
-                            Values.setTextColor(Color.parseColor("#FFFFFF"));
+                            Values.setTextColor(Color.parseColor(doublegrade > 0 ? "#FF4500" : "#FFFFFF"));
                             Values.setTypeface(null, Typeface.ITALIC);
-                            Values.setText(j == -1 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
+                            Values.setText(j == -1 || doublegrade > 0 ? new DecimalFormat(doublegrade > 0 ? "#.###" : "#.##").format(avg) : "" + grades.get(j).value);
                             Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
-                            Values.setOnClickListener(TableViewActivity.this);
+                            final int minPos = j - doublegrade;
+                            final int maxPos = j;
+                            final double val = avg;
+                            Values.setOnClickListener(doublegrade > 0 ? new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    multiGradeListener(grades.subList(minPos, maxPos + 1), val);
+                                }
+                            } :TableViewActivity.this);
                             Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                             if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
                                 which = setBackground(Values, 2, which);
@@ -165,6 +197,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             }
                             row.addView(Values);
                             month = mo;
+                            doublegrade = 0;
                         }
                     } else {
                         TextView Header2 = new TextView(TableViewActivity.this);
@@ -359,6 +392,34 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Values.setBackground(getResources().getDrawable(resources.getResourceId(id, R.drawable.cell)));
         resources.recycle();
         return !which;
+    }
+
+    void multiGradeListener(List<Grade> grades, double value) {
+        TextView Header2 = new TextView(TableViewActivity.this);
+        Header2.setGravity(Gravity.CENTER);
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < grades.size(); i++) {
+            text.append(grades.get(i).value);
+            if (i + 1 < grades.size())
+                text.append(", ");
+        }
+        Header2.setText(text.toString());
+        Header2.setTextSize(26.0f);
+        Header2.setTextColor(Color.parseColor("#FFFFFF"));
+        Header2.setTypeface(null, Typeface.BOLD);
+        TextView messageText = new TextView(TableViewActivity.this);
+        messageText.setText(Html.fromHtml("<i>&#9658; " + grades.get(0).subject + "<br/>&#9658; " + grades.get(0).date + "<br/>&#9658; " + grades.get(0).teacher + "<br/>&#9658; " + grades.get(0).description + "</i>"));
+        messageText.setGravity(Gravity.LEFT);
+        messageText.setPadding(40, 10, 10, 10);
+        messageText.setTextAppearance(TableViewActivity.this, android.R.style.TextAppearance_Medium);
+        Header2.setPadding(0, 20, 0, 20);
+        new AlertDialog.Builder(TableViewActivity.this)
+                .setCustomTitle(Header2)
+                .setPositiveButton(value >= 4 ? "OK :)" : value >= 3 ? "OK :/" : "OK :(", null)
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setCancelable(true)
+                .setView(messageText)
+                .show();
     }
 
 }

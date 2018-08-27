@@ -93,7 +93,7 @@ public class ChangeListener {
 
 
     static int doCheck(final Context context, final Intent intent) {
-        final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
+        final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
             }
@@ -103,7 +103,7 @@ public class ChangeListener {
         String kfgserver = pref.getString("url", "1");
         if (kfgserver.length() < MainActivity.URL_MIN_LENGTH) {
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
                     }
@@ -123,7 +123,7 @@ public class ChangeListener {
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
                     }
@@ -134,7 +134,7 @@ public class ChangeListener {
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                     }
@@ -154,7 +154,7 @@ public class ChangeListener {
                 notifyIfChanged(new int[]{1, 0, 0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
                 Log.w(TAG, urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
                 if (intent.hasExtra("error")) {
-                    showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                    showToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
                         }
@@ -216,7 +216,7 @@ public class ChangeListener {
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                     }
@@ -235,7 +235,7 @@ public class ChangeListener {
             Log.e(TAG, e.getMessage());
             Log.w(TAG, "Grades found: " + mygrades.size());
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
                     }
@@ -245,7 +245,7 @@ public class ChangeListener {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                     }
@@ -300,7 +300,7 @@ public class ChangeListener {
                     running = false;
                     return DONE;
                 } else if (intent.hasExtra("error")) {
-                    showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                    showToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + mygrades.size() + "/" + numofnotes, Toast.LENGTH_SHORT).show();
                         }
@@ -312,7 +312,7 @@ public class ChangeListener {
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                     }
@@ -325,7 +325,7 @@ public class ChangeListener {
     }
 
     private static void doStandinsCheck(final Context context, final Intent intent) {
-        final Handler showSuccessToast = new Handler(Looper.getMainLooper()) {
+        final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
             }
@@ -339,7 +339,7 @@ public class ChangeListener {
             return;
         }
         if (classs.length() < 3) {
-            showSuccessToast.postAtFrontOfQueue(new Runnable() {
+            showToast.postAtFrontOfQueue(new Runnable() {
                 public void run() {
                     Toast.makeText(context, "Írd be az osztályodat!", Toast.LENGTH_SHORT).show();
                 }
@@ -356,7 +356,7 @@ public class ChangeListener {
         } catch (IOException e) {
             Log.e(TAG, "Cannot load website!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.unknown_error, Toast.LENGTH_SHORT).show();
                     }
@@ -367,7 +367,7 @@ public class ChangeListener {
         } catch (Exception e) {
             Log.e(TAG, "Unknown error!");
             if (intent.hasExtra("error")) {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                     }
@@ -516,7 +516,7 @@ public class ChangeListener {
             if (pref.getBoolean("always_notify", false)) {
                 notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
-                showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
                     }
@@ -529,7 +529,7 @@ public class ChangeListener {
                 if (pref.getBoolean("always_notify", false)) {
                     notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
                 } else {
-                    showSuccessToast.postAtFrontOfQueue(new Runnable() {
+                    showToast.postAtFrontOfQueue(new Runnable() {
                         public void run() {
                             Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
                         }
