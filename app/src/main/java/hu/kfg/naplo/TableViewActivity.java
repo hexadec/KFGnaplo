@@ -157,12 +157,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 for (int k = 0; k < doublegrade + 1; k++) {
                                     sum += grades.get(j - k).value;
                                 }
-                                BigDecimal bd = new BigDecimal(sum);
-                                Log.e("mm", bd.toString());
-                                bd = bd.setScale(1, RoundingMode.HALF_UP);
-                                Log.e("mm", sum + "//" + doublegrade);
-                                avg = bd.divide(new BigDecimal(doublegrade + 1), 2, RoundingMode.HALF_UP).doubleValue();
-                                Log.e("mm", avg + "");
                                 avg = ((double) sum) / (doublegrade + 1);
                             }
                             TextView Values = new TextView(TableViewActivity.this);
@@ -257,6 +251,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             final Toast t = Toast.makeText(TableViewActivity.this, R.string.emptydb, Toast.LENGTH_SHORT);
                             t.setGravity(Gravity.CENTER, 0, 0);
                             t.show();
+
                         }
                     });
                 } else if (upgraderesult == ChangeListener.UPGRADE_DONE) {
@@ -269,6 +264,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             final Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT);
                             t.setGravity(Gravity.CENTER, 0, 0);
                             t.show();
+                            ((TableLayout) findViewById(R.id.table)).removeAllViews();
                         }
                     });
                 } else {

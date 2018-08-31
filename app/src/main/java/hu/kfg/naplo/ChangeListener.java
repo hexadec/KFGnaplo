@@ -209,7 +209,10 @@ public class ChangeListener {
             }
             if (intent.hasExtra("dbupgrade")) {
                 Log.i("Grades", "Size: " + mygrades.size());
-                if (mygrades.size() < 1) return DB_EMPTY;
+                if (mygrades.size() < 1) {
+                    new DBHelper(context).cleanDatabase();
+                    return DB_EMPTY;
+                }
                 if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
                 else return UPGRADE_FAILED;
             }
@@ -241,6 +244,7 @@ public class ChangeListener {
                     }
                 });
             }
+            new DBHelper(context).cleanDatabase();
             return DB_EMPTY;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());

@@ -14,7 +14,7 @@
     <string name="click2edit">Click here to edit</string>
     <string name="copythelink">Copy the link found in the GYIA code! (click here)</string>
     <string name="invalid_url">Invalid url!</string>
-    <string name="checking_now">Checking...</string>
+    <string name="checking_now">Checking…</string>
     <string name="no_network_conn">Network connection is not available!</string>
     <string name="about">About</string>
     <string name="enable_notifications">Turn on notifications</string>
@@ -41,8 +41,8 @@
     <string name="update_grades"><![CDATA[Do you want to update the grades database?<br/>It does not update automatically!]]></string>
     <string name="update">Update</string>
     <string name="not_now">Not now</string>
-    <string name="upgrading">Updating database, please wait...</string>
-    <string name="emptydb">It looks like you have no grades yet...</string>
+    <string name="upgrading">Fetching grades, please wait…</string>
+    <string name="emptydb">It looks like you have no grades yet…</string>
     <string name="subjects">Subjects</string>
     <string name="ohno">Oh no! Something went wrong!</string>
     <string name="average">Avg.</string>

@@ -14,7 +14,7 @@
     <string name="click2edit">Kattints ide a szerkesztéshez</string>
     <string name="copythelink">Másold be a GYIA kódban található linket! (Katt ide)</string>
     <string name="invalid_url">Érvénytelen URL!</string>
-    <string name="checking_now">Ellenőrzés...</string>
+    <string name="checking_now">Ellenőrzés…</string>
     <string name="no_network_conn">Nincs internetkapcsolat!</string>
     <string name="about">Névjegy</string>
     <string name="enable_notifications">Értesítések engedélyezése</string>
@@ -40,8 +40,8 @@
     <string name="update_grades"><![CDATA[Frissíted a jegyeket?<br/>(Nincsen automatikus frissítés a háttérben!)]]></string>
     <string name="update">Frissítés</string>
     <string name="not_now">Most nem</string>
-    <string name="upgrading">Frissítés, kérlek várj...</string>
-    <string name="emptydb">Úgy tűnik nincsen egy jegyed sem...</string>
+    <string name="upgrading">Frissítés, kérlek várj…</string>
+    <string name="emptydb">Úgy tűnik nincsen egy jegyed sem…</string>
     <string name="subjects">Tantárgyak</string>
     <string name="ohno">Jaj, ne! Valami hiba történt!</string>
     <string name="average">Átl.</string>
