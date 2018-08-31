@@ -409,14 +409,13 @@ public class ChangeListener {
 
         String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
                 .replace(", ", ",").replace(" ,", "");
-        String ilessons[] = null;
-        boolean ignore = false;
+        List<String> ilessons = new LinkedList<>();
         try {
-            ilessons = lessonsToIgnore.split(",");
-            ignore = true;
+            ilessons = Arrays.asList(lessonsToIgnore.split(","));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.i(TAG, ilessons.size() + " <-- size of ignore");
         int day = 0;
         List<Substitution> subs = new ArrayList<>();
         try {
@@ -498,11 +497,9 @@ public class ChangeListener {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
                     if (cla.equals(sub.getGroup()) && !sub.isOver()) {
-                        if (ignore) {
-                            for (String toIgnore : ilessons)
-                                if (toIgnore.equals(sub.getSubject()))
-                                    continue substitutions;
-                        }
+                        for (String toIgnore : ilessons)
+                            if (toIgnore.equalsIgnoreCase(sub.getSubject()))
+                                continue substitutions;
                         text.append("\n");
                         text.append(sub.toString("PDD. S: T C8 R, G"));
                         Log.d(TAG, sub.toString("PDD. S: T C8 R, G"));

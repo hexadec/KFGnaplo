@@ -142,7 +142,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
                                     if (grades.get(j).description.equals(grades.get(j + 1).description)) {
-                                        if (Math.abs(d.getTime() -  dd.getTime()) < 40 * 1000) {
+                                        if (Math.abs(d.getTime() - dd.getTime()) < 40 * 1000) {
                                             doublegrade++;
                                             continue;
                                         }
@@ -174,7 +174,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             Values.setTextSize(18.0f);
                             Values.setTextColor(Color.parseColor(doublegrade > 0 ? "#FF4500" : "#FFFFFF"));
                             Values.setTypeface(null, Typeface.ITALIC);
-                            Values.setText(j == -1 || doublegrade > 0 ? new DecimalFormat(doublegrade > 0 ? "#.###" : "#.##").format(avg) : "" + grades.get(j).value);
+                            Values.setText(j == -1 || doublegrade > 0 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
                             Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
                             final int minPos = j - doublegrade;
                             final int maxPos = j;
