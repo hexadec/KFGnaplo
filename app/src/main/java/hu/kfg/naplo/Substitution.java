@@ -72,6 +72,12 @@ public class Substitution extends Object {
         return over;
     }
 
+    int getTimeValue() {
+        int val = period;
+        val += today ? 0 : 10;
+        return val;
+    }
+
     String getTeacher() {
         return teacher;
     }
@@ -94,12 +100,12 @@ public class Substitution extends Object {
     String toString(String format) {
         if (format == null || format.length() < 1) return null;
         if (room != 0) format = format.replace("RR", "/" + room);
-        else format = format.replace("RR","");
-        format = format.replace("DD", today?"":"*");
+        else format = format.replace("RR", "");
+        format = format.replace("DD", today ? "" : "*");
         format = format.replace("GG", group);
         format = format.replace("PP", "" + period);
         format = format.replace("SS", subject);
-        format = format.replace("TE", subject.equals("??")?missing:teacher);
+        format = format.replace("TE", subject.equals("??") ? missing : teacher);
         format = format.replace("MM", missing);
         try {
             format = format.replace("C9", "(" + comment.substring(0, 9) + "…)");
@@ -109,7 +115,7 @@ public class Substitution extends Object {
         if (comment.length() > 0)
             format = format.replace("CC", "(" + comment + ")");
         else
-            format = format.replace("CC","");
+            format = format.replace("CC", "");
         return format;
 
     }

@@ -1,8 +1,6 @@
 package hu.kfg.naplo;
 
 import android.content.*;
-import android.graphics.Color;
-import android.opengl.Visibility;
 import android.preference.*;
 
 import android.net.*;
@@ -49,6 +47,8 @@ public class ChangeListener {
     static final String CHANNEL_STANDINS = "standins";
     static final String CHANNEL_GRADES = "grades";
     static final String CHANNEL_NIGHT = "night";
+
+    static final String eURL = "https://klik035252001.e-kreta.hu";
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -485,6 +485,14 @@ public class ChangeListener {
         pref.edit().putLong("last_check2", System.currentTimeMillis()).commit();
         StringBuilder text = new StringBuilder();
         int numoflessons = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            subs.sort(new Comparator<Substitution>() {
+                @Override
+                public int compare(Substitution o1, Substitution o2) {
+                    return o1.getTimeValue() - o2.getTimeValue();
+                }
+            });
+        }
         if (mode.equals(MODE_TEACHER)) {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
