@@ -70,7 +70,7 @@ public class ChangeListener {
             public void run() {
                 switch (mode) {
                     case MODE_TRUE:
-                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("error", true));
+                        doStandinsCheck(context, intent);
                         doCheck(context, intent);
                         break;
                     case MODE_NAPLO:
@@ -78,7 +78,7 @@ public class ChangeListener {
                         break;
                     case MODE_TEACHER:
                     case MODE_STANDINS:
-                        doStandinsCheck(context, new Intent("hu.kfg.standins.CHECK_NOW").putExtra("error", true));
+                        doStandinsCheck(context, intent);
                         break;
                     case MODE_FALSE:
                         break;
@@ -515,29 +515,21 @@ public class ChangeListener {
             }
         }
 
-        if (pref.getBoolean("onlyonce", true) && pref.getString("last", "nuller").equals(text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date())))) {
-            if (pref.getBoolean("always_notify", false)) {
-                notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
+        if (pref.getBoolean("onlyonce", true) && pref.getString("last", "nuller").equals(text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))) && !intent.hasExtra("show_anyway")) {
+            showToast.postAtFrontOfQueue(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            if (text.toString().length() > 5) {
+                notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
                 showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
-        } else {
-            if (text.toString().length() > 5) {
-                notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
-            } else {
-                if (pref.getBoolean("always_notify", false)) {
-                    notifyIfStandinsChanged(new int[]{3, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
-                } else {
-                    showToast.postAtFrontOfQueue(new Runnable() {
-                        public void run() {
-                            Toast.makeText(context, R.string.no_new_substitution2, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
             }
         }
         pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))).apply();

@@ -220,7 +220,7 @@ public class MainActivity extends PreferenceActivity {
                 }
                 Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
 
-                ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("error", true));
+                ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("error", true).putExtra("show_anyway", true));
                 CheckerJob.scheduleJob();
                 return true;
             }
