@@ -3,9 +3,9 @@
     <string-array name="check_interval">
         <item>Every hour</item>
         <item>Every third hour</item>
-        <item>Every 5 hour</item>
-        <item>Every 8 hour</item>
-        <item>Every 12 hour</item>
+        <item>Every 5th hour (default)</item>
+        <item>Every 8th hour</item>
+        <item>Every 12th hour</item>
         <item>Once in a day</item>
     </string-array>
 

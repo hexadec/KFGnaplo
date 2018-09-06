@@ -93,18 +93,18 @@ public class Substitution extends Object {
      */
     String toString(String format) {
         if (format == null || format.length() < 1) return null;
-        if (room != 0) format = format.replace("R", "/" + room);
-        else format = format.replace("R","");
+        if (room != 0) format = format.replace("RR", "/" + room);
+        else format = format.replace("RR","");
         format = format.replace("DD", today?"":"*");
-        format = format.replace("G", group);
-        format = format.replace("P", "" + period);
-        format = format.replace("S", subject);
-        format = format.replace("T", subject.equals("??")?missing:teacher);
+        format = format.replace("GG", group);
+        format = format.replace("PP", "" + period);
+        format = format.replace("SS", subject);
+        format = format.replace("TE", subject.equals("??")?missing:teacher);
         format = format.replace("MM", missing);
         try {
-            format = format.replace("C8", "(" + comment.substring(0, 8) + "…)");
+            format = format.replace("C9", "(" + comment.substring(0, 9) + "…)");
         } catch (Exception e) {
-            format = format.replace("C8", "CC");
+            format = format.replace("C9", "CC");
         }
         if (comment.length() > 0)
             format = format.replace("CC", "(" + comment + ")");

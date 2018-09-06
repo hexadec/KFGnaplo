@@ -429,7 +429,6 @@ public class ChangeListener {
             int counter = 0;
             Substitution sub = new Substitution(context);
             while ((line = reader.readLine()) != null) {
-
                 if (line.contains("live")) {
                     day = 1;
                 }
@@ -442,21 +441,21 @@ public class ChangeListener {
                         subs.add(sub);
                         sub = new Substitution(context);
                     }
-                    sub.setTeacher(line.substring(21, line.length() - 5));
+                    sub.setTeacher(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                 }
                 if (line.contains("\"subject\"") && counter == 3) {
-                    sub.setSubject(line.substring(20, line.length() - 5));
+                    sub.setSubject(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                 }
                 if (line.contains("\"comment\"") && counter == 6) {
-                    sub.setComment(line.substring(20, line.length() - 5));
+                    sub.setComment(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                 }
                 if (line.contains("\"class\"") && counter == 2) {
-                    sub.setGroup(line.substring(18, line.length() - 5));
+                    sub.setGroup(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                 }
                 if (line.contains("\"lesson\"") && counter == 1) {
                     int period = -1;
                     try {
-                        period = Integer.valueOf(line.substring(19, line.length() - 6));
+                        period = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                     } catch (Exception e) {
                         Log.d(TAG, "No lesson specified");
                     }
@@ -465,14 +464,14 @@ public class ChangeListener {
                 if (line.contains("\"room\"") && counter == 4) {
                     int room = 0;
                     try {
-                        room = Integer.valueOf(line.substring(17, line.length() - 5));
+                        room = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                     } catch (Exception e) {
                         Log.d(TAG, "No room specified!");
                     }
                     sub.setRoom(room);
                 }
                 if (line.contains("\"missing_teacher\"") && counter == 5) {
-                    sub.setMissingTeacher(line.substring(28, line.length() - 5));
+                    sub.setMissingTeacher(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                 }
                 counter++;
 
@@ -482,6 +481,7 @@ public class ChangeListener {
             e.printStackTrace();
             return;
         }
+        Log.d(TAG, "Subtitutions: " + subs.size());
         pref.edit().putLong("last_check2", System.currentTimeMillis()).commit();
         StringBuilder text = new StringBuilder();
         int numoflessons = 0;
@@ -490,8 +490,8 @@ public class ChangeListener {
                 for (String cla : cls) {
                     if (cla.equals(sub.getTeacher()) && !sub.isOver()) {
                         text.append("\n");
-                        text.append(sub.toString("PDD. S: G C8 R"));
-                        Log.d(TAG, sub.toString("PDD. S: G C8 R"));
+                        text.append(sub.toString("PPDD. SS: GG C9 RR"));
+                        Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR"));
                         numoflessons++;
                     }
                 }
@@ -505,10 +505,12 @@ public class ChangeListener {
                             if (toIgnore.equalsIgnoreCase(sub.getSubject()))
                                 continue substitutions;
                         text.append("\n");
-                        text.append(sub.toString("PDD. S: T C8 R, G"));
-                        Log.d(TAG, sub.toString("PDD. S: T C8 R, G"));
+                        text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
+                        Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
                         numoflessons++;
-                    }
+                    } /*else {
+                        Log.d(TAG, sub.toString("---PPDD. S: TE C9 R, G") + "//" + cla + "//" + sub.getGroup() + "//");
+                    } */
                 }
             }
         }
