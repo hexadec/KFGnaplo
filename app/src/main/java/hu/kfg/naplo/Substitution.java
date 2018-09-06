@@ -81,14 +81,14 @@ public class Substitution extends Object {
     }
 
     /**
-     * @param format R for -room,
-     *               CC for full comment, C8 to limit to 8 characters,
-     *               G for group,
-     *               T for teacher,
+     * @param format RR for -room,
+     *               CC for full comment, C9 to limit to 9 characters,
+     *               GG for group,
+     *               TE for teacher,
      *               MM for missing teacher
-     *               S for subject,
+     *               SS for subject,
      *               DD for a * mark if tomorrow,
-     *               P for period
+     *               PP for period
      * @return formatted text to output
      */
     String toString(String format) {
