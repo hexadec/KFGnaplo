@@ -23,7 +23,7 @@
         <item>Napló notifications only</item>
         <item>Stand-ins notifications only</item>
         <item>Napló &amp; Stand-ins notifications</item>
-        <item>Stand-ins for teachers</item>
+        <item>Stand-ins for Teachers</item>
     </string-array>
 
     <string-array name="notification_mode_values">

@@ -498,8 +498,8 @@ public class ChangeListener {
                 for (String cla : cls) {
                     if (cla.equals(sub.getTeacher()) && !sub.isOver()) {
                         text.append("\n");
-                        text.append(sub.toString("PPDD. SS: GG C9 RR"));
-                        Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR"));
+                        text.append(sub.toString("PPDD. SS: GG C9 RR MT"));
+                        Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR MT"));
                         numoflessons++;
                     }
                 }

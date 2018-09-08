@@ -103,7 +103,7 @@ public class MainActivity extends PreferenceActivity {
 
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                String notAllowed = "345678?!:-+abcdeiknyNY";
+                String notAllowed = "345678?!:,_-+abcdefghijklmnopqrstuwvxzyFGHJLMNOPQRSTUWVXZY ";
                 if (source != null && notAllowed.contains(source)) {
                     return "";
                 }

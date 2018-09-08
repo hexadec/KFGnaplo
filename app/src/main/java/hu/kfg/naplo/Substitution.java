@@ -1,7 +1,6 @@
 package hu.kfg.naplo;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,6 +71,11 @@ public class Substitution extends Object {
         return over;
     }
 
+    /**
+     *
+     * @return an integer value based on which the lessons can be ordered.
+     * The value takes day and period into account.
+     */
     int getTimeValue() {
         int val = period;
         val += today ? 0 : 10;
@@ -91,7 +95,7 @@ public class Substitution extends Object {
      *               CC for full comment, C9 to limit to 9 characters,
      *               GG for group,
      *               TE for teacher,
-     *               MM for missing teacher
+     *               MT for missing teacher
      *               SS for subject,
      *               DD for a * mark if tomorrow,
      *               PP for period
@@ -106,7 +110,7 @@ public class Substitution extends Object {
         format = format.replace("PP", "" + period);
         format = format.replace("SS", subject);
         format = format.replace("TE", subject.equals("??") ? missing : teacher);
-        format = format.replace("MM", missing);
+        format = format.replace("MT", missing);
         try {
             format = format.replace("C9", "(" + comment.substring(0, 9) + "…)");
         } catch (Exception e) {
