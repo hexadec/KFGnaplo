@@ -685,10 +685,13 @@ public class ChangeListener {
         } else {
             n = new Notification.Builder(context);
         }
-        n.setContentTitle(context.getString(R.string.kfg_standins))
-                .setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")
-                .setSmallIcon(R.drawable.ic_standins)
-                .setAutoCancel(true);
+        n.setContentTitle(context.getString(R.string.kfg_standins));
+        n.setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            n.setSmallIcon(R.drawable.ic_standins);
+        else
+            n.setSmallIcon(R.drawable.ic_standins3);
+        n.setAutoCancel(true);
         if (state[1] == 1 && state[0] != 3 && !nightmode) {
             n.setVibrate(VIBR_PATTERN);
         }

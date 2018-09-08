@@ -18,11 +18,11 @@ public class Substitution extends Object {
     private String missing;
     private Context context;
 
-    Substitution(Context con) {
+    public Substitution(Context con) {
         context = con;
     }
 
-    void setTime(int per, boolean tod) {
+    public void setTime(int per, boolean tod) {
         period = per;
         today = tod;
         if (per == -1) {
@@ -32,15 +32,15 @@ public class Substitution extends Object {
         over = tod && (Integer.valueOf(new SimpleDateFormat("HHmm").format(new Date())) > (per + 7) * 100 + 45);
     }
 
-    void setTeacher(String t) {
+    public void setTeacher(String t) {
         teacher = t;
     }
 
-    void setRoom(int r) {
+    public void setRoom(int r) {
         room = r;
     }
 
-    void setSubject(String subject) {
+    public void setSubject(String subject) {
         if (subject.length() < 2) {
             this.subject = context.getString(R.string.lyukasora);
         } else {
@@ -48,26 +48,26 @@ public class Substitution extends Object {
         }
     }
 
-    void setComment(String c) {
+    public void setComment(String c) {
         comment = c;
         if (comment.contains("megtartja")) {
             subject = "??";
         }
     }
 
-    void setGroup(String gr) {
+    public void setGroup(String gr) {
         group = gr;
     }
 
-    void setMissingTeacher(String name) {
+    public void setMissingTeacher(String name) {
         missing = name;
     }
 
-    String getGroup() {
+    public String getGroup() {
         return group;
     }
 
-    boolean isOver() {
+    public boolean isOver() {
         return over;
     }
 
@@ -76,17 +76,17 @@ public class Substitution extends Object {
      * @return an integer value based on which the lessons can be ordered.
      * The value takes day and period into account.
      */
-    int getTimeValue() {
+    public int getTimeValue() {
         int val = period;
         val += today ? 0 : 10;
         return val;
     }
 
-    String getTeacher() {
+    public String getTeacher() {
         return teacher;
     }
 
-    String getSubject() {
+    public String getSubject() {
         return subject;
     }
 
@@ -101,7 +101,7 @@ public class Substitution extends Object {
      *               PP for period
      * @return formatted text to output
      */
-    String toString(String format) {
+    public String toString(String format) {
         if (format == null || format.length() < 1) return null;
         if (room != 0) format = format.replace("RR", "/" + room);
         else format = format.replace("RR", "");
@@ -122,5 +122,10 @@ public class Substitution extends Object {
             format = format.replace("CC", "");
         return format;
 
+    }
+
+    @Override
+    public String toString() {
+        return toString("Group: GG/Stand-in: TE/Missing: MT/Subject: SS/When: PPDD/Comment: CC/Room: RR");
     }
 }
