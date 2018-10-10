@@ -7,6 +7,7 @@ public class Grade implements Serializable{
     private static final long serialVersionUID = Integer.MAX_VALUE;
     byte value;
     String date;
+    String save_date;
     String teacher;
     String subject;
     String description;
@@ -41,9 +42,16 @@ public class Grade implements Serializable{
         teacher = s;
         return returnv;
     }
+
     public boolean addDate(String s) {
         boolean returnv = date != null;
         date = s;
+        return returnv;
+    }
+
+    public boolean addSaveDate(String s) {
+        boolean returnv = save_date != null;
+        save_date = s;
         return returnv;
     }
 
@@ -60,7 +68,7 @@ public class Grade implements Serializable{
 
     @Override
     public String toString() {
-        return value + "/" + subject + "/" + teacher + "/" + date + "/" + description;
+        return value + "/" + subject + "/" + teacher + "/" + date + "/" + description + "/" + save_date;
     }
 
     @Override

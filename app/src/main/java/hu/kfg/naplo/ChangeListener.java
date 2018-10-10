@@ -17,7 +17,12 @@ import java.io.*;
 import android.widget.*;
 import android.app.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.*;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class ChangeListener {
 
@@ -48,7 +53,8 @@ public class ChangeListener {
     static final String CHANNEL_GRADES = "grades";
     static final String CHANNEL_NIGHT = "night";
 
-    static final String eURL = "https://klik035252001.e-kreta.hu";
+    public static final String eURL = "https://klik035252001.e-kreta.hu";
+    public static final String eCODE = "klik035252001";
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -713,6 +719,40 @@ public class ChangeListener {
                 .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
         notification.number = numberoflessons;
         notificationManager.notify(STANDINS_ID, notification);
+    }
+
+    String getToken(Context context) throws Exception {
+        URL url = new URL(ChangeListener.eURL + "/idp/api/v1/Token");
+
+        HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
+        String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + "csand99" + "&password=" + "pwd" + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
+
+        request.setDoOutput(true);
+        request.addRequestProperty("Accept", "application/json");
+        request.addRequestProperty("HOST", ChangeListener.eURL.replace("https://", ""));
+        request.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        request.setRequestMethod("POST");
+        request.connect();
+        OutputStreamWriter writer = new OutputStreamWriter(request.getOutputStream());
+        writer.write(post);
+        writer.flush();
+
+        try {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jObject = new JSONObject(sb.toString());
+            request.disconnect();
+            return jObject.getString("access_token");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        request.disconnect();
+
+        return null;
     }
 
 }

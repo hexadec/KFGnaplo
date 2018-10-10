@@ -4,6 +4,7 @@
     <string name="app_name">KFG App</string>
     <string name="kfg_standins">KFG Helyettesítések</string>
     <string name="main_activity">KFGNapló &amp; Helyettesítések</string>
+    <string name="account_name">KFG Kréta Fiók</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
 1. Lépj be a KFG Napló oldalra<br/>
 2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
