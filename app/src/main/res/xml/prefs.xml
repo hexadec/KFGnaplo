@@ -18,10 +18,15 @@
             android:key="notification_mode"
             android:summary="%s"
             android:title="@string/mode" />
-        <EditTextPreference
+        <!--EditTextPreference
+            android:enabled="false"
             android:key="url"
             android:summary="@string/copythelink"
-            android:title="Napló URL: " />
+            android:title="Napló URL: " /-->
+        <EditTextPreference
+            android:key="username"
+            android:summary="@string/credentials_sum"
+            android:title="@string/username" />
         <EditTextPreference
             android:key="class"
             android:singleLine="true"
@@ -68,9 +73,9 @@
         <Preference
             android:key="manual_check"
             android:title="@string/find_changes_now" />
-        <Preference
+        <!--Preference
             android:key="open_in_browser"
-            android:title="@string/browser" />
+            android:title="@string/browser" /-->
         <Preference
             android:key="open_standins_in_browser"
             android:title="@string/open_standins">

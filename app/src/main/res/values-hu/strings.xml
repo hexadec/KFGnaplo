@@ -94,4 +94,9 @@
     <string name="import_gyia">GYIA kód importálása a KFGapp-ba</string>
     <string name="override_gyia">Biztos vagy benne hogy importálod a GYIA kódot és felülírod az előzőt?</string>
     <string name="cancel">Mégsem</string>
+    <string name="credentials_sum">Kattints ide a felhasználóneved és jelszavad módosításához</string>
+    <string name="enter_pwd">Írd be a jelszavad</string>
+    <string name="change_pwd">Jelszómódosítás</string>
+    <string name="keep_pwd">Régi megtartása</string>
+    <string name="username">Felhasználónév</string>
 </resources>

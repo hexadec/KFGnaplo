@@ -5,7 +5,7 @@
     <string name="kfg_standins">KFG Stand-ins</string>
     <string name="main_activity">KFGNaplo &amp; Stand-ins</string>
     <string name="account_name">KFG Kréta Account</string>
-    <string name="account_type">hu.kfg.naplo.MAIN_ACCOUNT</string>
+    <string name="account_type" translatable="false">hu.kfg.naplo.MAIN_ACCOUNT</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use GYIA codes:<br/>
 1. Login to KFG Napló<br/>
 2. Open okostelefonos hozzáférés (GYIA)<br/>
@@ -96,4 +96,9 @@
     <string name="import_gyia">Import GYIA into KFG app</string>
     <string name="override_gyia">Are you sure you want to save this GYIA link to the app, and overwrite the existing link?</string>
     <string name="cancel">Cancel</string>
+    <string name="credentials_sum">Click here to edit your username and password</string>
+    <string name="enter_pwd">Enter your password</string>
+    <string name="change_pwd">Change password</string>
+    <string name="keep_pwd">Keep current</string>
+    <string name="username">Username</string>
 </resources>

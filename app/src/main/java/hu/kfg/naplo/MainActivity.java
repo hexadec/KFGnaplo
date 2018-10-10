@@ -1,5 +1,7 @@
 package hu.kfg.naplo;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.*;
 import android.graphics.Point;
 import android.os.*;
@@ -39,7 +41,7 @@ public class MainActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.prefs);
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final Preference url = findPreference("url");
+        //final Preference url = findPreference("url");
         final Preference manual_check = findPreference("manual_check");
         final Preference about = findPreference("about");
         final Preference interval = findPreference("auto_check_interval");
@@ -47,19 +49,14 @@ public class MainActivity extends PreferenceActivity {
         final Preference flash = findPreference("flash");
         final Preference ngrades = findPreference("not_grades");
         final Preference nstandins = findPreference("not_standins");
-        final Preference open_in_browser = findPreference("open_in_browser");
         final Preference nightmode = findPreference("nightmode");
         final Preference ignore = findPreference("ignore_lessons");
         final Preference grades = findPreference("grades");
+        final EditTextPreference username = (EditTextPreference) findPreference("username");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
-        final EditTextPreference url2 = (EditTextPreference) url;
-        if (url2.getText() != null) {
-            if (url2.getText().length() >= URL_MIN_LENGTH) {
-                url2.setSummary(getString(R.string.click2edit));
-            } else {
-                grades.setEnabled(false);
-            }
+        if (username.getText() != null && username.getText().length() >= URL_MIN_LENGTH) {
+            username.setSummary(getString(R.string.username) + ": " + username.getText());
         }
 
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
@@ -131,7 +128,7 @@ public class MainActivity extends PreferenceActivity {
                 manual_check.setEnabled(false);
                 nightmode.setEnabled(false);
                 clas.setEnabled(false);
-                url.setEnabled(false);
+                //url.setEnabled(false);
                 ignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 nstandins.setEnabled(false);
@@ -147,14 +144,14 @@ public class MainActivity extends PreferenceActivity {
                 clas.getEditText().setFilters(new InputFilter[]{teacherFilter});
                 clas.setSummary(R.string.teacher_hint);
                 clas.setTitle(R.string.teacher_name);
-                url.setEnabled(false);
+//                url.setEnabled(false);
                 ignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 grades.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
-                url.setEnabled(false);
+//                url.setEnabled(false);
                 ngrades.setEnabled(false);
             default:
                 clas.getEditText().setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -169,7 +166,7 @@ public class MainActivity extends PreferenceActivity {
 
         if (!prefs.getBoolean("inst", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
             showWelcomeDialog();
-        } else {
+        } /* else {
             if (Intent.ACTION_SEND.equals(getIntent().getAction()) && getIntent().hasExtra(Intent.EXTRA_TEXT)) {
                 if (!getIntent().getStringExtra(Intent.EXTRA_TEXT)
                         .startsWith("https://naplo.karinthy.hu/app/interface.php?view=v_slip")) {
@@ -202,7 +199,7 @@ public class MainActivity extends PreferenceActivity {
             } else {
                 showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
             }
-        }
+        }*/
 
 
         manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -220,10 +217,10 @@ public class MainActivity extends PreferenceActivity {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                if ((url2.getText() == null || url2.getText().length() < URL_MIN_LENGTH) && (notification_mode.getValue().equals("naplo") || notification_mode.getValue().equals("true"))) {
+                /*if ((url2.getText() == null || url2.getText().length() < URL_MIN_LENGTH) && (notification_mode.getValue().equals("naplo") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
                     return true;
-                }
+                }*/
                 if ((clas.getText() == null || clas.getText().length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
                     return true;
@@ -248,7 +245,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        /*url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
                 if (((String) obj).length() < URL_MIN_LENGTH) {
                     url2.setSummary(getString(R.string.copythelink));
@@ -276,6 +273,55 @@ public class MainActivity extends PreferenceActivity {
                     db.cleanDatabase();
                     return false;
                 }
+                return true;
+            }
+        });*/
+
+        username.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                final String uname = (String) newValue;
+                if (uname == null || uname.length() <= 1) {
+                    grades.setEnabled(false);
+                    return false;
+                }
+                preference.setTitle(getString(R.string.username) + ": " + uname);
+                final EditText pwdfield = new EditText(MainActivity.this);
+                pwdfield.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                AlertDialog.Builder ad = new AlertDialog.Builder(MainActivity.this);
+                ad.setTitle(R.string.enter_pwd);
+                ad.setView(pwdfield);
+                ad.setPositiveButton(R.string.change_pwd, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Remove old account
+                        AccountManager accountManager = AccountManager.get(MainActivity.this);
+                        Account account = new Account(username.getText(), getString(R.string.account_type));
+                        accountManager.removeAccount(account, null, null);
+                        //Create new one
+                        accountManager = AccountManager.get(MainActivity.this);
+                        account = new Account(uname, getString(R.string.account_type));
+                        boolean success = accountManager.addAccountExplicitly(account, pwdfield.getText().toString(), null);
+                        if (success) {
+                            Log.d("KFGNaplo", "Account created");
+                        } else {
+                            Toast.makeText(MainActivity.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+                            Log.d("KFGNaplo", "Account creation failed");
+                        }
+                    }
+                });
+                if (uname.equals(username.getText())) {
+                    ad.setNegativeButton(R.string.keep_pwd, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AccountManager accountManager = AccountManager.get(MainActivity.this);
+                            Account account = new Account(username.getText(), getString(R.string.account_type));
+                            accountManager.setPassword(account, pwdfield.getText().toString());
+                        }
+                    });
+                }
+                ad.show();
+                grades.setEnabled(true);
                 return true;
             }
         });
@@ -329,7 +375,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        /*open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 if (url2.getText() != null && url2.getText().length() >= URL_MIN_LENGTH) {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -340,7 +386,7 @@ public class MainActivity extends PreferenceActivity {
                 }
                 return true;
             }
-        });
+        });*/
         grades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);

@@ -1,5 +1,7 @@
 package hu.kfg.naplo;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.*;
 import android.preference.*;
 
@@ -48,6 +50,10 @@ public class ChangeListener {
     static final int UPGRADE_FAILED = 5;
     static final int DONE = 0;
     static final int DONE_NO_CHANGE = 1;
+
+    static final int TOKEN_ERROR = -10;
+    static final int UNKNOWN_ERROR = -1;
+    static final int NETWORK_RELATED_ERROR = -2;
 
     static final String CHANNEL_STANDINS = "standins";
     static final String CHANNEL_GRADES = "grades";
@@ -722,10 +728,15 @@ public class ChangeListener {
     }
 
     String getToken(Context context) throws Exception {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String username = prefs.getString("username", "nopeempty");
+        AccountManager accountManager = AccountManager.get(context);
+        Account account = new Account(username, context.getString(R.string.account_type));
+        String password = accountManager.getPassword(account);
         URL url = new URL(ChangeListener.eURL + "/idp/api/v1/Token");
 
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
-        String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + "csand99" + "&password=" + "pwd" + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
+        String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
 
         request.setDoOutput(true);
         request.addRequestProperty("Accept", "application/json");
@@ -752,7 +763,41 @@ public class ChangeListener {
         }
         request.disconnect();
 
-        return null;
+        throw new IllegalAccessException("No token returned");
+    }
+
+    int getEkretaGrades(Context context, Intent intent) {
+        JSONObject resultStuff;
+        try {
+            URL treqURL = new URL(eURL + "/mapi/api/v1/Student");
+            HttpsURLConnection request = (HttpsURLConnection) (treqURL.openConnection());
+            request.addRequestProperty("Accept", "application/json");
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context));
+            request.addRequestProperty("HOST", eURL.replace("https://", ""));
+            request.addRequestProperty("Connection", "keep-alive");
+            request.setRequestMethod("GET");
+            request.connect();
+
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            resultStuff = new JSONObject(sb.toString());
+            request.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return NETWORK_RELATED_ERROR;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return TOKEN_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return UNKNOWN_ERROR;
+        }
+        //TODO further operations and processing
+        return 0;
     }
 
 }
