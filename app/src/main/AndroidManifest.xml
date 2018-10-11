@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="hu.kfg.naplo">
+    package="hu.kfg.naplo"
+    android:installLocation="internalOnly">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -58,7 +59,7 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <service android:name=".AuthenticatorService" android:exported="false">
+        <service android:name="hu.kfg.naplo.AuthenticatorService" android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

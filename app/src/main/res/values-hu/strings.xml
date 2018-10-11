@@ -99,4 +99,5 @@
     <string name="change_pwd">Jelszómódosítás</string>
     <string name="keep_pwd">Régi megtartása</string>
     <string name="username">Felhasználónév</string>
+    <string name="incorrect_credentials">Hibás felhasználónév vagy jelszó!</string>
 </resources>

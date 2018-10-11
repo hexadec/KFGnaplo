@@ -55,8 +55,8 @@ public class MainActivity extends PreferenceActivity {
         final EditTextPreference username = (EditTextPreference) findPreference("username");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
-        if (username.getText() != null && username.getText().length() >= URL_MIN_LENGTH) {
-            username.setSummary(getString(R.string.username) + ": " + username.getText());
+        if (username.getText() != null && username.getText().length() >= 1) {
+            username.setTitle(getString(R.string.username) + ": " + username.getText());
         }
 
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
@@ -217,10 +217,6 @@ public class MainActivity extends PreferenceActivity {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                /*if ((url2.getText() == null || url2.getText().length() < URL_MIN_LENGTH) && (notification_mode.getValue().equals("naplo") || notification_mode.getValue().equals("true"))) {
-                    Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
-                    return true;
-                }*/
                 if ((clas.getText() == null || clas.getText().length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
                     return true;
@@ -287,7 +283,7 @@ public class MainActivity extends PreferenceActivity {
                 }
                 preference.setTitle(getString(R.string.username) + ": " + uname);
                 final EditText pwdfield = new EditText(MainActivity.this);
-                pwdfield.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                pwdfield.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 AlertDialog.Builder ad = new AlertDialog.Builder(MainActivity.this);
                 ad.setTitle(R.string.enter_pwd);
                 ad.setView(pwdfield);
@@ -375,18 +371,6 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        /*open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference pref) {
-                if (url2.getText() != null && url2.getText().length() >= URL_MIN_LENGTH) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(url2.getText()));
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.insert_code, Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });*/
         grades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);

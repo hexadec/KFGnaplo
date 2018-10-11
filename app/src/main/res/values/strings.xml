@@ -101,4 +101,5 @@
     <string name="change_pwd">Change password</string>
     <string name="keep_pwd">Keep current</string>
     <string name="username">Username</string>
+    <string name="incorrect_credentials">Incorrect username or password!</string>
 </resources>

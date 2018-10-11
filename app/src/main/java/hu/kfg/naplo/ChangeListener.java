@@ -19,6 +19,7 @@ import java.io.*;
 import android.widget.*;
 import android.app.*;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,10 +84,22 @@ public class ChangeListener {
                 switch (mode) {
                     case MODE_TRUE:
                         doStandinsCheck(context, intent);
-                        doCheck(context, intent);
+                        //doCheck(context, intent);
+                        try {
+                            getEkretaGrades(context, intent);
+                        } catch (JSONException je) {
+                            je.printStackTrace();
+                            Log.e(TAG, "JSON Processing error!");
+                        }
                         break;
                     case MODE_NAPLO:
-                        doCheck(context, intent);
+                        //doCheck(context, intent);
+                        try {
+                            getEkretaGrades(context, intent);
+                        } catch (JSONException je) {
+                            je.printStackTrace();
+                            Log.e(TAG, "JSON Processing error!");
+                        }
                         break;
                     case MODE_TEACHER:
                     case MODE_STANDINS:
@@ -727,7 +740,12 @@ public class ChangeListener {
         notificationManager.notify(STANDINS_ID, notification);
     }
 
-    String getToken(Context context) throws Exception {
+    static String getToken(final Context context) throws Exception {
+        final Handler showToast = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message message) {
+            }
+        };
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String username = prefs.getString("username", "nopeempty");
         AccountManager accountManager = AccountManager.get(context);
@@ -738,6 +756,7 @@ public class ChangeListener {
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
         String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
 
+        //Log.e(TAG, username + "/" + password);
         request.setDoOutput(true);
         request.addRequestProperty("Accept", "application/json");
         request.addRequestProperty("HOST", ChangeListener.eURL.replace("https://", ""));
@@ -747,6 +766,15 @@ public class ChangeListener {
         OutputStreamWriter writer = new OutputStreamWriter(request.getOutputStream());
         writer.write(post);
         writer.flush();
+        Log.i(TAG, "Response code: " + request.getResponseCode() + "/" + request.getResponseMessage());
+
+        if (request.getResponseCode() == 401) {
+            showToast.postAtFrontOfQueue(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
@@ -766,11 +794,11 @@ public class ChangeListener {
         throw new IllegalAccessException("No token returned");
     }
 
-    int getEkretaGrades(Context context, Intent intent) {
+    static int getEkretaGrades(Context context, Intent intent) throws JSONException {
         JSONObject resultStuff;
         try {
-            URL treqURL = new URL(eURL + "/mapi/api/v1/Student");
-            HttpsURLConnection request = (HttpsURLConnection) (treqURL.openConnection());
+            URL url = new URL(eURL + "/mapi/api/v1/Student");
+            HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
             request.addRequestProperty("Accept", "application/json");
             request.addRequestProperty("Authorization", "Bearer " + getToken(context));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
@@ -789,12 +817,20 @@ public class ChangeListener {
         } catch (IOException e) {
             e.printStackTrace();
             return NETWORK_RELATED_ERROR;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             return TOKEN_ERROR;
         } catch (Exception e) {
             e.printStackTrace();
             return UNKNOWN_ERROR;
+        }
+
+        final List<Grade> mygrades = new ArrayList<>();
+        JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");
+        Log.d(TAG, rawGrades.getJSONObject(0).toString());
+        for (int i = 0; i < rawGrades.length(); i++) {
+            Grade grade = new Grade(Byte.valueOf(rawGrades.getJSONObject(i).getString("NumberValue")));
+            grade.addSubject(rawGrades.getJSONObject(i).getString("Subject"));
         }
         //TODO further operations and processing
         return 0;
