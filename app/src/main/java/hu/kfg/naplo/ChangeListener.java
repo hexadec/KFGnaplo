@@ -44,7 +44,6 @@ public class ChangeListener {
 
     private static boolean running = false; //From old workaround, probably not necessary?
 
-    static final int STD_ERROR = -1;
     static final int GYIA_ERROR = -7;
     static final int DB_EMPTY = 4;
     static final int UPGRADE_DONE = 3;
@@ -53,7 +52,7 @@ public class ChangeListener {
     static final int DONE_NO_CHANGE = 1;
 
     static final int TOKEN_ERROR = -10;
-    static final int UNKNOWN_ERROR = -1;
+    static final int UNKNOWN_ERROR = -1, STD_ERROR = -1;
     static final int NETWORK_RELATED_ERROR = -2;
 
     static final String CHANNEL_STANDINS = "standins";
@@ -83,7 +82,6 @@ public class ChangeListener {
             public void run() {
                 switch (mode) {
                     case MODE_TRUE:
-                        doStandinsCheck(context, intent);
                         //doCheck(context, intent);
                         try {
                             getEkretaGrades(context, intent);
@@ -91,6 +89,7 @@ public class ChangeListener {
                             je.printStackTrace();
                             Log.e(TAG, "JSON Processing error!");
                         }
+                        doStandinsCheck(context, intent);
                         break;
                     case MODE_NAPLO:
                         //doCheck(context, intent);
@@ -117,7 +116,7 @@ public class ChangeListener {
     }
 
 
-    static int doCheck(final Context context, final Intent intent) {
+    /*static int doCheck(final Context context, final Intent intent) {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
@@ -351,7 +350,7 @@ public class ChangeListener {
             running = false;
             return STD_ERROR;
         }
-    }
+    }*/
 
     private static void doStandinsCheck(final Context context, final Intent intent) {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
@@ -740,23 +739,19 @@ public class ChangeListener {
         notificationManager.notify(STANDINS_ID, notification);
     }
 
-    static String getToken(final Context context) throws Exception {
+    static String getToken(final Context context, String username, String password) throws Exception {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
             }
         };
+        //Log.e(TAG, username + "/" + password);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String username = prefs.getString("username", "nopeempty");
-        AccountManager accountManager = AccountManager.get(context);
-        Account account = new Account(username, context.getString(R.string.account_type));
-        String password = accountManager.getPassword(account);
         URL url = new URL(ChangeListener.eURL + "/idp/api/v1/Token");
 
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
         String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
 
-        //Log.e(TAG, username + "/" + password);
         request.setDoOutput(true);
         request.addRequestProperty("Accept", "application/json");
         request.addRequestProperty("HOST", ChangeListener.eURL.replace("https://", ""));
@@ -794,13 +789,19 @@ public class ChangeListener {
         throw new IllegalAccessException("No token returned");
     }
 
-    static int getEkretaGrades(Context context, Intent intent) throws JSONException {
+    static int getEkretaGrades(final Context context, Intent intent) throws JSONException {
+        final Handler showToast = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message message) {
+            }
+        };
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         JSONObject resultStuff;
         try {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
             HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
             request.addRequestProperty("Accept", "application/json");
-            request.addRequestProperty("Authorization", "Bearer " + getToken(context));
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), pref.getString("password", "null")));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
             request.addRequestProperty("Connection", "keep-alive");
             request.setRequestMethod("GET");
@@ -814,12 +815,12 @@ public class ChangeListener {
             }
             resultStuff = new JSONObject(sb.toString());
             request.disconnect();
+        } catch (IllegalAccessException | FileNotFoundException e) {
+            e.printStackTrace();
+            return TOKEN_ERROR;
         } catch (IOException e) {
             e.printStackTrace();
             return NETWORK_RELATED_ERROR;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return TOKEN_ERROR;
         } catch (Exception e) {
             e.printStackTrace();
             return UNKNOWN_ERROR;
@@ -829,11 +830,134 @@ public class ChangeListener {
         JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");
         Log.d(TAG, rawGrades.getJSONObject(0).toString());
         for (int i = 0; i < rawGrades.length(); i++) {
-            Grade grade = new Grade(Byte.valueOf(rawGrades.getJSONObject(i).getString("NumberValue")));
-            grade.addSubject(rawGrades.getJSONObject(i).getString("Subject"));
+            JSONObject currentItem = rawGrades.getJSONObject(i);
+            SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            Grade grade = new Grade((byte) currentItem.getInt("NumberValue"));
+            grade.addSubject(currentItem.getString("Subject"));
+            grade.addTeacher(currentItem.getString("Teacher"));
+            String date = currentItem.getString("Date");
+            String createTime = currentItem.getString("CreatingTime");
+            try {
+                date = dateFormat.format(importedFormat.parse(date));
+                createTime = createTime.replace("T"," ").substring(0,19);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            grade.addDate(date);
+            grade.addSaveDate(createTime);
+            grade.addDescription(currentItem.getString("Theme") + " - " + currentItem.getString("Mode"));
+            Log.e(TAG, grade.save_date + "--" + createTime.length());
+            mygrades.add(grade);
+        }
+        if (intent.hasExtra("dbupgrade")) {
+            Log.i("Grades", "Size: " + mygrades.size());
+            if (mygrades.size() < 1) {
+                new DBHelper(context).cleanDatabase();
+                return DB_EMPTY;
+            }
+            if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
+            else return UPGRADE_FAILED;
+        }
+        try {
+            if (rawGrades.toString().length() < 1000) {
+                Log.w(TAG, rawGrades.toString());
+                throw new Exception("Content too small \nLength: " + rawGrades.toString().length());
+            }
+            if (mygrades.size() == 0) throw new IndexOutOfBoundsException("No grades!");
+        } catch (IndexOutOfBoundsException e) {
+            Log.e(TAG, e.getMessage());
+            Log.w(TAG, "Grades found: " + mygrades.size());
+            if (intent.hasExtra("error")) {
+                showToast.postAtFrontOfQueue(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            new DBHelper(context).cleanDatabase();
+            return DB_EMPTY;
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            if (intent.hasExtra("error")) {
+                showToast.postAtFrontOfQueue(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            return STD_ERROR;
+        }
+
+        if (running) {
+            Log.w(TAG, "A process is already running");
+            Log.w(TAG, "Action:\t" + intent.getAction());
+            return STD_ERROR;
+        }
+        running = true;
+        byte[] notes = new byte[1];
+        try {
+            if (mygrades.size() == 0) throw new Exception("No grades were found!");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(mygrades);
+            notes = baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Cannot convert grades to byte array!");
+        }
+        final int numofnotes = pref.getInt("numberofnotes", 0);
+        try {
+
+            pref.edit().putInt("numberofnotes", rawGrades.length()).putLong("last_check", System.currentTimeMillis()).commit();
+            if (rawGrades.length() - numofnotes > 0) {
+                int i = rawGrades.length() - numofnotes;
+                StringBuilder text = new StringBuilder();
+                DBHelper db1 = new DBHelper(context);
+                for (int i2 = 0; i2 < i; i2++) {
+                    text.append(mygrades.get(i2).getNotificationFormat());
+                    text.append(", \n");
+                    if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
+                }
+                text.deleteCharAt(text.length() - 2);
+                notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, text.toString());
+                pref.edit().putString("lastSHA", SHA512(notes)).commit();
+                running = false;
+                return DONE;
+            } else {
+                if (!SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
+                    pref.edit().putString("lastSHA", SHA512(notes)).commit();
+                    notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, context.getString(R.string.unknown_change));
+                    //If a grade was modified, it's easier to update the whole DB
+                    Intent intent2 = new Intent(context, ChangeListener.class);
+                    intent2.putExtra("dbupgrade", true);
+                    getEkretaGrades(context, intent);
+                    running = false;
+                    return DONE;
+                } else if (intent.hasExtra("error")) {
+                    showToast.postAtFrontOfQueue(new Runnable() {
+                        public void run() {
+                            Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + mygrades.size() + "/" + numofnotes, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                running = false;
+                return DONE_NO_CHANGE;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Unknown error!");
+            if (intent.hasExtra("error")) {
+                showToast.postAtFrontOfQueue(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            e.printStackTrace();
+            running = false;
+            return STD_ERROR;
         }
         //TODO further operations and processing
-        return 0;
     }
 
 }

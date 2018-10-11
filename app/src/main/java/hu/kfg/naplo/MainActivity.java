@@ -3,7 +3,6 @@ package hu.kfg.naplo;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.*;
-import android.graphics.Point;
 import android.os.*;
 import android.preference.*;
 import android.content.*;
@@ -16,17 +15,7 @@ import android.net.*;
 
 import com.evernote.android.job.JobManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import hu.hexadec.killerwhale.OrcaManager;
 
@@ -165,7 +154,7 @@ public class MainActivity extends PreferenceActivity {
         }
 
         if (!prefs.getBoolean("inst", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
-            showWelcomeDialog();
+            //showWelcomeDialog();
         } /* else {
             if (Intent.ACTION_SEND.equals(getIntent().getAction()) && getIntent().hasExtra(Intent.EXTRA_TEXT)) {
                 if (!getIntent().getStringExtra(Intent.EXTRA_TEXT)
@@ -287,35 +276,12 @@ public class MainActivity extends PreferenceActivity {
                 AlertDialog.Builder ad = new AlertDialog.Builder(MainActivity.this);
                 ad.setTitle(R.string.enter_pwd);
                 ad.setView(pwdfield);
-                ad.setPositiveButton(R.string.change_pwd, new DialogInterface.OnClickListener() {
+                ad.setPositiveButton(R.string.save_pwd, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //Remove old account
-                        AccountManager accountManager = AccountManager.get(MainActivity.this);
-                        Account account = new Account(username.getText(), getString(R.string.account_type));
-                        accountManager.removeAccount(account, null, null);
-                        //Create new one
-                        accountManager = AccountManager.get(MainActivity.this);
-                        account = new Account(uname, getString(R.string.account_type));
-                        boolean success = accountManager.addAccountExplicitly(account, pwdfield.getText().toString(), null);
-                        if (success) {
-                            Log.d("KFGNaplo", "Account created");
-                        } else {
-                            Toast.makeText(MainActivity.this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
-                            Log.d("KFGNaplo", "Account creation failed");
-                        }
+                        prefs.edit().putString("password", pwdfield.getText().toString()).commit();
                     }
                 });
-                if (uname.equals(username.getText())) {
-                    ad.setNegativeButton(R.string.keep_pwd, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AccountManager accountManager = AccountManager.get(MainActivity.this);
-                            Account account = new Account(username.getText(), getString(R.string.account_type));
-                            accountManager.setPassword(account, pwdfield.getText().toString());
-                        }
-                    });
-                }
                 ad.show();
                 grades.setEnabled(true);
                 return true;

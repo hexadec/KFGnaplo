@@ -98,8 +98,9 @@
     <string name="cancel">Cancel</string>
     <string name="credentials_sum">Click here to edit your username and password</string>
     <string name="enter_pwd">Enter your password</string>
-    <string name="change_pwd">Change password</string>
-    <string name="keep_pwd">Keep current</string>
+    <string name="save_pwd">Save password</string>
     <string name="username">Username</string>
     <string name="incorrect_credentials">Incorrect username or password!</string>
+    <string name="try_login">Attempt login</string>
+    <string name="save_date">Registered: </string>
 </resources>

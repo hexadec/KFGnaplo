@@ -18,6 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String GRADES_COLUMN_ID = "id";
     private static final String GRADES_COLUMN_DESCRIPTION = "description";
     private static final String GRADES_COLUMN_DATE = "date";
+    private static final String GRADES_COLUMN_SAVE_DATE = "save_date";
     private static final String GRADES_COLUMN_VALUE = "value";
     private static final String GRADES_COLUMN_TEACHER = "teacher";
     private static final String GRADES_COLUMN_WEIGHTED = "weighted";
@@ -29,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table grades (id integer primary key, description text,teacher text,date text, subject text,value smallint)"
+                "create table grades (id integer primary key, description text,teacher text,date text, save_date text, subject text,value smallint)"
         );
     }
 
@@ -39,19 +40,20 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    boolean insertGrade(String description, String teacher, String date, String subject, byte grade) {
+    boolean insertGrade(String description, String teacher, String date, String save_date, String subject, byte grade) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("description", description);
         contentValues.put("teacher", teacher);
         contentValues.put("date", date);
+        contentValues.put("save_date", save_date);
         contentValues.put("subject", subject);
         contentValues.put("value", grade);
         return db.insert("grades", null, contentValues)>-1;
     }
 
     boolean insertGrade(Grade grade) {
-        return insertGrade(grade.description, grade.teacher, grade.date, grade.subject, grade.value);
+        return insertGrade(grade.description, grade.teacher, grade.date, grade.save_date, grade.subject, grade.value);
     }
 
     ArrayList<String> getSubjects() {
@@ -81,6 +83,7 @@ public class DBHelper extends SQLiteOpenHelper {
             g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
             g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
             g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
+            g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
             g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
             array_list.add(g);
             res.moveToNext();
@@ -100,6 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
             g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
             g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
             g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
+            g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
             g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
             res.moveToNext();
         }

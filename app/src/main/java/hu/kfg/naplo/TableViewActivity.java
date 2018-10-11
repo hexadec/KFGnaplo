@@ -45,7 +45,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         setContentView(R.layout.activity_table_view);
         db = new DBHelper(TableViewActivity.this);
 
-        if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null)
+        /*if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null)
             if ("https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
                     getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
                 PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
@@ -60,7 +60,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 t.setGravity(Gravity.CENTER, 0, 0);
                 t.show();
                 finish();
-            }
+            }*/
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {
@@ -127,7 +127,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         boolean which = false;
                         int doublegrade = 0;
                         for (int j = -1; j < grades.size(); j++) {
-                            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+                            SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
                             SimpleDateFormat m = new SimpleDateFormat("MM", Locale.ENGLISH);
                             int mo = 0;
                             int mo2 = 0;
@@ -139,7 +139,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
-                                    if (grades.get(j).description.equals(grades.get(j + 1).description)) {
+                                    if (grades.get(j).description.equals(grades.get(j + 1).description) && grades.get(j).date.equals(grades.get(j+1).save_date)) {
                                         if (Math.abs(d.getTime() - dd.getTime()) < 40 * 1000) {
                                             doublegrade++;
                                             continue;
@@ -176,13 +176,16 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 public void onClick(View v) {
                                     multiGradeListener(grades.subList(minPos, maxPos + 1), val);
                                 }
-                            } :TableViewActivity.this);
+                            } : TableViewActivity.this);
                             Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                             if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
                                 which = setBackground(Values, 2, which);
+                                Log.d("TAG", "1");
                             } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
+                                Log.d("TAG", "2");
                                 which = setBackground(Values, 2, which);
                             } else if (j == -1) {
+                                Log.d("TAG", "3");
                                 which = setBackground(Values, 3, which);
                             } else {
                                 setBackground(Values, 1, which);
@@ -213,8 +216,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     void updateDatabase(final DBHelper db) {
-        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("url", "").length() < MainActivity.URL_MIN_LENGTH) {
-            Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_LONG);
+        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("password", "").length() <= 1) {
+            Toast t = Toast.makeText(TableViewActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
             finish();
@@ -232,14 +235,20 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Thread t2 = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        upgraderesult = ChangeListener.doCheck(TableViewActivity.this, intent);
+                        try {
+                            upgraderesult = ChangeListener.getEkretaGrades(TableViewActivity.this, intent);
+                        } catch (Exception e) {
+                            upgraderesult = -10;
+                            e.printStackTrace();
+                        }
                     }
                 });
                 upgraderesult = -10;
                 t2.start();
                 try {
                     t2.join(20000);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 pdialog.cancel();
                 Looper.prepare();
                 if (upgraderesult == ChangeListener.DB_EMPTY) {
@@ -295,7 +304,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Header2.setTextColor(Color.parseColor("#FFFFFF"));
             Header2.setTypeface(null, Typeface.BOLD);
             TextView messageText = new TextView(TableViewActivity.this);
-            messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " + g.date + "<br/>&#9658; " + g.teacher + "<br/>&#9658; " + g.description + "</i>"));
+            messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " +
+                    g.date + "<br/>&#9658; " + getString(R.string.save_date) + " " + g.save_date + "<br/>&#9658; " + g.teacher + "<br/>&#9658; " +
+                    g.description + "</i>"));
             messageText.setGravity(Gravity.LEFT);
             messageText.setPadding(40, 10, 10, 10);
             messageText.setTextAppearance(TableViewActivity.this, android.R.style.TextAppearance_Medium);

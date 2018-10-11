@@ -96,8 +96,9 @@
     <string name="cancel">Mégsem</string>
     <string name="credentials_sum">Kattints ide a felhasználóneved és jelszavad módosításához</string>
     <string name="enter_pwd">Írd be a jelszavad</string>
-    <string name="change_pwd">Jelszómódosítás</string>
-    <string name="keep_pwd">Régi megtartása</string>
+    <string name="save_pwd">Jelszó mentése</string>
     <string name="username">Felhasználónév</string>
     <string name="incorrect_credentials">Hibás felhasználónév vagy jelszó!</string>
+    <string name="try_login">Bejelentkezés</string>
+    <string name="save_date">Beírva: </string>
 </resources>
