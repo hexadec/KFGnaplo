@@ -30,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table grades (id integer primary key, description text,teacher text,date text, save_date text, subject text,value smallint)"
+                "CREATE TABLE grades (id integer PRIMARY KEY, description text,teacher text,date text, save_date text, subject text,value smallint)"
         );
     }
 
@@ -57,9 +57,9 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     ArrayList<String> getSubjects() {
-        ArrayList<String> array_list = new ArrayList<String>();
+        ArrayList<String> array_list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select distinct subject from grades order by subject", null);
+        Cursor res = db.rawQuery("SELECT DISTINCT subject FROM grades ORDER BY subject", null);
         res.moveToFirst();
 
         while (!res.isAfterLast()) {
@@ -71,10 +71,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     List<Grade> getSubjectGradesG(String subject) {
-        List<Grade> array_list = new ArrayList<Grade>();
+        List<Grade> array_list = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from grades where subject=\"" + subject + "\" order by date desc", null);
+        Cursor res = db.rawQuery("SELECT * FROM grades WHERE subject=\"" + subject + "\" ORDER BY date DESC", null);
         res.moveToFirst();
         Grade g;
         while (!res.isAfterLast()) {
@@ -94,7 +94,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     Grade getGradeById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from grades where id=\"" + id + "\"", null);
+        Cursor res = db.rawQuery("SELECT * FROM grades WHERE id=\"" + id + "\"", null);
         res.moveToFirst();
         Grade g = new Grade((byte)0);
         while (!res.isAfterLast()) {

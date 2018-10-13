@@ -1,7 +1,5 @@
 package hu.kfg.naplo;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.*;
 import android.preference.*;
 
@@ -44,7 +42,6 @@ public class ChangeListener {
 
     private static boolean running = false; //From old workaround, probably not necessary?
 
-    static final int GYIA_ERROR = -7;
     static final int DB_EMPTY = 4;
     static final int UPGRADE_DONE = 3;
     static final int UPGRADE_FAILED = 5;
@@ -54,6 +51,7 @@ public class ChangeListener {
     static final int TOKEN_ERROR = -10;
     static final int UNKNOWN_ERROR = -1, STD_ERROR = -1;
     static final int NETWORK_RELATED_ERROR = -2;
+    static final int CREDENTIALS_ERROR = -7;
 
     static final String CHANNEL_STANDINS = "standins";
     static final String CHANNEL_GRADES = "grades";
@@ -338,6 +336,7 @@ public class ChangeListener {
             e.printStackTrace();
         }
         Intent intent = new Intent(context, TableViewActivity.class);
+        Intent main = new Intent(context, MainActivity.class);
         Intent eintent = new Intent(Intent.ACTION_VIEW);
         eintent.setData(Uri.parse(url));
 
@@ -361,6 +360,7 @@ public class ChangeListener {
         }
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
         PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
+        PendingIntent mainIntent = PendingIntent.getActivity(context, 0, main, 0);
         Notification.Builder n;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             n = new Notification.Builder(context, nightmode || state[0] == 1 ? CHANNEL_NIGHT : CHANNEL_GRADES);
@@ -368,7 +368,7 @@ public class ChangeListener {
             n = new Notification.Builder(context);
         }
         n.setContentTitle(context.getString(R.string.app_name))
-                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade) : context.getString(R.string.gyia_expired_not))
+                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new))
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= 21) {
             n.setSmallIcon(R.drawable.number_blocks);
@@ -385,10 +385,14 @@ public class ChangeListener {
         if (Build.VERSION.SDK_INT >= 21) {
             n.setVisibility(Notification.VISIBILITY_PRIVATE);
         }
-        n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
-        n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
+        if (state[0] == 0) {
+            n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
+            n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
+        } else {
+            n.addAction(android.R.drawable.ic_menu_edit, context.getString(R.string.open_app), mainIntent);
+        }
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText(((state[0] == 0 ? context.getString(R.string.new_grade) + "\n" : "") + subjects + oldtext)).build();
+                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext):state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
         notificationManager.notify(state[0], notification);
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
     }
@@ -512,6 +516,7 @@ public class ChangeListener {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && ! forceCreate) {
             if (prefs.getString("access_token", null) != null) {
+                Log.d(TAG, "Using previously generated token...");
                 return prefs.getString("access_token", "");
             }
         }
@@ -519,6 +524,16 @@ public class ChangeListener {
 
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
         String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
+
+        if (username == null || username.length() < 2 || password == null || password.length() < 2) {
+            showToast.postAtFrontOfQueue(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                }
+            });
+            notifyIfChanged(new int[]{1,1,1}, context, eURL, "");
+            throw new IllegalAccessException("No credentials");
+        }
 
         request.setDoOutput(true);
         request.addRequestProperty("Accept", "application/json");
@@ -537,6 +552,7 @@ public class ChangeListener {
                     Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                 }
             });
+            throw new IllegalAccessException("Invalid credentials");
         }
 
         try {
@@ -566,6 +582,10 @@ public class ChangeListener {
             }
         };
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (pref.getString("url",null) != null) {
+            notifyIfChanged(new int[]{2,1,1}, context, eURL, "");
+            return CREDENTIALS_ERROR;
+        }
         JSONObject resultStuff;
         try {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
@@ -595,7 +615,6 @@ public class ChangeListener {
             e.printStackTrace();
             return UNKNOWN_ERROR;
         }
-        Log.e(TAG, resultStuff.toString());
 
         final List<Grade> mygrades = new ArrayList<>();
         JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");

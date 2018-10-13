@@ -247,11 +247,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 } else if (upgraderesult == ChangeListener.UPGRADE_DONE) {
                     doStuff(db);
                     Toast.makeText(TableViewActivity.this, TableViewActivity.this.getString(R.string.title_activity_table_view) + ": " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
-                } else if (upgraderesult == ChangeListener.GYIA_ERROR) {
+                } else if (upgraderesult == ChangeListener.TOKEN_ERROR || upgraderesult == ChangeListener.CREDENTIALS_ERROR) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            final Toast t = Toast.makeText(TableViewActivity.this, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT);
+                            final Toast t = Toast.makeText(TableViewActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT);
                             t.setGravity(Gravity.CENTER, 0, 0);
                             t.show();
                             ((TableLayout) findViewById(R.id.table)).removeAllViews();
@@ -396,7 +396,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Header2.setTextColor(Color.parseColor("#FFFFFF"));
         Header2.setTypeface(null, Typeface.BOLD);
         TextView messageText = new TextView(TableViewActivity.this);
-        messageText.setText(Html.fromHtml("<i>&#9658; " + grades.get(0).subject + "<br/>&#9658; " + grades.get(0).date + "<br/>&#9658; " + grades.get(0).teacher + "<br/>&#9658; " + grades.get(0).description + "</i>"));
+        messageText.setText(Html.fromHtml("<i>&#9658; " + grades.get(0).subject + "<br/>&#9658; " + grades.get(0).date + "<br/>&#9658; " + TableViewActivity.this.getString(R.string.save_date) + " " + grades.get(0).save_date + "<br/>&#9658; " + grades.get(0).teacher + "<br/>&#9658; " + grades.get(0).description + "</i>"));
         messageText.setGravity(Gravity.LEFT);
         messageText.setPadding(40, 10, 10, 10);
         messageText.setTextAppearance(TableViewActivity.this, android.R.style.TextAppearance_Medium);

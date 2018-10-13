@@ -1,7 +1,5 @@
 package hu.kfg.naplo;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.*;
 import android.os.*;
 import android.preference.*;
@@ -45,6 +43,11 @@ public class MainActivity extends PreferenceActivity {
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
         if (username.getText() != null && username.getText().length() >= 1) {
             username.setTitle(getString(R.string.username) + ": " + username.getText());
+        }
+
+        if (prefs.getString("url", "").length() > 10) {
+            new DBHelper(MainActivity.this).cleanDatabase();
+            prefs.edit().remove("url").commit();
         }
 
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
@@ -126,7 +129,7 @@ public class MainActivity extends PreferenceActivity {
                 clas.setEnabled(false);
                 ignore.setEnabled(false);
                 nstandins.setEnabled(false);
-                CheckerJob.runJobImmediately();
+                CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_TEACHER:
                 clas.getEditText().setFilters(new InputFilter[]{teacherFilter});
@@ -152,7 +155,7 @@ public class MainActivity extends PreferenceActivity {
             clas.setSummary(clas.getText());
         }
 
-        if (!prefs.getBoolean("inst", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
+        if (!prefs.getBoolean("inst_kreta", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
             showWelcomeDialog();
         }
 
@@ -171,6 +174,13 @@ public class MainActivity extends PreferenceActivity {
                 if (!isConnected) {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
+                }
+                String password = prefs.getString("password", null);
+                if ((username.getText() == null || username.getText().length() < 2 || password == null || password.length() < 2)
+                        && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
+                    Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                    return true;
+
                 }
                 if ((clas.getText() == null || clas.getText().length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
@@ -219,7 +229,13 @@ public class MainActivity extends PreferenceActivity {
                         prefs.edit().putString("password", pwdfield.getText().toString()).commit();
                     }
                 });
-                ad.show();
+                AlertDialog dialog = ad.create();
+                try {
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                dialog.show();
                 grades.setEnabled(true);
                 return true;
             }
@@ -418,7 +434,7 @@ public class MainActivity extends PreferenceActivity {
                 "Ok",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("inst", true).apply();
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("inst_kreta", true).apply();
                         showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
                         dialog.dismiss();
                     }

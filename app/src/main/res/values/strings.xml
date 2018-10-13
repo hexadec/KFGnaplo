@@ -8,6 +8,9 @@
     <string name="account_type" translatable="false">hu.kfg.naplo.MAIN_ACCOUNT</string>
     <string name="instructions"><![CDATA[<b>Read me!</b><br/>How to use E-Kréta:<br/>
     1. Enter your username and password<br/>
+    a) Your username is your <b>OM ID</b> by default<br/>
+    b) Your password is your birth-date in
+    <b>YYYY-MM-DD</b> or <b>YYYYMMDD</b> format<br/>
     2. Click Find changes now<br/>
     3. If your username or password is incorrect, repeat step 1-2!]]></string>
     <string name="insert_code">GYIA code required!</string>
@@ -29,8 +32,7 @@
     <string name="find_changes_now">Find changes now</string>
     <string name="cannot_reach_site">Cannot reach KFG Naplo site!</string>
     <string name="unknown_error">Unknown error in Karinthy Naplo!  Consider trying it again later!</string>
-    <string name="gyia_expired_or_faulty">The GYIA code has expired or you gave a wrong code, open the Naplo to renew!</string>
-    <string name="gyia_expired_not">The GYIA code is expired or wrong, please open to renew</string>
+    <string name="wrong_username_not">You entered wrong username or password combination! Click on the notification to edit</string>
     <string name="no_new_grade">You haven\'t got a new grade!</string>
     <string name="unknown_change">Something has changed. Maybe a grade was changed?</string>
     <string name="new_grade">You got a new grade!</string>
@@ -94,11 +96,13 @@
     <string name="import_gyia">Import GYIA into KFG app</string>
     <string name="override_gyia">Are you sure you want to save this GYIA link to the app, and overwrite the existing link?</string>
     <string name="cancel">Cancel</string>
-    <string name="credentials_sum">Click here to edit your username and password</string>
+    <string name="credentials_sum">Click here to edit! Your username is your OM ID by default and your password is your birthdate</string>
     <string name="enter_pwd">Enter your password</string>
     <string name="save_pwd">Save password</string>
     <string name="username">Username</string>
     <string name="incorrect_credentials">EKréta: Incorrect username or password!</string>
     <string name="try_login">Attempt login</string>
     <string name="save_date">Registered: </string>
+    <string name="ekreta_new">This new version of KFGapp does not support the old Napló fro now on. Please open the app to login into E-Kréta!</string>
+    <string name="open_app">Open app</string>
 </resources>

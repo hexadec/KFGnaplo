@@ -7,6 +7,9 @@
     <string name="account_name">KFG Kréta Fiók</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>Így használd az E-Krétát:<br/>
     1. Írd be a felhasználóneved és jelszavad<br/>
+    a) A felhasználóneved az <b>OM-azonosítód</b><br/>
+    b) A jelszavad a születési dátumod
+    <b>ÉÉÉÉ-HH-NN</b> vagy <b>ÉÉÉÉHHNN</b> formátumban<br/>
     2. Kattints a Változások keresése most gombra<br/>
     3. Ha hibás a felhasználóneved vagy jelszavat, ismételd meg az 1-2 lépéseket!]]></string>
     <string name="insert_code">Másold be a GYIA linket!</string>
@@ -27,8 +30,7 @@
     <string name="find_changes_now">Változások keresése most</string>
     <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
     <string name="unknown_error">Karinthy Napló hiba!  Próbáld meg később!</string>
-    <string name="gyia_expired_or_faulty">A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a naplót a megújításhoz!</string>
-    <string name="gyia_expired_not">A GYIA kód lejárt vagy hibásat adtál meg, nyisd meg a megújításhoz</string>
+    <string name="wrong_username_not">Hibás felhasználónevet vagy jelszót adtál meg, nyisd meg az értesítést a szerkesztéshez</string>
     <string name="no_new_grade">Nincs új jegyed!</string>
     <string name="unknown_change">Valami változás történt, talán átírtak egy jegyet?</string>
     <string name="new_grade">Új jegyet kaptál!</string>
@@ -92,11 +94,13 @@
     <string name="import_gyia">GYIA kód importálása a KFGapp-ba</string>
     <string name="override_gyia">Biztos vagy benne hogy importálod a GYIA kódot és felülírod az előzőt?</string>
     <string name="cancel">Mégsem</string>
-    <string name="credentials_sum">Kattints ide a felhasználóneved és jelszavad módosításához</string>
+    <string name="credentials_sum">Kattints ide a módosításhoz! A felhasználóneved az OM-azonosítód és a jelszavad a születési dátumod alapértelmezetten</string>
     <string name="enter_pwd">Írd be a jelszavad</string>
     <string name="save_pwd">Jelszó mentése</string>
     <string name="username">Felhasználónév</string>
     <string name="incorrect_credentials">EKréta: Hibás felhasználónév vagy jelszó!</string>
     <string name="try_login">Bejelentkezés</string>
     <string name="save_date">Beírva: </string>
+    <string name="ekreta_new">A KFGapp új verziója már nem támogatja a régi naplót! Nyisd meg az appot hogy belépj az E-Kréta naplóba!</string>
+    <string name="open_app">App megnyitása</string>
 </resources>
