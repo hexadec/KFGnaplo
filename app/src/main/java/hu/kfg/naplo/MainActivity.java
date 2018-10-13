@@ -22,7 +22,6 @@ import hu.hexadec.killerwhale.OrcaManager;
 
 public class MainActivity extends PreferenceActivity {
 
-    protected static final int URL_MIN_LENGTH = 45;
     protected static final int CLASS_MIN_LENGTH = 3;
 
     @Override
@@ -154,41 +153,8 @@ public class MainActivity extends PreferenceActivity {
         }
 
         if (!prefs.getBoolean("inst", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
-            //showWelcomeDialog();
-        } /* else {
-            if (Intent.ACTION_SEND.equals(getIntent().getAction()) && getIntent().hasExtra(Intent.EXTRA_TEXT)) {
-                if (!getIntent().getStringExtra(Intent.EXTRA_TEXT)
-                        .startsWith("https://naplo.karinthy.hu/app/interface.php?view=v_slip")) {
-                    Log.w("MainActivity share err", getIntent().toString());
-                    Toast t = Toast.makeText(this, R.string.only_gyia_url, Toast.LENGTH_LONG);
-                    t.setGravity(Gravity.CENTER, 0, 0);
-                    t.show();
-                    finish();
-                } else {
-                    AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
-                    adb.setIcon(android.R.drawable.ic_dialog_alert);
-                    adb.setMessage(R.string.override_gyia);
-                    adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prefs.edit().putString("url", getIntent().getStringExtra(Intent.EXTRA_TEXT)).commit();
-                            Toast.makeText(MainActivity.this, R.string.url_updated, Toast.LENGTH_SHORT).show();
-                            setIntent(new Intent(Intent.ACTION_MAIN));
-                            onCreate(null);
-                        }
-                    });
-                    adb.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    });
-                    adb.show();
-                }
-            } else {
-                showOptimizationDialog(getSharedPreferences("optimization_preferences", MODE_PRIVATE));
-            }
-        }*/
+            showWelcomeDialog();
+        }
 
 
         manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -230,38 +196,6 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        /*url2.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference pref, Object obj) {
-                if (((String) obj).length() < URL_MIN_LENGTH) {
-                    url2.setSummary(getString(R.string.copythelink));
-                    url2.setText("");
-                    Point point = new Point();
-                    getWindowManager().getDefaultDisplay().getSize(point);
-                    Toast t = Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.TOP, 0, point.y / 4);
-                    t.show();
-                    grades.setEnabled(false);
-                    prefs.edit().putInt("numberofnotes", 0).putString("lastSHA", "AAA").commit();
-                    DBHelper db = new DBHelper(MainActivity.this);
-                    db.cleanDatabase();
-                    return false;
-                } else if (((String) obj).startsWith("http://naplo.karinthy.hu/app") || ((String) obj).startsWith("https://naplo.karinthy.hu/app")) {
-                    url2.setSummary(getString(R.string.click2edit));
-                    grades.setEnabled(true);
-                } else {
-                    url2.setSummary(getString(R.string.copythelink));
-                    url2.setText("");
-                    Toast.makeText(MainActivity.this, R.string.invalid_url, Toast.LENGTH_SHORT).show();
-                    grades.setEnabled(false);
-                    prefs.edit().putInt("numberofnotes", 0).putString("lastSHA", "AAA").commit();
-                    DBHelper db = new DBHelper(MainActivity.this);
-                    db.cleanDatabase();
-                    return false;
-                }
-                return true;
-            }
-        });*/
-
         username.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -269,6 +203,9 @@ public class MainActivity extends PreferenceActivity {
                 if (uname == null || uname.length() <= 1) {
                     grades.setEnabled(false);
                     return false;
+                }
+                if (!uname.equals(username.getText())) {
+                    prefs.edit().remove("access_token").commit();
                 }
                 preference.setTitle(getString(R.string.username) + ": " + uname);
                 final EditText pwdfield = new EditText(MainActivity.this);

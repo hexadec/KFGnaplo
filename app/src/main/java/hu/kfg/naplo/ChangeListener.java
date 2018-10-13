@@ -115,243 +115,6 @@ public class ChangeListener {
 
     }
 
-
-    /*static int doCheck(final Context context, final Intent intent) {
-        final Handler showToast = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message message) {
-            }
-        };
-        final SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        String kfgserver = pref.getString("url", "1");
-        if (kfgserver.length() < MainActivity.URL_MIN_LENGTH) {
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, R.string.insert_code, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            return GYIA_ERROR;
-        }
-
-        HttpURLConnection urlConnection;
-        try {
-            URL url = new URL(kfgserver);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            String userAgentPrefix = System.getProperty("http.agent", "Mozilla/5.0 ");
-            userAgentPrefix = userAgentPrefix.substring(0, userAgentPrefix.indexOf("(") > 0 ? userAgentPrefix.indexOf("(") : userAgentPrefix.length());
-            urlConnection.setRequestProperty("User-Agent", userAgentPrefix + "(Android " + Build.VERSION.RELEASE + "; Karinthy Naplo v" + BuildConfig.VERSION_NAME + ")");
-            urlConnection.setInstanceFollowRedirects(true);
-        } catch (IOException e) {
-            Log.e(TAG, "Cannot load website!");
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, R.string.cannot_reach_site, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            e.printStackTrace();
-            return STD_ERROR;
-        } catch (Exception e) {
-            Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            e.printStackTrace();
-            return STD_ERROR;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        int counter = 0;
-        int notesc = 0;
-        boolean hasstarted = false;
-        final List<Grade> mygrades = new ArrayList<>();
-        try {
-            if (urlConnection.getResponseCode() % 300 < 100) {
-                notifyIfChanged(new int[]{1, 0, 0}, context, "https://naplo.karinthy.hu/", context.getString(R.string.gyia_expired_not));
-                Log.w(TAG, urlConnection.getResponseCode() + "/" + urlConnection.getContentLength());
-                if (intent.hasExtra("error")) {
-                    showToast.postAtFrontOfQueue(new Runnable() {
-                        public void run() {
-                            Toast.makeText(context, R.string.gyia_expired_or_faulty, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                return GYIA_ERROR;
-            } else {
-                NotificationManager notificationManager =
-                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                if (notificationManager != null)
-                    notificationManager.cancel(1);
-            }
-            BufferedReader rd = new BufferedReader
-                    (new InputStreamReader(urlConnection.getInputStream(), "ISO-8859-2"));
-            String line;
-            Grade grade = new Grade((byte) 0);
-            while ((line = rd.readLine()) != null) {
-                if (!hasstarted && line.contains("<div data-role=\"content\" style=\"padding: 0px;\">"))
-                    hasstarted = true;
-                if (line.contains("</article>")) {
-                    sb.append(line);
-                    break;
-                }
-                if (line.contains("<div class=\"creditbox\"")) {
-                    counter = 0;
-                }
-                if ((counter == 3 || counter == 2) && (line.contains("<div class=\"credit ini_fresh\">") || line.contains("<div class=\"credit ini_credit\">"))) {
-                    grade = new Grade((byte) Character.getNumericValue(line.charAt(line.indexOf(">") + 1)));
-                    notesc++;
-                }
-                if ((counter == 4 || counter == 3) && (line.contains("<div class=\"teacher\">"))) {
-                    int i = line.indexOf(">");
-                    grade.addTeacher(line.substring(i + 1, line.indexOf("<", i)));
-                }
-                if ((counter == 6 || counter == 7) && (line.contains("<span id=\"stamp_correct_"))) {
-                    int i = line.indexOf(">");
-                    grade.addDate(line.substring(i + 1, line.indexOf("<", i)));
-                }
-                if ((counter == 8 || counter == 9) && (line.contains("<div class=\"description\">"))) {
-                    int i = line.indexOf(">");
-                    String desc;
-                    desc = line.substring(i + 1, line.indexOf("<", i));
-                    grade.addDescription(desc);
-                }
-                if ((counter == 11 || counter == 10) && (line.contains("<div class=\"creditbox_footer\">"))) {
-                    int i = line.indexOf(">");
-                    grade.addSubject(line.substring(i + 1, line.indexOf("<", i)));
-                    mygrades.add(grade);
-                }
-                counter++;
-                sb.append(line);
-            }
-            if (intent.hasExtra("dbupgrade")) {
-                Log.i("Grades", "Size: " + mygrades.size());
-                if (mygrades.size() < 1) {
-                    new DBHelper(context).cleanDatabase();
-                    return DB_EMPTY;
-                }
-                if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
-                else return UPGRADE_FAILED;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            e.printStackTrace();
-            return STD_ERROR;
-        }
-        try {
-            if (sb.toString().length() < 1000) {
-                Log.w(TAG, sb.toString());
-                throw new Exception("Content too small \nLength: " + sb.toString().length());
-            }
-            if (mygrades.size() == 0) throw new IndexOutOfBoundsException("No grades!");
-        } catch (IndexOutOfBoundsException e) {
-            Log.e(TAG, e.getMessage());
-            Log.w(TAG, "Grades found: " + mygrades.size());
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, context.getString(R.string.error_no_grades), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            new DBHelper(context).cleanDatabase();
-            return DB_EMPTY;
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            return STD_ERROR;
-        }
-
-        if (running) {
-            Log.w(TAG, "A process is already running");
-            Log.w(TAG, "Action:\t" + intent.getAction());
-            return STD_ERROR;
-        }
-        running = true;
-        byte[] notes = new byte[1];
-        try {
-            if (mygrades.size() == 0) throw new Exception("No grades were found!");
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(mygrades);
-            notes = baos.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Cannot convert grades to byte array!");
-        }
-        final int numofnotes = pref.getInt("numberofnotes", 0);
-        try {
-
-            pref.edit().putInt("numberofnotes", notesc).putLong("last_check", System.currentTimeMillis()).commit();
-            if (notesc - numofnotes > 0) {
-                int i = notesc - numofnotes;
-                StringBuilder text = new StringBuilder();
-                DBHelper db1 = new DBHelper(context);
-                for (int i2 = 0; i2 < i; i2++) {
-                    text.append(mygrades.get(i2).getNotificationFormat());
-                    text.append(", \n");
-                    if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
-                }
-                text.deleteCharAt(text.length() - 2);
-                notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, kfgserver, text.toString());
-                pref.edit().putString("lastSHA", SHA512(notes)).commit();
-                running = false;
-                return DONE;
-            } else {
-                if (!SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
-                    pref.edit().putString("lastSHA", SHA512(notes)).commit();
-                    notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, kfgserver, context.getString(R.string.unknown_change));
-                    //If a grade was modified, it's easier to update the whole DB
-                    Intent intent2 = new Intent(context, ChangeListener.class);
-                    intent2.putExtra("dbupgrade", true);
-                    doCheck(context, intent);
-                    running = false;
-                    return DONE;
-                } else if (intent.hasExtra("error")) {
-                    showToast.postAtFrontOfQueue(new Runnable() {
-                        public void run() {
-                            Toast.makeText(context, context.getString(R.string.no_new_grade) + " " + mygrades.size() + "/" + numofnotes, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                running = false;
-                return DONE_NO_CHANGE;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unknown error!");
-            if (intent.hasExtra("error")) {
-                showToast.postAtFrontOfQueue(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            e.printStackTrace();
-            running = false;
-            return STD_ERROR;
-        }
-    }*/
-
     private static void doStandinsCheck(final Context context, final Intent intent) {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
@@ -739,14 +502,19 @@ public class ChangeListener {
         notificationManager.notify(STANDINS_ID, notification);
     }
 
-    static String getToken(final Context context, String username, String password) throws Exception {
+    static String getToken(final Context context, String username, String password, boolean forceCreate) throws Exception {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message message) {
             }
         };
-        //Log.e(TAG, username + "/" + password);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && ! forceCreate) {
+            if (prefs.getString("access_token", null) != null) {
+                return prefs.getString("access_token", "");
+            }
+        }
         URL url = new URL(ChangeListener.eURL + "/idp/api/v1/Token");
 
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
@@ -780,6 +548,8 @@ public class ChangeListener {
             }
             JSONObject jObject = new JSONObject(sb.toString());
             request.disconnect();
+            prefs.edit().putString("access_token", jObject.getString("access_token"))
+                    .putLong("token_created", System.currentTimeMillis()).commit();
             return jObject.getString("access_token");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -801,7 +571,7 @@ public class ChangeListener {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
             HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
             request.addRequestProperty("Accept", "application/json");
-            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), pref.getString("password", "null")));
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), pref.getString("password", "null"), intent.hasExtra("create_new_token")));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
             request.addRequestProperty("Connection", "keep-alive");
             request.setRequestMethod("GET");
@@ -825,6 +595,7 @@ public class ChangeListener {
             e.printStackTrace();
             return UNKNOWN_ERROR;
         }
+        Log.e(TAG, resultStuff.toString());
 
         final List<Grade> mygrades = new ArrayList<>();
         JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");
@@ -860,9 +631,9 @@ public class ChangeListener {
             else return UPGRADE_FAILED;
         }
         try {
-            if (rawGrades.toString().length() < 1000) {
+            if (resultStuff.toString().length() < 300) {
                 Log.w(TAG, rawGrades.toString());
-                throw new Exception("Content too small \nLength: " + rawGrades.toString().length());
+                throw new Exception("Content too small \nLength: " + resultStuff.toString().length());
             }
             if (mygrades.size() == 0) throw new IndexOutOfBoundsException("No grades!");
         } catch (IndexOutOfBoundsException e) {
@@ -957,7 +728,6 @@ public class ChangeListener {
             running = false;
             return STD_ERROR;
         }
-        //TODO further operations and processing
     }
 
 }

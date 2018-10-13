@@ -44,23 +44,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
         db = new DBHelper(TableViewActivity.this);
-
-        /*if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null)
-            if ("https".equals(getIntent().getScheme()) && getIntent().getData() != null &&
-                    getIntent().getData().toString().contains("naplo.karinthy.hu/app/interface.php?view=v_slip")) {
-                PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).edit()
-                        .putString("url", getIntent().getData().toString()).commit();
-                Toast t = Toast.makeText(TableViewActivity.this, R.string.url_updated, Toast.LENGTH_LONG);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
-                updateDatabase(db);
-            } else {
-                Log.w("TableView Intent error", getIntent().toString());
-                Toast t = Toast.makeText(TableViewActivity.this, R.string.only_gyia_url, Toast.LENGTH_LONG);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
-                finish();
-            }*/
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {

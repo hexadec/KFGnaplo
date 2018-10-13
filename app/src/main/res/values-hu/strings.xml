@@ -5,12 +5,10 @@
     <string name="kfg_standins">KFG Helyettesítések</string>
     <string name="main_activity">KFGNapló &amp; Helyettesítések</string>
     <string name="account_name">KFG Kréta Fiók</string>
-    <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>GYIA kódok használata:<br/>
-1. Lépj be a KFG Napló oldalra<br/>
-2. Nyisd meg az okostelefonos hozzáférés menüpontot<br/>
-3. Felül Új kód<br/>
-4. Kattints a nagyítóra, és egy QR-kód olvasóval (pl NeoReader) olvasd be a kódot, a kimásolt linket pedig illeszd be a programba<br/>
-5. Ne felejtsd el átállítani a kód érvényességét, ha lejár a Karinthy Napló nem fog tudni értesítéseket küldeni!]]></string>
+    <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>Így használd az E-Krétát:<br/>
+    1. Írd be a felhasználóneved és jelszavad<br/>
+    2. Kattints a Változások keresése most gombra<br/>
+    3. Ha hibás a felhasználóneved vagy jelszavat, ismételd meg az 1-2 lépéseket!]]></string>
     <string name="insert_code">Másold be a GYIA linket!</string>
     <string name="click2edit">Kattints ide a szerkesztéshez</string>
     <string name="copythelink">Másold be a GYIA kódban található linket! (Katt ide)</string>
@@ -98,7 +96,7 @@
     <string name="enter_pwd">Írd be a jelszavad</string>
     <string name="save_pwd">Jelszó mentése</string>
     <string name="username">Felhasználónév</string>
-    <string name="incorrect_credentials">Hibás felhasználónév vagy jelszó!</string>
+    <string name="incorrect_credentials">EKréta: Hibás felhasználónév vagy jelszó!</string>
     <string name="try_login">Bejelentkezés</string>
     <string name="save_date">Beírva: </string>
 </resources>
