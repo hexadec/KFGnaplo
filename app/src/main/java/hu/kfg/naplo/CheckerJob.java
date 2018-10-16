@@ -16,7 +16,7 @@ public class CheckerJob extends Job {
     @Override
     @NonNull
     protected Result onRunJob(Params params) {
-        ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("runnomatterwhat", true).putExtra("error",true));
+        ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW"));
         scheduleJob();
         return Result.SUCCESS;
     }

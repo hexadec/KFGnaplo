@@ -25,6 +25,8 @@ import java.text.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import hu.hexadec.textsecure.Cryptography;
+
 public class ChangeListener {
 
     private static final int NIGHTMODE_START = 2200;
@@ -531,6 +533,7 @@ public class ChangeListener {
                     Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                 }
             });
+            Log.e(TAG, "No credentials");
             notifyIfChanged(new int[]{1,1,1}, context, eURL, "");
             throw new IllegalAccessException("No credentials");
         }
@@ -552,6 +555,8 @@ public class ChangeListener {
                     Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                 }
             });
+            Log.e(TAG, "Invalid credentials");
+            notifyIfChanged(new int[]{1,1,1}, context, eURL, "");
             throw new IllegalAccessException("Invalid credentials");
         }
 
@@ -587,11 +592,17 @@ public class ChangeListener {
             return CREDENTIALS_ERROR;
         }
         JSONObject resultStuff;
+        String password = "null";
+        String password_crypt = pref.getString("password2", null);
+        if (password_crypt != null && password_crypt.length() >= 4) {
+            Cryptography cr = new Cryptography();
+            password = cr.cryptThreedog(password_crypt, true,pref.getString("username", "null"));
+        }
         try {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
             HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
             request.addRequestProperty("Accept", "application/json");
-            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), pref.getString("password", "null"), intent.hasExtra("create_new_token")));
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", intent.hasExtra("create_new_token")));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
             request.addRequestProperty("Connection", "keep-alive");
             request.setRequestMethod("GET");

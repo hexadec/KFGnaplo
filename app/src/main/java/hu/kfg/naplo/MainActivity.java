@@ -16,6 +16,7 @@ import com.evernote.android.job.JobManager;
 import java.io.FileNotFoundException;
 
 import hu.hexadec.killerwhale.OrcaManager;
+import hu.hexadec.textsecure.Cryptography;
 
 
 public class MainActivity extends PreferenceActivity {
@@ -175,7 +176,12 @@ public class MainActivity extends PreferenceActivity {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                String password = prefs.getString("password", null);
+                String password = null;
+                String password_crypt = prefs.getString("password2", null);
+                if (password_crypt != null && password_crypt.length() >= 4) {
+                    Cryptography cr = new Cryptography();
+                    password = cr.cryptThreedog(password_crypt, true, username.getText());
+                }
                 if ((username.getText() == null || username.getText().length() < 2 || password == null || password.length() < 2)
                         && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
                     Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
@@ -226,7 +232,7 @@ public class MainActivity extends PreferenceActivity {
                 ad.setPositiveButton(R.string.save_pwd, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().putString("password", pwdfield.getText().toString()).commit();
+                        prefs.edit().putString("password2", new Cryptography().cryptThreedog(pwdfield.getText().toString(), false, uname)).commit();
                     }
                 });
                 AlertDialog dialog = ad.create();
