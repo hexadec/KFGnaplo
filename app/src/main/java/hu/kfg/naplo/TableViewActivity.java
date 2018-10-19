@@ -2,9 +2,11 @@ package hu.kfg.naplo;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -12,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
@@ -122,7 +125,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
-                                    if (grades.get(j).description.equals(grades.get(j + 1).description) && grades.get(j).date.equals(grades.get(j+1).save_date)) {
+                                    if (grades.get(j).description.equals(grades.get(j + 1).description) && grades.get(j).date.equals(grades.get(j + 1).save_date)) {
                                         if (Math.abs(d.getTime() - dd.getTime()) < 40 * 1000) {
                                             doublegrade++;
                                             continue;
@@ -310,6 +313,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.tablemenu, menu);
+        boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
+                != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        try {
+            menu.getItem(1).setIcon(!enabled ? getDrawable(R.drawable.pin_light) : getDrawable(R.drawable.pin_dark));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -341,6 +351,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         });
                 AlertDialog alert11 = builder1.create();
                 alert11.show();
+                return true;
+            case R.id.shortcut:
+                boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
+                        != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+                try {
+                    item.setIcon(enabled ? getDrawable(R.drawable.pin_light) : getDrawable(R.drawable.pin_dark));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                toggleShortCut(enabled);
+                Toast.makeText(this, enabled ? R.string.shortcut_off : R.string.shortcut_on, Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -408,6 +429,21 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 .setCancelable(true)
                 .setView(messageText)
                 .show();
+    }
+
+    void toggleShortCut(boolean enabledNow) {
+        final PackageManager p = getPackageManager();
+        ComponentName componentName = new ComponentName(this, TableRedirectActivity.class);
+        p.setComponentEnabledSetting(componentName, enabledNow ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED : PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(3000);
+                ComponentName main = new ComponentName(TableViewActivity.this, MainActivity.class);
+                p.setComponentEnabledSetting(main, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            }
+        }).start();
     }
 
 }

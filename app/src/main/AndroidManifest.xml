@@ -16,7 +16,9 @@
         <activity
             android:name=".MainActivity"
             android:documentLaunchMode="intoExisting"
-            android:label="@string/main_activity">
+            android:label="@string/main_activity"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,7 +28,7 @@
             <intent-filter android:label="@string/import_gyia">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
 
             <meta-data
@@ -38,6 +40,12 @@
             android:documentLaunchMode="intoExisting"
             android:icon="@drawable/grades_launcher"
             android:label="@string/title_activity_table_view">
+        </activity>
+        <activity
+            android:name=".TableRedirectActivity"
+            android:label="@string/title_activity_table_view"
+            android:icon="@drawable/grades_launcher"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -103,4 +103,7 @@
     <string name="save_date">Beírva: </string>
     <string name="ekreta_new">A KFGapp új verziója már nem támogatja a régi naplót! Nyisd meg az appot hogy belépj az E-Kréta naplóba!</string>
     <string name="open_app">App megnyitása</string>
+    <string name="shortcut">Parancsikon kapcsolója</string>
+    <string name="shortcut_on">Parancsikon hozzáadva a kezdőképernyőhöz</string>
+    <string name="shortcut_off">Parancsikon eltávolítva a kezdőképernyőtől</string>
 </resources>
