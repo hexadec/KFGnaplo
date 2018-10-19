@@ -10,5 +10,5 @@ the hardship of handling login and storing login data safely is vanished. Theref
 the grades, teachers' notes and the hours one has missed.
 
 If you have anything to improve, whether by having a code ready-to-pull or just an idea, feel free to contribute! :)
-But bear in mind, the project is in **beta** stage currently!
-> However, the latest commits of this repo usually contain important changes and bugfixes, they are mostly untested! (milestones having *R* or nothing in their names can be considered stable)
+Although the project had some non-beta, working releases, most git commits are a **beta** or **alpha** implementation of a feature, or not properly tested, but complete features!
+> However, the latest commits of this repo usually contain important changes and bugfixes! (milestones having *R* or nothing in their names can be considered stable)
