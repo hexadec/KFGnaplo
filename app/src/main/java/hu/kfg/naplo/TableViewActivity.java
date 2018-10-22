@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -17,7 +19,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -136,6 +137,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+                            int monthNumber = mo >= 9 ? mo - 9 : mo + 2;
                             if (doublegrade > 0) {
                                 int sum = 0;
                                 for (int k = 0; k < doublegrade + 1; k++) {
@@ -165,16 +167,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             } : TableViewActivity.this);
                             Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                             if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
-                                which = setBackground(Values, 2, which);
-                                Log.d("TAG", "1");
+                                //which = setBackground(Values, 2, which);
+                                Values.setBackground(createBackground(monthNumber, 2));
                             } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
-                                Log.d("TAG", "2");
-                                which = setBackground(Values, 2, which);
+                                //which = setBackground(Values, 2, which);
+                                Values.setBackground(createBackground(monthNumber, 2));
                             } else if (j == -1) {
-                                Log.d("TAG", "3");
-                                which = setBackground(Values, 3, which);
+                                //which = setBackground(Values, 3, which);
+                                Values.setBackground(createBackground(10, 3));
                             } else {
-                                setBackground(Values, 1, which);
+                                //setBackground(Values, 1, which);
+                                Values.setBackground(createBackground(monthNumber, 1));
                             }
                             row.addView(Values);
                             month = mo;
@@ -202,7 +205,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     void updateDatabase(final DBHelper db) {
-        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("password", "").length() <= 1) {
+        if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("password2", "").length() <= 1) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
@@ -370,11 +373,14 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
     private View monthSpelled(Date d, boolean whichColor) {
         String month_spelled = "-";
+        int mo = 0;
         try {
             month_spelled = new SimpleDateFormat("MMM", Locale.getDefault()).format(d);
+            mo = Integer.valueOf(new SimpleDateFormat("MM", Locale.getDefault()).format(d));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        int monthNumber = mo >= 9 ? mo - 9 : mo + 2;
         TextView Values = new TextView(TableViewActivity.this);
         Values.setPadding(applyDimension(6),
                 applyDimension(7.5f),
@@ -387,20 +393,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Values.setText(month_spelled);
         Values.setOnClickListener(TableViewActivity.this);
         Values.setHeight(applyDimension(VIEW_HEIGHT));
-        setBackground(Values, 0, whichColor);
+        //setBackground(Values, 0, whichColor);
+        Values.setBackground(createBackground(monthNumber, 0));
         return Values;
     }
 
     int applyDimension(float value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
-    }
-
-    boolean setBackground(TextView Values, int id, boolean which) {
-        TypedArray resources = getResources().obtainTypedArray(R.array.backgrounds);
-        id = id * 2 + (which ? 0 : 1);
-        Values.setBackground(getResources().getDrawable(resources.getResourceId(id, R.drawable.cell)));
-        resources.recycle();
-        return !which;
     }
 
     void multiGradeListener(List<Grade> grades, double value) {
@@ -418,7 +417,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Header2.setTypeface(null, Typeface.BOLD);
         TextView messageText = new TextView(TableViewActivity.this);
         messageText.setText(Html.fromHtml("<i>&#9658; " + grades.get(0).subject + "<br/>&#9658; " + grades.get(0).date + "<br/>&#9658; " + TableViewActivity.this.getString(R.string.save_date) + " " + grades.get(0).save_date + "<br/>&#9658; " + grades.get(0).teacher + "<br/>&#9658; " + grades.get(0).description + "</i>"));
-        messageText.setGravity(Gravity.LEFT);
+        messageText.setGravity(Gravity.START);
         messageText.setPadding(40, 10, 10, 10);
         messageText.setTextAppearance(TableViewActivity.this, android.R.style.TextAppearance_Medium);
         Header2.setPadding(0, 20, 0, 20);
@@ -444,6 +443,36 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 p.setComponentEnabledSetting(main, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
             }
         }).start();
+    }
+
+    Drawable createBackground(int monthNumber, int mode) {
+        int[] colors = new int[]{Color.parseColor("#99145A32"), Color.parseColor("#99196F3D"), Color.parseColor("#99196F3D"),
+                Color.parseColor("#99196F3D"), Color.parseColor("#9927AE60"), Color.parseColor("#9952BE80"),
+                Color.parseColor("#997DCEA0"), Color.parseColor("#88A9DFBF"), Color.parseColor("#77D4EFDF"),
+                Color.parseColor("#66E9F7EF"), Color.parseColor("#772ECC71")};
+        int strokeColor = getResources().getColor(android.R.color.darker_gray);
+        GradientDrawable gD = new GradientDrawable();
+        gD.setColor(colors[monthNumber < 10 || monthNumber > 10 ? monthNumber % 9 : 10]);
+        gD.setShape(GradientDrawable.RECTANGLE);
+        gD.setStroke(2, strokeColor);
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{gD});
+        switch (mode) {
+            case 1:
+                layerDrawable.setLayerInset(0, -2, 0, -2, 0);
+                break;
+            case 2:
+                layerDrawable.setLayerInset(0, -2, 0, 0, 0);
+                break;
+            case 3:
+                layerDrawable.setLayerInset(0, -2, 0, 0, 0);
+                break;
+            case 0:
+                layerDrawable.setLayerInset(0, 0, 0, -2, 0);
+                break;
+            default:
+                break;
+        }
+        return layerDrawable;
     }
 
 }
