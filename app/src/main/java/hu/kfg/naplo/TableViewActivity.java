@@ -56,7 +56,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     void doStuff(final DBHelper db) {
-        final TableLayout table = (TableLayout) findViewById(R.id.table);
+        final TableLayout table = findViewById(R.id.table);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -111,7 +111,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         }
                         avg /= grades.size();
                         int month = 0;
-                        boolean which = false;
                         int doublegrade = 0;
                         for (int j = -1; j < grades.size(); j++) {
                             SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -122,7 +121,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 Date d = s.parse(grades.get(j).date);
                                 mo = Integer.valueOf(m.format(d));
                                 if (((mo != month) || (j + 1 == grades.size() && mo != month)) && doublegrade == 0) {
-                                    row.addView(monthSpelled(d, which));
+                                    row.addView(monthSpelled(d));
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
@@ -237,6 +236,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 try {
                     t2.join(20000);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 pdialog.cancel();
                 Looper.prepare();
@@ -288,7 +288,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Grade g = db.getGradeById(clicked_id - 1000000);
             TextView Header2 = new TextView(TableViewActivity.this);
             Header2.setGravity(Gravity.CENTER);
-            Header2.setText("" + g.value);
+            Header2.setText(String.format(Locale.getDefault(), "%d", g.value));
             Header2.setTextSize(26.0f);
             Header2.setTextColor(Color.parseColor("#FFFFFF"));
             Header2.setTypeface(null, Typeface.BOLD);
@@ -296,7 +296,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " +
                     g.date + "<br/>&#9658; " + getString(R.string.save_date) + " " + g.save_date + "<br/>&#9658; " + g.teacher + "<br/>&#9658; " +
                     g.description + "</i>"));
-            messageText.setGravity(Gravity.LEFT);
+            messageText.setGravity(Gravity.START);
             messageText.setPadding(40, 10, 10, 10);
             messageText.setTextAppearance(TableViewActivity.this, android.R.style.TextAppearance_Medium);
             Header2.setPadding(0, 20, 0, 20);
@@ -356,6 +356,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 alert11.show();
                 return true;
             case R.id.shortcut:
+                //TODO Warn user about Huawei (or other vendors') bug!
                 boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
                         != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
                 try {
@@ -371,7 +372,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
     }
 
-    private View monthSpelled(Date d, boolean whichColor) {
+    private View monthSpelled(Date d) {
         String month_spelled = "-";
         int mo = 0;
         try {
@@ -393,7 +394,6 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         Values.setText(month_spelled);
         Values.setOnClickListener(TableViewActivity.this);
         Values.setHeight(applyDimension(VIEW_HEIGHT));
-        //setBackground(Values, 0, whichColor);
         Values.setBackground(createBackground(monthNumber, 0));
         return Values;
     }
@@ -435,10 +435,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         ComponentName componentName = new ComponentName(this, TableRedirectActivity.class);
         p.setComponentEnabledSetting(componentName, enabledNow ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED : PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
+        //Try as a possible workaround on Huawei EMUI devices
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(3000);
+                SystemClock.sleep(2000);
                 ComponentName main = new ComponentName(TableViewActivity.this, MainActivity.class);
                 p.setComponentEnabledSetting(main, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
             }
@@ -451,11 +452,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Color.parseColor("#997DCEA0"), Color.parseColor("#88A9DFBF"), Color.parseColor("#77D4EFDF"),
                 Color.parseColor("#66E9F7EF"), Color.parseColor("#772ECC71")};
         int strokeColor = getResources().getColor(android.R.color.darker_gray);
-        GradientDrawable gD = new GradientDrawable();
-        gD.setColor(colors[monthNumber < 10 || monthNumber > 10 ? monthNumber % 9 : 10]);
-        gD.setShape(GradientDrawable.RECTANGLE);
-        gD.setStroke(2, strokeColor);
-        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{gD});
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(colors[monthNumber < 10 || monthNumber > 10 ? monthNumber % 9 : 10]);
+        background.setShape(GradientDrawable.RECTANGLE);
+        background.setStroke(2, strokeColor);
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});
         switch (mode) {
             case 1:
                 layerDrawable.setLayerInset(0, -2, 0, -2, 0);
