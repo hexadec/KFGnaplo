@@ -93,7 +93,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         Header.setText(subjects.get(i).length() > 20 ? subjects.get(i).substring(0, 17) + "…" : subjects.get(i));
                         Header.setTextColor(getResources().getColor(android.R.color.holo_green_light));
                         Header.setTextSize(18.0f);
-                        Header.setBackground(getResources().getDrawable(R.drawable.month_single));
+                        Header.setBackground(createBackground(11, 3));
                     }
                     Header.setPadding(applyDimension(5),
                             applyDimension(1),
@@ -450,25 +450,25 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         int[] colors = new int[]{Color.parseColor("#99145A32"), Color.parseColor("#99196F3D"), Color.parseColor("#99196F3D"),
                 Color.parseColor("#99196F3D"), Color.parseColor("#9927AE60"), Color.parseColor("#9952BE80"),
                 Color.parseColor("#997DCEA0"), Color.parseColor("#88A9DFBF"), Color.parseColor("#77D4EFDF"),
-                Color.parseColor("#66E9F7EF"), Color.parseColor("#772ECC71")};
+                Color.parseColor("#66E9F7EF"), Color.parseColor("#772ECC71"), Color.parseColor("#00000000")};
         int strokeColor = getResources().getColor(android.R.color.darker_gray);
         GradientDrawable background = new GradientDrawable();
-        background.setColor(colors[monthNumber < 10 || monthNumber > 10 ? monthNumber % 9 : 10]);
+        background.setColor(colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 9 : monthNumber]);
         background.setShape(GradientDrawable.RECTANGLE);
-        background.setStroke(2, strokeColor);
+        background.setStroke(3, strokeColor);
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});
         switch (mode) {
             case 1:
-                layerDrawable.setLayerInset(0, -2, 0, -2, 0);
+                layerDrawable.setLayerInset(0, -3, 0, -3, 0);
                 break;
             case 2:
-                layerDrawable.setLayerInset(0, -2, 0, 0, 0);
+                layerDrawable.setLayerInset(0, -3, 0, 0, 0);
                 break;
             case 3:
-                layerDrawable.setLayerInset(0, -2, 0, 0, 0);
+                layerDrawable.setLayerInset(0, 0, 0, 0, 0);
                 break;
             case 0:
-                layerDrawable.setLayerInset(0, 0, 0, -2, 0);
+                layerDrawable.setLayerInset(0, 0, 0, -3, 0);
                 break;
             default:
                 break;
