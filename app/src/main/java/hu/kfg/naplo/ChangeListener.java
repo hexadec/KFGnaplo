@@ -653,6 +653,8 @@ public class ChangeListener {
         }
         if (intent.hasExtra("dbupgrade")) {
             Log.i("Grades", "Size: " + mygrades.size());
+            pref.edit().putInt("numberofnotes", rawGrades.length())
+                .putLong("last_check", System.currentTimeMillis()).commit();
             if (mygrades.size() < 1) {
                 new DBHelper(context).cleanDatabase();
                 return DB_EMPTY;
