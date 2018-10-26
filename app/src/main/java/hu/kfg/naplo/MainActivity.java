@@ -28,7 +28,6 @@ public class MainActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.prefs);
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //final Preference url = findPreference("url");
         final Preference manual_check = findPreference("manual_check");
         final Preference about = findPreference("about");
         final Preference interval = findPreference("auto_check_interval");
@@ -46,7 +45,7 @@ public class MainActivity extends PreferenceActivity {
             username.setTitle(getString(R.string.username) + ": " + username.getText());
         }
 
-        if (prefs.getString("url", "").length() > 10) {
+        if (prefs.getString("url", null) != null) {
             new DBHelper(MainActivity.this).cleanDatabase();
             prefs.edit().remove("url").commit();
         }
