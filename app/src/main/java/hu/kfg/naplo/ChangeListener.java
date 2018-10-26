@@ -9,8 +9,13 @@ import android.service.notification.StatusBarNotification;
 import android.util.*;
 
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjuster;
 import java.util.*;
 import java.io.*;
 
@@ -394,7 +399,7 @@ public class ChangeListener {
             n.addAction(android.R.drawable.ic_menu_edit, context.getString(R.string.open_app), mainIntent);
         }
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext):state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
+                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
         notificationManager.notify(state[0], notification);
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
     }
@@ -516,7 +521,7 @@ public class ChangeListener {
         };
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && ! forceCreate) {
+        if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && !forceCreate) {
             if (prefs.getString("access_token", null) != null) {
                 Log.d(TAG, "Using previously generated token...");
                 return prefs.getString("access_token", "");
@@ -534,7 +539,7 @@ public class ChangeListener {
                 }
             });
             Log.e(TAG, "No credentials");
-            notifyIfChanged(new int[]{1,1,1}, context, eURL, "");
+            notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
             throw new IllegalAccessException("No credentials");
         }
 
@@ -556,7 +561,7 @@ public class ChangeListener {
                 }
             });
             Log.e(TAG, "Invalid credentials");
-            notifyIfChanged(new int[]{1,1,1}, context, eURL, "");
+            notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
             throw new IllegalAccessException("Invalid credentials");
         }
 
@@ -587,8 +592,8 @@ public class ChangeListener {
             }
         };
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (pref.getString("url",null) != null) {
-            notifyIfChanged(new int[]{2,1,1}, context, eURL, "");
+        if (pref.getString("url", null) != null) {
+            notifyIfChanged(new int[]{2, 1, 1}, context, eURL, "");
             return CREDENTIALS_ERROR;
         }
         JSONObject resultStuff;
@@ -596,7 +601,7 @@ public class ChangeListener {
         String password_crypt = pref.getString("password2", null);
         if (password_crypt != null && password_crypt.length() >= 4) {
             Cryptography cr = new Cryptography();
-            password = cr.cryptThreedog(password_crypt, true,pref.getString("username", "null"));
+            password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
         }
         try {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
@@ -641,7 +646,7 @@ public class ChangeListener {
             String createTime = currentItem.getString("CreatingTime");
             try {
                 date = dateFormat.format(importedFormat.parse(date));
-                createTime = createTime.replace("T"," ").substring(0,19);
+                createTime = createTime.replace("T", " ").substring(0, 19);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -654,7 +659,7 @@ public class ChangeListener {
         if (intent.hasExtra("dbupgrade")) {
             Log.i("Grades", "Size: " + mygrades.size());
             pref.edit().putInt("numberofnotes", rawGrades.length())
-                .putLong("last_check", System.currentTimeMillis()).commit();
+                    .putLong("last_check", System.currentTimeMillis()).commit();
             if (mygrades.size() < 1) {
                 new DBHelper(context).cleanDatabase();
                 return DB_EMPTY;
@@ -760,6 +765,78 @@ public class ChangeListener {
             running = false;
             return STD_ERROR;
         }
+    }
+
+    static int getTimetable(Context context) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String password = "null";
+        String password_crypt = pref.getString("password2", null);
+        if (password_crypt != null && password_crypt.length() >= 4) {
+            Cryptography cr = new Cryptography();
+            password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
+        }
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_WEEK, 6);
+        JSONArray resultStuff;
+        try {
+            URL server = new URL(eURL + "/mapi/api/v1/Lesson?fromDate=" + format.format(new Date()) + "&toDate=" + format.format(cal.getTime()));
+            HttpsURLConnection request = (HttpsURLConnection) (server.openConnection());
+            request.addRequestProperty("Accept", "application/json");
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", false));
+            request.addRequestProperty("HOST", eURL.replace("https://", ""));
+            request.addRequestProperty("Connection", "keep-alive");
+            request.setRequestMethod("GET");
+            request.connect();
+
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            resultStuff = new JSONArray(sb.toString());
+            request.disconnect();
+        } catch (IOException e) {
+            Log.d(TAG, "Timetable network error");
+            e.printStackTrace();
+            return NETWORK_RELATED_ERROR;
+        } catch (IllegalAccessException e) {
+            Log.d(TAG, "Timetable token error");
+            e.printStackTrace();
+            return TOKEN_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return UNKNOWN_ERROR;
+        }
+
+        List<Lesson> mylessons = new ArrayList<>();
+        Log.d(TAG, resultStuff.toString());
+        try {
+            for (int i = 0; i < resultStuff.length(); i++) {
+                JSONObject item = resultStuff.getJSONObject(i);
+                Date when = importedFormat.parse(item.getString("Date"));
+                Date from = importedFormat.parse(item.getString("StartTime"));
+                Date to = importedFormat.parse(item.getString("EndTime"));
+                String subject = item.getString("Subject");
+                String group = item.getString("ClassGroup");
+                int room = item.getInt("ClassRoom");
+                String teacher = item.getString("Teacher");
+                String topic = item.getString("Theme");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "JSON Exception while evaluating lessons");
+            return UNKNOWN_ERROR;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Date parse error");
+            return UNKNOWN_ERROR;
+        }
+        return DONE;
     }
 
 }
