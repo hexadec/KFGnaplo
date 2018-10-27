@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -135,5 +136,13 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS grades");
         onCreate(db);
+    }
+
+    void TestinsertGradeForEachMonth() {
+        for (int i = 1; i < 11; i++) {
+            int month = i > 6 ? i + 2 : i;
+            String year = month > 8 ? "2016" : "2017";
+            insertGrade("test2", "Random teacher", year + "-" + (month < 10 ? "0" : "") + Integer.toString(month) + "-24", "2019-07-21 18:22:10", "Teszt", (byte) 5);
+        }
     }
 }

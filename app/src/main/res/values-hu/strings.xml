@@ -26,7 +26,7 @@
     <string name="nightmode">Alvásbarát mód</string>
     <string name="nightmode_explained">22:00 és 6:00 között nem rezeg és villog az értesítés, akkor sem ha ez be van állítva</string>
     <string name="manual">Kézi ellenőrzés</string>
-    <string name="browser">Napló megnyitása a böngészőben</string>
+    <string name="browser">E-Kréta megnyitása a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
     <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
     <string name="unknown_error">Karinthy Napló hiba!  Próbáld meg később!</string>
@@ -52,7 +52,10 @@
     <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattints a jegyekre részletekhez</string>
     <string name="grades_long">Jegyek táblázatban, tantárgyak szerint rendezve</string>
     <string name="apprx">Kb. %1$s</string>
-    <string name="grades_info_menu"><![CDATA[A jegyek időrendben vannak, a legelsők a legújabbak. Kattints rájuk, hogy több mindent láss, például az időpontot, a tanárt, vagy hogy mire kaptad pontosan a jegyed.<br/>Kattints a frissítés ikonra, hogy újra letöltsd az összes jegyed.]]></string>
+    <string name="grades_info_menu"><![CDATA[A jegyek időrendben vannak, a legelsők a legújabbak.
+    Kattints rájuk, hogy több mindent láss, például az időpontot, a tanárt, vagy hogy mire kaptad pontosan a jegyed.<br/>
+    Kattints a frissítés ikonra, hogy újra letöltsd az összes jegyed.<br/>
+    A kitűzőre kattintva eltávolíthatod, illetve kiteheted a kezdőképernyőre a jegyek ikonját (alapértelmezés szerint kihelyezve).]]></string>
     <string name="grade_table">Megnyitás táblázatban</string>
     <string name="battery_opt">Ahhoz hogy a Karinty Napló rendesen működhessen, add hozzá a NEM OPTIMALIZÁLT, ENGEDÉLYEZETTEK vagy VÉDETTEK listájához</string>
     <string name="battery_opt_err">Jaj ne! Meg kell nyitnod a beállításokat és kézzel hozzáadnod a Karinthy Naplót az engedélyezettek listájához :(</string>
@@ -106,4 +109,5 @@
     <string name="shortcut">Parancsikon kapcsolója</string>
     <string name="shortcut_on">Parancsikon hozzáadva a kezdőképernyőhöz</string>
     <string name="shortcut_off">Parancsikon eltávolítva a kezdőképernyőtől</string>
+    <string name="timetable">Órarend</string>
 </resources>

@@ -27,7 +27,7 @@
     <string name="nightmode">Sleep-friendly mode</string>
     <string name="nightmode_explained">Notifications between 22:00 and 6:00 do not vibrate and flash LED even if it is set</string>
     <string name="manual">Manual check</string>
-    <string name="browser">Open Napló in browser</string>
+    <string name="browser">Open E-Kréta in browser</string>
     <string name="info" translatable="false">Info</string>
     <string name="find_changes_now">Find changes now</string>
     <string name="cannot_reach_site">Cannot reach KFG Naplo site!</string>
@@ -54,7 +54,10 @@
     <string name="grades_expl">Ordered by subject, with averages, click on grades for details</string>
     <string name="grades_long">Grades in table, ordered by subject and date</string>
     <string name="apprx">About %1$s</string>
-    <string name="grades_info_menu"><![CDATA[Your grades are in descending order, ordered by date. Click on them to see more details, eg. the exact date or teacher.<br/>Click on the refresh icon, to redownload all your grades.]]></string>
+    <string name="grades_info_menu"><![CDATA[Your grades are in descending order, ordered by date.
+    Click on them to see more details, eg. the exact date or teacher.<br/>
+    Click on the refresh icon, to re-download all your grades.<br/>
+    By clicking on the pin icon, you can remove or move the grades shortcut to the homescreen (turned on by default).]]></string>
     <string name="grade_table">Show in table</string>
     <string name="battery_opt">In order for Karinthy Napló to work properly, please add it to the list of NOT OPTIMIZED, WHITELISTED or PROTECTED apps</string>
     <string name="battery_opt_err">Oh shoot! You need to open the settings app and manually add Karinthy Napló to the whitelisted apps :(</string>
@@ -108,4 +111,5 @@
     <string name="shortcut">Toggle shortcut</string>
     <string name="shortcut_on">Shortcut added to homescreen</string>
     <string name="shortcut_off">Shortcut removed from homescreen</string>
+    <string name="timetable">Timetable</string>
 </resources>

@@ -42,11 +42,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     DBHelper db;
     int upgraderesult = 0;
     int VIEW_HEIGHT = 30;
+    boolean darkmode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
+        darkmode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_mode", true);
         db = new DBHelper(TableViewActivity.this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
@@ -64,6 +66,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 table.setMeasureWithLargestChildEnabled(true);
             }
         });
+        //db.TestinsertGradeForEachMonth();
         final ArrayList<String> subjects = db.getSubjects();
         new Thread(new Runnable() {
             @Override
@@ -125,7 +128,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
-                                    if (grades.get(j).description.equals(grades.get(j + 1).description) && grades.get(j).date.equals(grades.get(j + 1).save_date)) {
+                                    if (grades.get(j).description.equals(grades.get(j + 1).description)
+                                            && grades.get(j).date.equals(grades.get(j + 1).date)
+                                            && grades.get(j).subject.equals(grades.get(j + 1).subject)) {
                                         if (Math.abs(d.getTime() - dd.getTime()) < 40 * 1000) {
                                             doublegrade++;
                                             continue;
@@ -136,7 +141,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            int monthNumber = mo >= 9 ? mo - 9 : mo + 2;
+                            int monthNumber = mo >= 9 ? mo - 9 : mo + 3;
                             if (doublegrade > 0) {
                                 int sum = 0;
                                 for (int k = 0; k < doublegrade + 1; k++) {
@@ -166,16 +171,12 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             } : TableViewActivity.this);
                             Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                             if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
-                                //which = setBackground(Values, 2, which);
                                 Values.setBackground(createBackground(monthNumber, 2));
                             } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
-                                //which = setBackground(Values, 2, which);
                                 Values.setBackground(createBackground(monthNumber, 2));
                             } else if (j == -1) {
-                                //which = setBackground(Values, 3, which);
                                 Values.setBackground(createBackground(10, 3));
                             } else {
-                                //setBackground(Values, 1, which);
                                 Values.setBackground(createBackground(monthNumber, 1));
                             }
                             row.addView(Values);
@@ -290,7 +291,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Header2.setGravity(Gravity.CENTER);
             Header2.setText(String.format(Locale.getDefault(), "%d", g.value));
             Header2.setTextSize(26.0f);
-            Header2.setTextColor(Color.parseColor("#FFFFFF"));
+            Header2.setTextColor(Color.parseColor(darkmode ? "#FFFFFF" : "#000000"));
             Header2.setTypeface(null, Typeface.BOLD);
             TextView messageText = new TextView(TableViewActivity.this);
             messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " +
@@ -319,7 +320,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
                 != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
         try {
-            menu.getItem(1).setIcon(!enabled ? getDrawable(R.drawable.pin_light) : getDrawable(R.drawable.pin_dark));
+            menu.getItem(1).setIcon(enabled ? getResources().getDrawable(R.drawable.pin_light) : getResources().getDrawable(R.drawable.pin_dark));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -360,7 +361,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
                         != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
                 try {
-                    item.setIcon(enabled ? getDrawable(R.drawable.pin_light) : getDrawable(R.drawable.pin_dark));
+                    item.setIcon(!enabled ? getResources().getDrawable(R.drawable.pin_light) : getResources().getDrawable(R.drawable.pin_dark));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -381,7 +382,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        int monthNumber = mo >= 9 ? mo - 9 : mo + 2;
+        int monthNumber = mo >= 9 ? mo - 9 : mo + 3;
         TextView Values = new TextView(TableViewActivity.this);
         Values.setPadding(applyDimension(6),
                 applyDimension(7.5f),
@@ -447,13 +448,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     Drawable createBackground(int monthNumber, int mode) {
-        int[] colors = new int[]{Color.parseColor("#99145A32"), Color.parseColor("#99196F3D"), Color.parseColor("#99196F3D"),
-                Color.parseColor("#99196F3D"), Color.parseColor("#9927AE60"), Color.parseColor("#9952BE80"),
-                Color.parseColor("#997DCEA0"), Color.parseColor("#88A9DFBF"), Color.parseColor("#77D4EFDF"),
-                Color.parseColor("#66E9F7EF"), Color.parseColor("#772ECC71"), Color.parseColor("#00000000")};
+        int[] colors = new int[]{Color.parseColor("#99F8C471"), Color.parseColor("#99F39C12"), Color.parseColor("#99B9770E"),
+                Color.parseColor("#99AED6F1"), Color.parseColor("#995DADE2"), Color.parseColor("#992E86C1"),
+                Color.parseColor("#9982E0AA"), Color.parseColor("#992ECC71"), Color.parseColor("#99239B56"),
+                Color.parseColor("#999B59B6"), Color.parseColor("#99E74C3C"), Color.parseColor("#00000000")};
         int strokeColor = getResources().getColor(android.R.color.darker_gray);
         GradientDrawable background = new GradientDrawable();
-        background.setColor(colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 9 : monthNumber]);
+        background.setColor(colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber]);
         background.setShape(GradientDrawable.RECTANGLE);
         background.setStroke(3, strokeColor);
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});

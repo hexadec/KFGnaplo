@@ -36,8 +36,10 @@ public class MainActivity extends PreferenceActivity {
         final Preference ngrades = findPreference("not_grades");
         final Preference nstandins = findPreference("not_standins");
         final Preference nightmode = findPreference("nightmode");
+        final Preference open_in_browser = findPreference("open_in_browser");
         final Preference ignore = findPreference("ignore_lessons");
         final Preference grades = findPreference("grades");
+        final Preference timetable = findPreference("timetable");
         final EditTextPreference username = (EditTextPreference) findPreference("username");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
@@ -159,6 +161,22 @@ public class MainActivity extends PreferenceActivity {
             showWelcomeDialog();
         }
 
+        timetable.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startActivity(new Intent(MainActivity.this, TimetableActivity.class));
+                return false;
+            }
+        });
+
+        open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference pref) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(ChangeListener.eURL));
+                startActivity(intent);
+                return true;
+            }
+        });
 
         manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {

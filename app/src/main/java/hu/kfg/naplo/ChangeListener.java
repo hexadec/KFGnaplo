@@ -826,6 +826,9 @@ public class ChangeListener {
                 int room = item.getInt("ClassRoom");
                 String teacher = item.getString("Teacher");
                 String topic = item.getString("Theme");
+                Lesson currentLesson = new Lesson(subject, teacher, room, from, to, when, group);
+                currentLesson.setTopic(topic != null || topic.length() > 1 ? topic : "");
+                mylessons.add(currentLesson);
             }
         } catch (JSONException e) {
             e.printStackTrace();
