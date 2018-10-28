@@ -776,7 +776,6 @@ public class ChangeListener {
             password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
         SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
         JSONArray resultStuff;
         try {
@@ -810,12 +809,13 @@ public class ChangeListener {
             return UNKNOWN_ERROR;
         }
 
-        List<Lesson> mylessons = new ArrayList<>();
+        //List<Lesson> mylessons = new ArrayList<>();
         Log.d(TAG, resultStuff.toString());
+        TimetableDB db = new TimetableDB(context);
+        db.cleanDatabase();
         try {
             for (int i = 0; i < resultStuff.length(); i++) {
                 JSONObject item = resultStuff.getJSONObject(i);
-                Date when = importedFormat.parse(item.getString("Date"));
                 Date lFrom = importedFormat.parse(item.getString("StartTime"));
                 Date lTo = importedFormat.parse(item.getString("EndTime"));
                 String subject = item.getString("Subject");
@@ -823,9 +823,11 @@ public class ChangeListener {
                 int room = item.getInt("ClassRoom");
                 String teacher = item.getString("Teacher");
                 String topic = item.getString("Theme");
-                Lesson currentLesson = new Lesson(subject, teacher, room, lFrom, lTo, when, group);
-                currentLesson.setTopic(topic != null || topic.length() > 1 ? topic : "");
-                mylessons.add(currentLesson);
+                byte period = (byte) item.getInt("Count");
+                Lesson currentLesson = new Lesson(subject, teacher, room, lFrom, lTo, group, period);
+                currentLesson.setTopic(topic != null && topic.length() > 1 ? topic : "");
+                //mylessons.add(currentLesson);
+                db.insertLesson(currentLesson);
             }
         } catch (JSONException e) {
             e.printStackTrace();

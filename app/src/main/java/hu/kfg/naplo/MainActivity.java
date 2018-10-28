@@ -14,6 +14,8 @@ import android.net.*;
 import com.evernote.android.job.JobManager;
 
 import java.io.FileNotFoundException;
+import java.util.Calendar;
+import java.util.Date;
 
 import hu.hexadec.killerwhale.OrcaManager;
 import hu.hexadec.textsecure.Cryptography;
@@ -51,6 +53,16 @@ public class MainActivity extends PreferenceActivity {
             new DBHelper(MainActivity.this).cleanDatabase();
             prefs.edit().remove("url").commit();
         }
+
+        /*new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date());
+                cal.add(Calendar.DAY_OF_WEEK, 14);
+                ChangeListener.getTimetable(MainActivity.this, new Date(), cal.getTime());
+            }
+        }).start();*/
 
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

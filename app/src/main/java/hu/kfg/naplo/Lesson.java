@@ -12,18 +12,18 @@ public class Lesson {
     int room;
     Date from;
     Date to;
-    Date when;
     String group;
     int id;
+    byte period;
 
-    public Lesson(String subject, String teacher, int room, Date from, Date to, Date when, String group) {
+    public Lesson(String subject, String teacher, int room, Date from, Date to, String group, byte period) {
         this.subject = subject;
         this.teacher = teacher;
         this.room = room;
         this.from = from;
         this.to = to;
-        this.when = when;
         this.group = group;
+        this.period = period;
     }
 
     public void setTopic(String topic) {
@@ -45,7 +45,7 @@ public class Lesson {
                 .append(':')
                 .append(room)
                 .append('@')
-                .append(dayMonth.format(when))
+                .append(dayMonth.format(from))
                 .append(" (")
                 .append(time.format(from))
                 .append('-')

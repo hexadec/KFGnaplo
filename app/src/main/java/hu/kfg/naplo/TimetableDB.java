@@ -23,15 +23,16 @@ public class TimetableDB extends SQLiteOpenHelper {
     private static final String LESSONS_COLUMN_SUBJECT = "subject";
     private static final String LESSONS_COLUMN_TEACHER = "teacher";
     private static final String LESSONS_COLUMN_ROOM = "room";
-    private static final String LESSONS_COLUMN_DAY = "day";
     private static final String LESSONS_COLUMN_START = "start";
     private static final String LESSONS_COLUMN_FINISH = "finish";
     private static final String LESSONS_COLUMN_CLASS = "class";
     private static final String LESSONS_COLUMN_TOPIC = "topic";
+    private static final String LESSONS_COLUMN_PERIOD = "period";
 
 
-    final SimpleDateFormat day = new SimpleDateFormat("MM-dd", Locale.getDefault());
-    final SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    static final SimpleDateFormat start = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    static final SimpleDateFormat dayOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    static final SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     TimetableDB(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -40,7 +41,7 @@ public class TimetableDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE lessons (id integer PRIMARY KEY, subject text,teacher text,room int, day text, start text, finish text, class text,topic text)"
+                "CREATE TABLE lessons (id integer PRIMARY KEY, subject text,teacher text,room int, start text, finish text, class text,topic text, period smallint)"
         );
     }
 
@@ -50,7 +51,7 @@ public class TimetableDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    boolean insertLesson(String subject, String teacher, int room, Date when, Date from, Date to, String group, String topic) {
+    boolean insertLesson(String subject, String teacher, int room, Date from, Date to, String group, String topic, byte period) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(LESSONS_COLUMN_SUBJECT, subject);
@@ -58,14 +59,14 @@ public class TimetableDB extends SQLiteOpenHelper {
         contentValues.put(LESSONS_COLUMN_ROOM, room);
         contentValues.put(LESSONS_COLUMN_CLASS, group);
         contentValues.put(LESSONS_COLUMN_TOPIC, topic);
-        contentValues.put(LESSONS_COLUMN_DAY, day.format(when));
-        contentValues.put(LESSONS_COLUMN_START, time.format(from));
+        contentValues.put(LESSONS_COLUMN_START, start.format(from));
         contentValues.put(LESSONS_COLUMN_FINISH, time.format(to));
+        contentValues.put(LESSONS_COLUMN_PERIOD, period);
         return db.insert(LESSONS_TABLE_NAME, null, contentValues) > -1;
     }
 
     boolean insertLesson(Lesson lesson) {
-        return insertLesson(lesson.subject, lesson.teacher, lesson.room, lesson.when, lesson.from, lesson.to, lesson.group, lesson.topic);
+        return insertLesson(lesson.subject, lesson.teacher, lesson.room, lesson.from, lesson.to, lesson.group, lesson.topic, lesson.period);
     }
 
     ArrayList<String> getSubjects() {
@@ -82,13 +83,13 @@ public class TimetableDB extends SQLiteOpenHelper {
         return array_list;
     }
 
-    List<Lesson> getLessonsOnDay(String day1) {
+    List<Lesson> getLessonsOnDay(Date day1) {
         List<Lesson> array_list = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM " + LESSONS_TABLE_NAME
-                + " WHERE " + LESSONS_COLUMN_DAY + "=\"" + day1 + "\" " +
-                "ORDER BY " + LESSONS_COLUMN_START + " DESC", null);
+                + " WHERE " + LESSONS_COLUMN_START + " like '" + dayOnly.format(day1) + "%' " +
+                "ORDER BY " + LESSONS_COLUMN_START + "", null);
         res.moveToFirst();
         Lesson l;
         while (!res.isAfterLast()) {
@@ -96,10 +97,10 @@ public class TimetableDB extends SQLiteOpenHelper {
                 l = new Lesson(res.getString(res.getColumnIndex(LESSONS_COLUMN_SUBJECT)),
                         res.getString(res.getColumnIndex(LESSONS_COLUMN_TEACHER)),
                         res.getInt(res.getColumnIndex(LESSONS_COLUMN_ROOM)),
-                        day.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_DAY))),
-                        time.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START))),
+                        start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START))),
                         time.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_FINISH))),
-                        res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)));
+                        res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)),
+                        (byte) res.getShort(res.getColumnIndex(LESSONS_COLUMN_PERIOD)));
                 l.setTopic(res.getString(res.getColumnIndex(LESSONS_COLUMN_TOPIC)));
                 l.addID(res.getInt(res.getColumnIndex(LESSONS_COLUMN_ID)));
                 array_list.add(l);
@@ -112,6 +113,24 @@ public class TimetableDB extends SQLiteOpenHelper {
         return array_list;
     }
 
+    Date lastDay() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT start FROM lessons ORDER BY start DESC LIMIT 1", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            try {
+                Date d = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
+                res.close();
+                return d;
+            } catch (ParseException pe) {
+                pe.printStackTrace();
+            }
+            res.moveToNext();
+        }
+        res.close();
+        return null;
+    }
+
     Lesson getLessonById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM lessons WHERE id=\"" + id + "\"", null);
@@ -122,10 +141,10 @@ public class TimetableDB extends SQLiteOpenHelper {
                 l = new Lesson(res.getString(res.getColumnIndex(LESSONS_COLUMN_SUBJECT)),
                         res.getString(res.getColumnIndex(LESSONS_COLUMN_TEACHER)),
                         res.getInt(res.getColumnIndex(LESSONS_COLUMN_ROOM)),
-                        day.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_DAY))),
-                        time.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START))),
+                        start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START))),
                         time.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_FINISH))),
-                        res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)));
+                        res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)),
+                        (byte) res.getShort(res.getColumnIndex(LESSONS_COLUMN_PERIOD)));
                 l.setTopic(res.getString(res.getColumnIndex(LESSONS_COLUMN_TOPIC)));
                 l.addID(res.getInt(res.getColumnIndex(LESSONS_COLUMN_ID)));
             } catch (ParseException pe) {

@@ -19,7 +19,9 @@
 
     <ScrollView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/date_field"
+        android:layout_centerHorizontal="true">
 
         <TableLayout
             android:id="@+id/timetable"
