@@ -14,6 +14,7 @@ public class Lesson {
     Date to;
     Date when;
     String group;
+    int id;
 
     public Lesson(String subject, String teacher, int room, Date from, Date to, Date when, String group) {
         this.subject = subject;
@@ -27,6 +28,10 @@ public class Lesson {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public void addID(int id) {
+        this.id = id;
     }
 
     @Override

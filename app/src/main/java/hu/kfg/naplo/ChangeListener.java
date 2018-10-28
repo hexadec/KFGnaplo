@@ -767,7 +767,7 @@ public class ChangeListener {
         }
     }
 
-    static int getTimetable(Context context) {
+    static int getTimetable(Context context, Date from, Date to) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         String password = "null";
         String password_crypt = pref.getString("password2", null);
@@ -778,12 +778,9 @@ public class ChangeListener {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
         SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_WEEK, 6);
         JSONArray resultStuff;
         try {
-            URL server = new URL(eURL + "/mapi/api/v1/Lesson?fromDate=" + format.format(new Date()) + "&toDate=" + format.format(cal.getTime()));
+            URL server = new URL(eURL + "/mapi/api/v1/Lesson?fromDate=" + format.format(from) + "&toDate=" + format.format(to));
             HttpsURLConnection request = (HttpsURLConnection) (server.openConnection());
             request.addRequestProperty("Accept", "application/json");
             request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", false));
@@ -819,14 +816,14 @@ public class ChangeListener {
             for (int i = 0; i < resultStuff.length(); i++) {
                 JSONObject item = resultStuff.getJSONObject(i);
                 Date when = importedFormat.parse(item.getString("Date"));
-                Date from = importedFormat.parse(item.getString("StartTime"));
-                Date to = importedFormat.parse(item.getString("EndTime"));
+                Date lFrom = importedFormat.parse(item.getString("StartTime"));
+                Date lTo = importedFormat.parse(item.getString("EndTime"));
                 String subject = item.getString("Subject");
                 String group = item.getString("ClassGroup");
                 int room = item.getInt("ClassRoom");
                 String teacher = item.getString("Teacher");
                 String topic = item.getString("Theme");
-                Lesson currentLesson = new Lesson(subject, teacher, room, from, to, when, group);
+                Lesson currentLesson = new Lesson(subject, teacher, room, lFrom, lTo, when, group);
                 currentLesson.setTopic(topic != null || topic.length() > 1 ? topic : "");
                 mylessons.add(currentLesson);
             }

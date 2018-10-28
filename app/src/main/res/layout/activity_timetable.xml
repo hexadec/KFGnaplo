@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="hu.kfg.naplo.TimetableActivity"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp">
+
+    <TextView
+        android:id="@+id/date_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="..."
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -16,4 +26,4 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </ScrollView>
-</HorizontalScrollView>
+</RelativeLayout>

@@ -110,4 +110,6 @@
     <string name="shortcut_on">Parancsikon hozzáadva a kezdőképernyőhöz</string>
     <string name="shortcut_off">Parancsikon eltávolítva a kezdőképernyőtől</string>
     <string name="timetable">Órarend</string>
+    <string name="prev_day">Előző nap</string>
+    <string name="next_day">Következő nap</string>
 </resources>
