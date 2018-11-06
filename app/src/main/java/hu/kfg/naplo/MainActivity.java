@@ -149,6 +149,7 @@ public class MainActivity extends PreferenceActivity {
                 clas.getEditText().setFilters(new InputFilter[]{teacherFilter});
                 clas.setSummary(R.string.teacher_hint);
                 clas.setTitle(R.string.teacher_name);
+                clas.getEditText().setHint("9.AK / 12.IB");
 //                url.setEnabled(false);
                 ignore.setEnabled(false);
                 ngrades.setEnabled(false);
@@ -163,6 +164,7 @@ public class MainActivity extends PreferenceActivity {
                 clas.getEditText().setFilters(new InputFilter[]{classFilter, new InputFilter.LengthFilter(5)});
                 clas.setSummary(R.string.yourclass_sum);
                 clas.setTitle(R.string.yourclass);
+                clas.getEditText().setHint("9.AK / 12.IB");
                 CheckerJob.scheduleJob();
         }
         if (clas.getText() != null && clas.getText().length() > 2) {
@@ -234,6 +236,7 @@ public class MainActivity extends PreferenceActivity {
                 String mode = prefs.getString("notification_mode", ChangeListener.MODE_FALSE);
                 if (((String) obj).length() < 3 || (!((String) obj).contains(".") && !mode.equals(ChangeListener.MODE_TEACHER))) {
                     clas.setSummary(mode.equals(ChangeListener.MODE_TEACHER) ? R.string.teacher_hint : R.string.insert_class);
+                    return false;
                 } else {
                     clas.setSummary(((String) obj));
                 }

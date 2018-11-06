@@ -108,6 +108,15 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     row.addView(Header);
                     if (i != -1) {
                         final List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
+                        if (grades == null) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(TableViewActivity.this, R.string.db_error, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            return;
+                        }
                         double avg = 0;
                         for (Grade g : grades) {
                             avg += g.value;

@@ -185,20 +185,32 @@ public class ChangeListener {
             }
         } else {
             cls.add(classs);
-            if ((classs.endsWith("A") || classs.endsWith("B")) && !classs.endsWith(".IB")) {
-                int i = Integer.valueOf(classs.split("[.]")[0]);
-                if (i < 11) {
-                    cls.add(i + ".AB");
-                } else {
-                    cls.add(i + ".AB");
-                    cls.add(i + ".A+");
-
-                }
-                Log.d(TAG, i + ".AB");
-            } else {
-                if (classs.endsWith("C") || classs.endsWith("D")) {
+            try {
+                if ((classs.endsWith("A") || classs.endsWith("B")) && !classs.endsWith(".IB")) {
                     int i = Integer.valueOf(classs.split("[.]")[0]);
-                    cls.add(i + ".A+");
+                    if (i < 11) {
+                        cls.add(i + ".AB");
+                    } else {
+                        cls.add(i + ".AB");
+                        cls.add(i + ".A+");
+
+                    }
+                    Log.d(TAG, i + ".AB");
+                } else {
+                    if (classs.endsWith("C") || classs.endsWith("D")) {
+                        int i = Integer.valueOf(classs.split("[.]")[0]);
+                        cls.add(i + ".A+");
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "User typed incorrect class!");
+                e.printStackTrace();
+                if (intent.hasExtra("error")) {
+                    showToast.postAtFrontOfQueue(new Runnable() {
+                        public void run() {
+                            Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         }

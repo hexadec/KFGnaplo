@@ -114,4 +114,5 @@
     <string name="timetable">Timetable</string>
     <string name="prev_day">Előző nap</string>
     <string name="next_day">Következő nap</string>
+    <string name="db_error">An error occurred in the database! Please press the refresh button or wipe app data in the settings!</string>
 </resources>

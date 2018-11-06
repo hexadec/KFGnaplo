@@ -72,25 +72,30 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     List<Grade> getSubjectGradesG(String subject) {
-        List<Grade> array_list = new ArrayList<>();
+        try {
+            List<Grade> array_list = new ArrayList<>();
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM grades WHERE subject=\"" + subject + "\" ORDER BY date DESC", null);
-        res.moveToFirst();
-        Grade g;
-        while (!res.isAfterLast()) {
-            g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
-            g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
-            g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
-            g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
-            g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
-            g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
-            g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
-            array_list.add(g);
-            res.moveToNext();
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("SELECT * FROM grades WHERE subject=\"" + subject + "\" ORDER BY date DESC", null);
+            res.moveToFirst();
+            Grade g;
+            while (!res.isAfterLast()) {
+                g = new Grade((byte) res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
+                g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
+                g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
+                g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
+                g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
+                g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
+                g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+                array_list.add(g);
+                res.moveToNext();
+            }
+            res.close();
+            return array_list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        res.close();
-        return array_list;
     }
 
     Grade getGradeById(int id) {
