@@ -64,8 +64,8 @@ public class ChangeListener {
     static final String CHANNEL_GRADES = "grades";
     static final String CHANNEL_NIGHT = "night";
 
-    public static final String eURL = "https://klik035252001.e-kreta.hu";
-    public static final String eCODE = "klik035252001";
+    public static String eURL = "https://klik035252001.e-kreta.hu";
+    public static String eCODE = "klik035252001";
 
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -608,6 +608,8 @@ public class ChangeListener {
             notifyIfChanged(new int[]{2, 1, 1}, context, eURL, "");
             return CREDENTIALS_ERROR;
         }
+        eCODE = pref.getString("school", "null");
+        eURL = "https://"+eCODE+".e-kreta.hu";
         JSONObject resultStuff;
         String password = "null";
         String password_crypt = pref.getString("password2", null);

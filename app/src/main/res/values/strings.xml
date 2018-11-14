@@ -115,4 +115,6 @@
     <string name="prev_day">Előző nap</string>
     <string name="next_day">Következő nap</string>
     <string name="db_error">An error occurred in the database! Please press the refresh button or wipe app data in the settings!</string>
+    <string name="school">School</string>
+    <string name="school_sum">Select which school you go to. Please specify the school\'s code. Default: KFG</string>
 </resources>

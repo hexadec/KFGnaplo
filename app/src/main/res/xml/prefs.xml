@@ -26,6 +26,11 @@
             android:summary="@string/credentials_sum"
             android:title="@string/username" />
         <EditTextPreference
+            android:key="school"
+            android:defaultValue="klik035252001"
+            android:summary="@string/school_sum"
+            android:title="@string/school" />
+        <EditTextPreference
             android:key="class"
             android:singleLine="true"
             android:summary="@string/yourclass_sum"

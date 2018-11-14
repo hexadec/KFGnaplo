@@ -113,4 +113,6 @@
     <string name="prev_day">Előző nap</string>
     <string name="next_day">Következő nap</string>
     <string name="db_error">Az adatbázis hibás! Nyomd meg a frissítés gombot, vagy töröld az alkalmazás adatait a Beállításokban!</string>
+    <string name="school">Iskola</string>
+    <string name="school_sum">Iskola választása. Kérlek add meg az iskola kódját. Alapértelmezett: KFG</string>
 </resources>
