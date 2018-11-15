@@ -115,4 +115,6 @@
     <string name="prev_day">Előző nap</string>
     <string name="next_day">Következő nap</string>
     <string name="db_error">An error occurred in the database! Please press the refresh button or wipe app data in the settings!</string>
+    <string name="missing_timetable_on_day">No timetable is available for the chosen day</string>
+    <string name="change_password">Since your login credentials are easily accessible to many ppl, it is strongly recommended to change your password in the desktop E-Kréta!</string>
 </resources>

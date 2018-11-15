@@ -43,7 +43,7 @@ public class TimetableActivity extends Activity {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         cal.add(Calendar.DAY_OF_WEEK, 5);
-        if (db.numberOfRows() < 1 || db.lastDay().before(cal.getTime())) {
+        if (db.numberOfRows() < 1 || (db.lastDay() != null && db.lastDay().before(cal.getTime()))) {
             doStuff();
         } else {
             updateViews();
@@ -100,7 +100,7 @@ public class TimetableActivity extends Activity {
                                         final Toast t = Toast.makeText(TimetableActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT);
                                         t.setGravity(Gravity.CENTER, 0, 0);
                                         t.show();
-                                        ((TableLayout) findViewById(R.id.table)).removeAllViews();
+                                        ((TableLayout) findViewById(R.id.timetable)).removeAllViews();
                                     }
                                 });
                                 break;
@@ -175,12 +175,20 @@ public class TimetableActivity extends Activity {
             case R.id.next_day:
                 cal.setTime(currentDateShown);
                 cal.add(Calendar.DAY_OF_WEEK, 1);
+                if (db.lastDay() != null && db.lastDay().before(cal.getTime())) {
+                    Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
                 currentDateShown = cal.getTime();
                 updateViews();
                 return true;
             case R.id.prev_day:
                 cal.setTime(currentDateShown);
                 cal.add(Calendar.DAY_OF_WEEK, -1);
+                if (db.firstDay() != null && db.firstDay().after(cal.getTime())) {
+                    Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
                 currentDateShown = cal.getTime();
                 updateViews();
                 return true;

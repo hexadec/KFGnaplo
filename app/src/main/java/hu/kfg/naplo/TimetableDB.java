@@ -131,6 +131,24 @@ public class TimetableDB extends SQLiteOpenHelper {
         return null;
     }
 
+    Date firstDay() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT start FROM lessons ORDER BY start LIMIT 1", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            try {
+                Date d = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
+                res.close();
+                return d;
+            } catch (ParseException pe) {
+                pe.printStackTrace();
+            }
+            res.moveToNext();
+        }
+        res.close();
+        return null;
+    }
+
     Lesson getLessonById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM lessons WHERE id=\"" + id + "\"", null);
