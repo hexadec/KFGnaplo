@@ -33,6 +33,10 @@ public class TimetableActivity extends Activity {
     private SimpleDateFormat dateFormat;
     private TimetableDB db;
 
+    static final String NO_LESSONS_INDICATORS[] = {"Síszünet", "Tavaszi szünet", "Őszi szünet", "Téli szünet",
+            "Projektnap", "Projekt nap"};
+    static final String EVENTS_URL = "https://apps.karinthy.hu/events/hu/eventlist.php?year=%s#act";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +81,7 @@ public class TimetableActivity extends Activity {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(new Date());
                 cal.add(Calendar.DAY_OF_WEEK, 21);
-                final int result = ChangeListener.getTimetable(TimetableActivity.this, new Date(), cal.getTime());
+                final int result = ChangeListener.getTimetable(TimetableActivity.this, new Date(), cal.getTime(), true);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -117,6 +121,10 @@ public class TimetableActivity extends Activity {
         TextView dateField = findViewById(R.id.date_field);
         dateField.setText(dateFormat.format(currentDateShown));
         List<Lesson> lessons = db.getLessonsOnDay(currentDateShown);
+        if (lessons == null) {
+            Toast.makeText(TimetableActivity.this, R.string.db_error, Toast.LENGTH_LONG).show();
+            return;
+        }
         TableLayout table = findViewById(R.id.timetable);
         table.removeAllViews();
         table.setMeasureWithLargestChildEnabled(true);
@@ -144,9 +152,15 @@ public class TimetableActivity extends Activity {
                 .append(".&ensp;&ensp;&ensp;")
                 .append(lesson.subject)
                 .append("&ensp;-&ensp;")
-                .append(lesson.room)
-                .append("</b></big><br/>")
-                .append(TimetableDB.time.format(lesson.from))
+                .append(lesson.room);
+        if (lesson.subjectCat != null && lesson.subjectCat.length() > 1) {
+            sb.append("</b><br/>");
+            sb.append(lesson.subjectCat);
+            sb.append("</big><br/>");
+        } else {
+            sb.append("</b></big><br/>");
+        }
+        sb.append(TimetableDB.time.format(lesson.from))
                 .append('-')
                 .append(TimetableDB.time.format(lesson.to))
                 .append("</div>")
@@ -196,8 +210,8 @@ public class TimetableActivity extends Activity {
                 currentDateShown = new Date();
                 doStuff();
                 return true;
-            case R.id.infomenu_timetable:
-                return true;
+            /*case R.id.infomenu_timetable:
+                return true;*/
             default:
                 return super.onOptionsItemSelected(item);
         }

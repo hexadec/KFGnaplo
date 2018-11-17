@@ -90,6 +90,14 @@ public class Substitution extends Object {
         return subject;
     }
 
+    public boolean isToday() {
+        return today;
+    }
+
+    public int getPeriod() {
+        return period;
+    }
+
     /**
      * @param format RR for -room,
      *               CC for full comment, C9 to limit to 9 characters,

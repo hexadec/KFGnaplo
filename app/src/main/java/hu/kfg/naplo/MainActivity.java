@@ -274,6 +274,13 @@ public class MainActivity extends PreferenceActivity {
                     e.printStackTrace();
                 }
                 dialog.show();
+                AlertDialog.Builder warnPw = new AlertDialog.Builder(MainActivity.this);
+                warnPw.setMessage(R.string.change_password);
+                warnPw.setIcon(android.R.drawable.ic_dialog_alert);
+                warnPw.setTitle(R.string.warning);
+                warnPw.setPositiveButton("OK", null);
+                warnPw.setCancelable(false);
+                warnPw.show();
                 grades.setEnabled(true);
                 return true;
             }

@@ -28,6 +28,7 @@ public class TimetableDB extends SQLiteOpenHelper {
     private static final String LESSONS_COLUMN_CLASS = "class";
     private static final String LESSONS_COLUMN_TOPIC = "topic";
     private static final String LESSONS_COLUMN_PERIOD = "period";
+    private static final String LESSONS_COLUMN_CATEGORY = "category";
 
 
     static final SimpleDateFormat start = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
@@ -41,7 +42,7 @@ public class TimetableDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE lessons (id integer PRIMARY KEY, subject text,teacher text,room int, start text, finish text, class text,topic text, period smallint)"
+                "CREATE TABLE lessons (id integer PRIMARY KEY, subject text,teacher text,room int, start text, finish text, class text,topic text, period smallint, category text)"
         );
     }
 
@@ -51,7 +52,7 @@ public class TimetableDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    boolean insertLesson(String subject, String teacher, int room, Date from, Date to, String group, String topic, byte period) {
+    boolean insertLesson(String subject, String teacher, int room, Date from, Date to, String group, String topic, byte period, String category) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(LESSONS_COLUMN_SUBJECT, subject);
@@ -62,11 +63,12 @@ public class TimetableDB extends SQLiteOpenHelper {
         contentValues.put(LESSONS_COLUMN_START, start.format(from));
         contentValues.put(LESSONS_COLUMN_FINISH, time.format(to));
         contentValues.put(LESSONS_COLUMN_PERIOD, period);
+        contentValues.put(LESSONS_COLUMN_CATEGORY, category);
         return db.insert(LESSONS_TABLE_NAME, null, contentValues) > -1;
     }
 
     boolean insertLesson(Lesson lesson) {
-        return insertLesson(lesson.subject, lesson.teacher, lesson.room, lesson.from, lesson.to, lesson.group, lesson.topic, lesson.period);
+        return insertLesson(lesson.subject, lesson.teacher, lesson.room, lesson.from, lesson.to, lesson.group, lesson.topic, lesson.period, lesson.subjectCat);
     }
 
     ArrayList<String> getSubjects() {
@@ -102,10 +104,12 @@ public class TimetableDB extends SQLiteOpenHelper {
                         res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)),
                         (byte) res.getShort(res.getColumnIndex(LESSONS_COLUMN_PERIOD)));
                 l.setTopic(res.getString(res.getColumnIndex(LESSONS_COLUMN_TOPIC)));
+                l.subjectCat = (res.getString(res.getColumnIndex(LESSONS_COLUMN_CATEGORY)));
                 l.addID(res.getInt(res.getColumnIndex(LESSONS_COLUMN_ID)));
                 array_list.add(l);
-            } catch (ParseException pe) {
+            } catch (Exception pe) {
                 pe.printStackTrace();
+                return null;
             }
             res.moveToNext();
         }
@@ -164,9 +168,11 @@ public class TimetableDB extends SQLiteOpenHelper {
                         res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS)),
                         (byte) res.getShort(res.getColumnIndex(LESSONS_COLUMN_PERIOD)));
                 l.setTopic(res.getString(res.getColumnIndex(LESSONS_COLUMN_TOPIC)));
+                l.subjectCat = (res.getString(res.getColumnIndex(LESSONS_COLUMN_CATEGORY)));
                 l.addID(res.getInt(res.getColumnIndex(LESSONS_COLUMN_ID)));
-            } catch (ParseException pe) {
+            } catch (Exception pe) {
                 pe.printStackTrace();
+                return null;
             }
             res.moveToNext();
         }

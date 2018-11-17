@@ -226,6 +226,7 @@ public class ChangeListener {
         Log.i(TAG, ilessons.size() + " <-- size of ignore");
         int day = 0;
         List<Substitution> subs = new ArrayList<>();
+        String tomorrowFormat = "";
         try {
             BufferedReader reader = new BufferedReader
                     (new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
@@ -238,6 +239,9 @@ public class ChangeListener {
                 }
                 if (line.contains("live tomorrow")) {
                     day = 2;
+                }
+                if (day == 2 && line.contains("<caption>")) {
+                    tomorrowFormat = line.substring(line.indexOf(">") + 1, line.lastIndexOf("<"));
                 }
                 if (line.contains("\"stand_in\"")) {
                     counter = 0;
@@ -297,10 +301,11 @@ public class ChangeListener {
                 }
             });
         }
+        boolean autoignore = pref.getBoolean("timetable_autoignore", false);
         if (mode.equals(MODE_TEACHER)) {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getTeacher()) && !sub.isOver()) {
+                    if (cla.equals(sub.getTeacher()) && !sub.isOver() && isRelevant(sub, tomorrowFormat, context, autoignore)) {
                         text.append("\n");
                         text.append(sub.toString("PPDD. SS: GG C9 RR MT"));
                         Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR MT"));
@@ -345,6 +350,34 @@ public class ChangeListener {
             }
         }
         pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))).apply();
+    }
+
+    private static boolean isRelevant(Substitution substitution, String date, Context context, boolean autoignore) {
+        if (!autoignore) return true;
+        try {
+            TimetableDB db = new TimetableDB(context);
+            List<Lesson> lessons = db.getLessonsOnDay(substitution.isToday() ? new Date() : new SimpleDateFormat("yyyy. MMMM DD.", new Locale("hu")).parse(date.split(",")[0]));
+            if (lessons == null || lessons.size() == 0) {
+                return true; //Since we don't know if an error occurred, or no lessons
+            }
+            for (Lesson l : lessons) {
+                if (l.period == substitution.getPeriod()) {
+                    if (substitution.getSubject().length() < 2) {
+                        return true;
+                    }
+                    if (l.subjectCat.equalsIgnoreCase(substitution.getSubject()) ||
+                            l.subject.equalsIgnoreCase(substitution.getSubject())) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
     }
 
     private static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
@@ -668,10 +701,26 @@ public class ChangeListener {
             Log.e(TAG, grade.save_date + "--" + createTime.length());
             mygrades.add(grade);
         }
+        byte[] notes = new byte[1];
+        try {
+            if (mygrades.size() == 0) throw new Exception("No grades were found!");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(mygrades);
+            notes = baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Cannot convert grades to byte array!");
+        }
         if (intent.hasExtra("dbupgrade")) {
             Log.i("Grades", "Size: " + mygrades.size());
             pref.edit().putInt("numberofnotes", rawGrades.length())
                     .putLong("last_check", System.currentTimeMillis()).commit();
+            try {
+                pref.edit().putString("lastSHA", SHA512(notes)).commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (mygrades.size() < 1) {
                 new DBHelper(context).cleanDatabase();
                 return DB_EMPTY;
@@ -715,22 +764,11 @@ public class ChangeListener {
             return STD_ERROR;
         }
         running = true;
-        byte[] notes = new byte[1];
-        try {
-            if (mygrades.size() == 0) throw new Exception("No grades were found!");
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(mygrades);
-            notes = baos.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Cannot convert grades to byte array!");
-        }
         final int numofnotes = pref.getInt("numberofnotes", 0);
         try {
 
             pref.edit().putInt("numberofnotes", rawGrades.length()).putLong("last_check", System.currentTimeMillis()).commit();
-            if (rawGrades.length() - numofnotes > 0) {
+            if (rawGrades.length() - numofnotes > 0 && !SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
                 int i = rawGrades.length() - numofnotes;
                 StringBuilder text = new StringBuilder();
                 DBHelper db1 = new DBHelper(context);
@@ -779,7 +817,7 @@ public class ChangeListener {
         }
     }
 
-    static int getTimetable(Context context, Date from, Date to) {
+    static int getTimetable(Context context, Date from, Date to, boolean removeExisting) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         String password = "null";
         String password_crypt = pref.getString("password2", null);
@@ -824,13 +862,14 @@ public class ChangeListener {
         //List<Lesson> mylessons = new ArrayList<>();
         Log.d(TAG, resultStuff.toString());
         TimetableDB db = new TimetableDB(context);
-        db.cleanDatabase();
+        if (removeExisting) db.cleanDatabase();
         try {
             for (int i = 0; i < resultStuff.length(); i++) {
                 JSONObject item = resultStuff.getJSONObject(i);
                 Date lFrom = importedFormat.parse(item.getString("StartTime"));
                 Date lTo = importedFormat.parse(item.getString("EndTime"));
                 String subject = item.getString("Subject");
+                String subjectCat = item.getString("SubjectCategoryName");
                 String group = item.getString("ClassGroup");
                 int room = item.getInt("ClassRoom");
                 String teacher = item.getString("Teacher");
@@ -838,6 +877,7 @@ public class ChangeListener {
                 byte period = (byte) item.getInt("Count");
                 Lesson currentLesson = new Lesson(subject, teacher, room, lFrom, lTo, group, period);
                 currentLesson.setTopic(topic != null && topic.length() > 1 ? topic : "");
+                currentLesson.setSubjectCat(subjectCat);
                 //mylessons.add(currentLesson);
                 db.insertLesson(currentLesson);
             }

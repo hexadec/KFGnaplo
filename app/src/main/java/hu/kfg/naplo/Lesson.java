@@ -15,6 +15,7 @@ public class Lesson {
     String group;
     int id;
     byte period;
+    String subjectCat;
 
     public Lesson(String subject, String teacher, int room, Date from, Date to, String group, byte period) {
         this.subject = subject;
@@ -28,6 +29,20 @@ public class Lesson {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public void setSubjectCat(final String subjectCat) {
+        if (subjectCat == null || subjectCat.equalsIgnoreCase("Na")) {
+            if (subject.equalsIgnoreCase("tör")) {
+                this.subjectCat = "Történelem";
+            } else {
+                this.subjectCat = "";
+            }
+        } else if (subjectCat.equalsIgnoreCase("Filozófia")) {
+            this.subjectCat = "TOK (Theory of knowledge)";
+        } else {
+            this.subjectCat = subjectCat;
+        }
     }
 
     public void addID(int id) {

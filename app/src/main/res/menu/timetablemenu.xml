@@ -18,9 +18,9 @@
         android:showAsAction="ifRoom"
         android:title="@string/refresh" />
 
-    <item
+    <!--item
         android:id="@+id/infomenu_timetable"
         android:icon="@drawable/information"
         android:showAsAction="ifRoom"
-        android:title="@string/info" />
+        android:title="@string/info" /-->
 </menu>

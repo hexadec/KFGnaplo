@@ -115,4 +115,5 @@
     <string name="db_error">Az adatbázis hibás! Nyomd meg a frissítés gombot, vagy töröld az alkalmazás adatait a Beállításokban!</string>
     <string name="missing_timetable_on_day">Nincsen letöltve órarend a kívánt napról</string>
     <string name="change_password">Mivel a belépési adataid könnyen elérhetőek sokak számára, erősen ajánlott, hogy változtasd meg a jelszavad az E-Kréta online felületén!</string>
+    <string name="warning">Figyelem</string>
 </resources>
