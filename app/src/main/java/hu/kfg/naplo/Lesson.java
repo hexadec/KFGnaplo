@@ -38,7 +38,7 @@ public class Lesson {
             } else {
                 this.subjectCat = "";
             }
-        } else if (subjectCat.equalsIgnoreCase("Filozófia")) {
+        } else if (subjectCat.equalsIgnoreCase("Filozófia") && subject.equalsIgnoreCase("tok")) {
             this.subjectCat = "TOK (Theory of knowledge)";
         } else {
             this.subjectCat = subjectCat;

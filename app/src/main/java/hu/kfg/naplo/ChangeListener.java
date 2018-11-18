@@ -215,8 +215,9 @@ public class ChangeListener {
             }
         }
 
-        String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
-                .replace(", ", ",").replace(" ,", "");
+        /*String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
+                .replace(", ", ",").replace(" ,", "");*/
+        String lessonsToIgnore = "semmitsem:(";
         List<String> ilessons = new LinkedList<>();
         try {
             ilessons = Arrays.asList(lessonsToIgnore.split(","));
@@ -301,14 +302,26 @@ public class ChangeListener {
                 }
             });
         }
+
         boolean autoignore = pref.getBoolean("timetable_autoignore", false);
+        TimetableDB db = new TimetableDB(context);
+        Date tomorrow;
+        try {
+            tomorrow = new SimpleDateFormat("yyyy. MMMM dd.", new Locale("hu")).parse(tomorrowFormat.split(",")[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            tomorrow = new Date();
+        }
+        List<Lesson> lessonsToday = db.getLessonsOnDay(new Date());
+        List<Lesson> lessonsTomorrow = db.getLessonsOnDay(tomorrow);
+
         if (mode.equals(MODE_TEACHER)) {
             for (Substitution sub : subs) {
                 for (String cla : cls) {
-                    if (cla.equals(sub.getTeacher()) && !sub.isOver() && isRelevant(sub, tomorrowFormat, context, autoignore)) {
+                    if (cla.equals(sub.getTeacher()) && !sub.isOver()) {
                         text.append("\n");
                         text.append(sub.toString("PPDD. SS: GG C9 RR MT"));
-                        Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR MT"));
+                        //Log.d(TAG, sub.toString("PPDD. SS: GG C9 RR MT"));
                         numoflessons++;
                     }
                 }
@@ -321,13 +334,15 @@ public class ChangeListener {
                         for (String toIgnore : ilessons)
                             if (toIgnore.equalsIgnoreCase(sub.getSubject()))
                                 continue substitutions;
-                        text.append("\n");
-                        text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
-                        Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
+                        if (!autoignore || isRelevant(sub, sub.isToday() ? lessonsToday : lessonsTomorrow)) {
+                            text.append("\n");
+                            text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
+                        } else {
+                            Log.i(TAG, "Irrelevant substitution");
+                        }
+                        //Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
                         numoflessons++;
-                    } /*else {
-                        Log.d(TAG, sub.toString("---PPDD. S: TE C9 R, G") + "//" + cla + "//" + sub.getGroup() + "//");
-                    } */
+                    }
                 }
             }
         }
@@ -352,16 +367,16 @@ public class ChangeListener {
         pref.edit().putString("last", text.toString() + (new SimpleDateFormat("yyyy/DDD", Locale.ENGLISH).format(new Date()))).apply();
     }
 
-    private static boolean isRelevant(Substitution substitution, String date, Context context, boolean autoignore) {
-        if (!autoignore) return true;
+    private static boolean isRelevant(Substitution substitution, List<Lesson> lessons) {
         try {
-            TimetableDB db = new TimetableDB(context);
-            List<Lesson> lessons = db.getLessonsOnDay(substitution.isToday() ? new Date() : new SimpleDateFormat("yyyy. MMMM DD.", new Locale("hu")).parse(date.split(",")[0]));
+            Log.i(TAG, substitution.toString("DDPP-SS:MT->TE C9"));
             if (lessons == null || lessons.size() == 0) {
+                Log.i(TAG, "No lessons on day: ?");
                 return true; //Since we don't know if an error occurred, or no lessons
             }
             for (Lesson l : lessons) {
                 if (l.period == substitution.getPeriod()) {
+                    //Subject check
                     if (substitution.getSubject().length() < 2) {
                         return true;
                     }
@@ -371,10 +386,13 @@ public class ChangeListener {
                     } else {
                         return false;
                     }
+                    //TODO Teacher check
+                    //TODO Substituting teacher check
                 }
             }
             return false;
         } catch (Exception e) {
+            Log.e(TAG, "Unknown error when checking relevance!");
             e.printStackTrace();
             return true;
         }
@@ -698,7 +716,7 @@ public class ChangeListener {
             grade.addDate(date);
             grade.addSaveDate(createTime);
             grade.addDescription(currentItem.getString("Theme") + " - " + currentItem.getString("Mode"));
-            Log.e(TAG, grade.save_date + "--" + createTime.length());
+            //Log.e(TAG, grade.save_date + "--" + createTime.length());
             mygrades.add(grade);
         }
         byte[] notes = new byte[1];

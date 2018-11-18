@@ -180,6 +180,25 @@ public class TimetableDB extends SQLiteOpenHelper {
         return l;
     }
 
+    String getStudentClass() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT " + LESSONS_COLUMN_CLASS +" FROM " + LESSONS_TABLE_NAME
+                + " WHERE " + LESSONS_COLUMN_SUBJECT + " = 'osztályfőnöki' " +
+                " LIMIT 1", null);
+        res.moveToFirst();
+        try {
+            if (!res.isAfterLast()) {
+                String cls = res.getString(res.getColumnIndex(LESSONS_COLUMN_CLASS));
+                res.close();
+                return cls;
+            }
+        } catch (Exception pe) {
+            pe.printStackTrace();
+        }
+        res.close();
+        return null;
+    }
+
     int numberOfRows() {
         int numRows = 0;
         try {

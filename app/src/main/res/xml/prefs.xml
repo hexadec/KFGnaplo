@@ -30,10 +30,14 @@
             android:singleLine="true"
             android:summary="@string/yourclass_sum"
             android:title="@string/yourclass" />
-        <EditTextPreference
+        <!--EditTextPreference
             android:key="ignore_lessons"
             android:summary="@string/ignore_sum"
-            android:title="@string/ignore" />
+            android:title="@string/ignore" /-->
+        <CheckBoxPreference
+            android:key="timetable_autoignore"
+            android:title="@string/autoignore"
+            android:summary="@string/autoignore_sum" />
 
         <ListPreference
             android:defaultValue="300"

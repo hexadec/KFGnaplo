@@ -118,4 +118,7 @@
     <string name="missing_timetable_on_day">No timetable is available for the chosen day</string>
     <string name="change_password">Since your login credentials are easily accessible to many ppl, it is strongly recommended to change your password in the desktop E-Kréta!</string>
     <string name="warning">Warning</string>
+    <string name="autoignore">Ignore irrelevant lessons</string>
+    <string name="autoignore_sum">Automatically ignore irrelevant lessons based on your timetable.
+        If you don\'t have the subject in the given period, you will not be notified (experimental)</string>
 </resources>

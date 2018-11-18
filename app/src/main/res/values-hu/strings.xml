@@ -116,4 +116,7 @@
     <string name="missing_timetable_on_day">Nincsen letöltve órarend a kívánt napról</string>
     <string name="change_password">Mivel a belépési adataid könnyen elérhetőek sokak számára, erősen ajánlott, hogy változtasd meg a jelszavad az E-Kréta online felületén!</string>
     <string name="warning">Figyelem</string>
+    <string name="autoignore">Irreleváns órák elrejtése</string>
+    <string name="autoignore_sum">Automatikusan elrejti azokat a helyettesítéseket,
+        amelyek nem rád vonatkoznak az órarended alapján (kísérleti, csak a tantárgyakat veszi figyelembe)</string>
 </resources>
