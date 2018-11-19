@@ -14,8 +14,6 @@ import android.net.*;
 import com.evernote.android.job.JobManager;
 
 import java.io.FileNotFoundException;
-import java.util.Calendar;
-import java.util.Date;
 
 import hu.hexadec.killerwhale.OrcaManager;
 import hu.hexadec.textsecure.Cryptography;
@@ -39,9 +37,10 @@ public class MainActivity extends PreferenceActivity {
         final Preference nstandins = findPreference("not_standins");
         final Preference nightmode = findPreference("nightmode");
         final Preference open_in_browser = findPreference("open_in_browser");
-        final Preference ignore = findPreference("ignore_lessons");
+        //final Preference ignore = findPreference("ignore_lessons");
         final Preference grades = findPreference("grades");
         final Preference timetable = findPreference("timetable");
+        final Preference autoignore = findPreference("timetable_autoignore");
         final EditTextPreference username = (EditTextPreference) findPreference("username");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
@@ -53,16 +52,6 @@ public class MainActivity extends PreferenceActivity {
             new DBHelper(MainActivity.this).cleanDatabase();
             prefs.edit().remove("url").commit();
         }
-
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(new Date());
-                cal.add(Calendar.DAY_OF_WEEK, 14);
-                ChangeListener.getTimetable(MainActivity.this, new Date(), cal.getTime());
-            }
-        }).start();*/
 
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -134,14 +123,15 @@ public class MainActivity extends PreferenceActivity {
                 nightmode.setEnabled(false);
                 clas.setEnabled(false);
                 //url.setEnabled(false);
-                ignore.setEnabled(false);
+                autoignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 nstandins.setEnabled(false);
+                username.setEnabled(false);
                 JobManager.instance().cancelAll();
                 break;
             case ChangeListener.MODE_NAPLO:
                 clas.setEnabled(false);
-                ignore.setEnabled(false);
+                autoignore.setEnabled(false);
                 nstandins.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
@@ -151,13 +141,17 @@ public class MainActivity extends PreferenceActivity {
                 clas.setTitle(R.string.teacher_name);
                 clas.getEditText().setHint("9.AK / 12.IB");
 //                url.setEnabled(false);
-                ignore.setEnabled(false);
+                autoignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 grades.setEnabled(false);
+                timetable.setEnabled(false);
+                username.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
 //                url.setEnabled(false);
+                autoignore.setEnabled(false);
+                username.setEnabled(false);
                 ngrades.setEnabled(false);
             default:
                 clas.getEditText().setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);

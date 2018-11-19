@@ -2,6 +2,7 @@ package hu.kfg.naplo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,11 +12,13 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -32,6 +35,8 @@ public class TimetableActivity extends Activity {
     private Date currentDateShown;
     private SimpleDateFormat dateFormat;
     private TimetableDB db;
+    private List<Event> events;
+    private TextView eventView;
 
     static final String NO_LESSONS_INDICATORS[] = {"Síszünet", "Tavaszi szünet", "Őszi szünet", "Téli szünet",
             "Projektnap", "Projekt nap"};
@@ -44,6 +49,7 @@ public class TimetableActivity extends Activity {
         currentDateShown = new Date();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd, EEEE", Locale.getDefault());
         db = new TimetableDB(this);
+        eventView = findViewById(R.id.event_field);
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         cal.add(Calendar.DAY_OF_WEEK, 5);
@@ -52,6 +58,14 @@ public class TimetableActivity extends Activity {
         } else {
             updateViews();
         }
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
+                doStuffWithEvents();
+            }
+        });
+        t.start();
     }
 
     private void doStuff() {
@@ -143,6 +157,7 @@ public class TimetableActivity extends Activity {
             row.addView(lView);
             table.addView(row);
         }
+        doStuffWithEvents();
     }
 
     private Spanned formatLesson(Lesson lesson) {
@@ -214,6 +229,45 @@ public class TimetableActivity extends Activity {
                 return true;*/
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    void doStuffWithEvents() {
+        String toShow = "";
+        if (events == null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    eventView.setText("");
+                    eventView.setVisibility(View.GONE);
+                }
+            });
+            return;
+        }
+        for (Event e : events) {
+            if (e.getStart().before(currentDateShown) && e.getEnd().after(currentDateShown)
+                    || dateFormat.format(e.getStart()).equals(dateFormat.format(currentDateShown))) {
+                toShow += e.getName();
+                Log.e("I", e.toString());
+            }
+        }
+        if (!toShow.equals("")) {
+            final String toShow2 = toShow;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    eventView.setText(toShow2);
+                    eventView.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    eventView.setText("");
+                    eventView.setVisibility(View.GONE);
+                }
+            });
         }
     }
 }

@@ -6,6 +6,7 @@ import android.preference.*;
 import android.net.*;
 import android.os.*;
 import android.service.notification.StatusBarNotification;
+import android.text.Html;
 import android.util.*;
 
 import java.net.HttpURLConnection;
@@ -382,6 +383,8 @@ public class ChangeListener {
                     }
                     if (l.subjectCat.equalsIgnoreCase(substitution.getSubject()) ||
                             l.subject.equalsIgnoreCase(substitution.getSubject())) {
+                        return true;
+                    } else if (l.subject.length() <= 3 && l.subject.equalsIgnoreCase(substitution.getSubject().substring(0, 3))) {
                         return true;
                     } else {
                         return false;
@@ -909,6 +912,77 @@ public class ChangeListener {
             return UNKNOWN_ERROR;
         }
         return DONE;
+    }
+
+    static List<Event> doEventsCheck(final Context context, Date date) {
+        final Handler showToast = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message message) {
+            }
+        };
+        final String TAG = "KFGevents-check";
+        Log.e(TAG, "Started");
+        final SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        final String year = new SimpleDateFormat("yyyy", Locale.getDefault()).format(date);
+
+        HttpURLConnection urlConnection;
+        try {
+            URL url = new URL(String.format(TimetableActivity.EVENTS_URL, year));
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setInstanceFollowRedirects(true);
+        } catch (IOException e) {
+            Log.e(TAG, "Cannot load website!");
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            Log.e(TAG, "Unknown error!");
+            e.printStackTrace();
+            return null;
+        }
+        List<Event> events = new ArrayList<>();
+        String line = "";
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader
+                    (new InputStreamReader(urlConnection.getInputStream(), "iso-8859-2"));
+            //NOTE the special space (nbsp??) between month & day!!!
+            SimpleDateFormat monthDay = new SimpleDateFormat("yyyy-MMMM dd", new Locale("hu"));
+            SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                if (!line.contains("Date")) {
+                    continue;
+                }
+                String tempDate = Html.fromHtml(line.substring(line.indexOf("Date\">") + "Date\">".length(), line.indexOf(".</TD>"))).toString();
+                String tempTime = line.substring(line.indexOf("Time\">") + "Time\">".length(), line.indexOf("</TD>", line.indexOf(".</TD>") + 3));
+                String tempInfo = Html.fromHtml(line.substring(line.indexOf("Info\">") + "Info\">".length(), line.lastIndexOf("</TD>"))).toString();
+                //Log.i(TAG, tempDate + "-" + tempTime + "-" + tempInfo);
+                if (tempTime.length() > 0) {
+                    tempInfo = '(' + tempTime + ") " + tempInfo;
+                }
+                Date startDate = monthDay.parse(year + "-" + tempDate);
+                Date endDate;
+                if (tempTime.length() < 2 || tempTime.contains("szombat")) {
+                    endDate = startDate;
+                } else if (!tempTime.contains(":") && tempTime.contains("-")) {
+                    String endDay = tempTime.split("-")[1];
+                    endDate = monthDay.parse(year + "-" + tempDate.split(" ")[0] + " " + endDay);
+                } else {
+                    endDate = startDate;
+                }
+                events.add(new Event(tempInfo, startDate, endDate));
+                Log.i(TAG, "Event added");
+
+            }
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, line);
+            return null;
+        }
+        Log.i(TAG, "Events: " + events.size());
+        return events;
     }
 
 }

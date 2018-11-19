@@ -17,10 +17,23 @@
         android:textSize="18sp"
         android:textStyle="bold"/>
 
+    <TextView
+        android:id="@+id/event_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/date_field"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:visibility="gone"
+        android:padding="2pt"
+        android:background="@android:color/holo_red_light"/>
+
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_below="@id/date_field"
+        android:layout_below="@id/event_field"
         android:layout_centerHorizontal="true">
 
         <TableLayout
