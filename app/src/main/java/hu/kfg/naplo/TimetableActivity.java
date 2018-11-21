@@ -42,6 +42,8 @@ public class TimetableActivity extends Activity {
             "Projektnap", "Projekt nap"};
     static final String EVENTS_URL = "https://apps.karinthy.hu/events/hu/eventlist.php?year=%s#act";
 
+    private static final int DAYS_TO_DOWNLOAD = 21;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,15 +60,37 @@ public class TimetableActivity extends Activity {
         } else {
             updateViews();
         }
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
-                doStuffWithEvents();
-            }
-        });
+        Thread t = new Thread(r);
         t.start();
     }
+
+    Runnable r = new Runnable() {
+        @Override
+        public void run() {
+            EventsDB eventsDB =  new EventsDB(TimetableActivity.this);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.DAY_OF_WEEK, DAYS_TO_DOWNLOAD);
+            SimpleDateFormat smd = new SimpleDateFormat("yyyy", Locale.getDefault());
+            events = eventsDB.getEvents();
+            if (events == null || events.size() < 1) {
+                events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
+                eventsDB.upgradeDatabase(events);
+            }
+            try {
+                if (Integer.valueOf(smd.format(cal.getTime())) > Integer.valueOf(smd.format(eventsDB.getMaxYear()))) {
+                    Log.i("Timetable-events", "Downloading events for next year");
+                    events.addAll(ChangeListener.doEventsCheck(TimetableActivity.this, cal.getTime()));
+                    eventsDB.upgradeDatabase(events);
+                }
+            } catch (NullPointerException | NumberFormatException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            doStuffWithEvents();
+        }
+    };
 
     private void doStuff() {
         if (PreferenceManager.getDefaultSharedPreferences(TimetableActivity.this).getString("password2", "").length() <= 1) {
@@ -94,7 +118,7 @@ public class TimetableActivity extends Activity {
             public void run() {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(new Date());
-                cal.add(Calendar.DAY_OF_WEEK, 21);
+                cal.add(Calendar.DAY_OF_WEEK, DAYS_TO_DOWNLOAD);
                 final int result = ChangeListener.getTimetable(TimetableActivity.this, new Date(), cal.getTime(), true);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -129,6 +153,9 @@ public class TimetableActivity extends Activity {
             }
         });
         thread.start();
+        EventsDB eventsDB =  new EventsDB(TimetableActivity.this);
+        eventsDB.cleanDatabase();
+        new Thread(r).start();
     }
 
     private void updateViews() {
@@ -225,8 +252,6 @@ public class TimetableActivity extends Activity {
                 currentDateShown = new Date();
                 doStuff();
                 return true;
-            /*case R.id.infomenu_timetable:
-                return true;*/
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -244,8 +269,11 @@ public class TimetableActivity extends Activity {
             });
             return;
         }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDateShown);
+        cal.add(Calendar.DAY_OF_WEEK, -1);
         for (Event e : events) {
-            if (e.getStart().before(currentDateShown) && e.getEnd().after(currentDateShown)
+            if (e.getStart().before(currentDateShown) && e.getEnd().after(cal.getTime())
                     || dateFormat.format(e.getStart()).equals(dateFormat.format(currentDateShown))) {
                 toShow += e.getName();
                 Log.e("I", e.toString());

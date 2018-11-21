@@ -123,9 +123,9 @@ public class TimetableDB extends SQLiteOpenHelper {
         res.moveToFirst();
         while (!res.isAfterLast()) {
             try {
-                Date d = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
+                Date lastDay = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
                 res.close();
-                return d;
+                return lastDay;
             } catch (ParseException pe) {
                 pe.printStackTrace();
             }
@@ -141,9 +141,9 @@ public class TimetableDB extends SQLiteOpenHelper {
         res.moveToFirst();
         while (!res.isAfterLast()) {
             try {
-                Date d = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
+                Date firstDay = start.parse(res.getString(res.getColumnIndex(LESSONS_COLUMN_START)));
                 res.close();
-                return d;
+                return firstDay;
             } catch (ParseException pe) {
                 pe.printStackTrace();
             }

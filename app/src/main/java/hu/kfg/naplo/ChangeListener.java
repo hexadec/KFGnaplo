@@ -921,7 +921,7 @@ public class ChangeListener {
             }
         };
         final String TAG = "KFGevents-check";
-        Log.e(TAG, "Started");
+        Log.i(TAG, "Started");
         final SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         final String year = new SimpleDateFormat("yyyy", Locale.getDefault()).format(date);
@@ -949,13 +949,14 @@ public class ChangeListener {
             //NOTE the special space (nbsp??) between month & day!!!
             SimpleDateFormat monthDay = new SimpleDateFormat("yyyy-MMMM dd", new Locale("hu"));
             SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Log.i(TAG, "Reading from output");
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
                 if (!line.contains("Date")) {
                     continue;
                 }
                 String tempDate = Html.fromHtml(line.substring(line.indexOf("Date\">") + "Date\">".length(), line.indexOf(".</TD>"))).toString();
-                String tempTime = line.substring(line.indexOf("Time\">") + "Time\">".length(), line.indexOf("</TD>", line.indexOf(".</TD>") + 3));
+                String tempTime = line.substring(line.indexOf("Time\">") + "Time\">".length(), line.indexOf("</TD>", line.indexOf(".</TD>") + 3)).replace(".", "");
                 String tempInfo = Html.fromHtml(line.substring(line.indexOf("Info\">") + "Info\">".length(), line.lastIndexOf("</TD>"))).toString();
                 //Log.i(TAG, tempDate + "-" + tempTime + "-" + tempInfo);
                 if (tempTime.length() > 0) {
