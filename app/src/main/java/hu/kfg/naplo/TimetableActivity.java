@@ -67,17 +67,17 @@ public class TimetableActivity extends Activity {
     Runnable r = new Runnable() {
         @Override
         public void run() {
-            EventsDB eventsDB =  new EventsDB(TimetableActivity.this);
+            EventsDB eventsDB = new EventsDB(TimetableActivity.this);
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             cal.add(Calendar.DAY_OF_WEEK, DAYS_TO_DOWNLOAD);
             SimpleDateFormat smd = new SimpleDateFormat("yyyy", Locale.getDefault());
             events = eventsDB.getEvents();
-            if (events == null || events.size() < 1) {
-                events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
-                eventsDB.upgradeDatabase(events);
-            }
             try {
+                if (events == null || events.size() < 1) {
+                    events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
+                    eventsDB.upgradeDatabase(events);
+                }
                 if (Integer.valueOf(smd.format(cal.getTime())) > Integer.valueOf(smd.format(eventsDB.getMaxYear()))) {
                     Log.i("Timetable-events", "Downloading events for next year");
                     events.addAll(ChangeListener.doEventsCheck(TimetableActivity.this, cal.getTime()));
@@ -153,7 +153,7 @@ public class TimetableActivity extends Activity {
             }
         });
         thread.start();
-        EventsDB eventsDB =  new EventsDB(TimetableActivity.this);
+        EventsDB eventsDB = new EventsDB(TimetableActivity.this);
         eventsDB.cleanDatabase();
         new Thread(r).start();
     }
@@ -192,12 +192,14 @@ public class TimetableActivity extends Activity {
         sb.append("<div align=\"left\" style=\"text-align:left;\"><b><big>")
                 .append(lesson.period)
                 .append(".&ensp;&ensp;&ensp;")
-                .append(lesson.subject)
+                .append(lesson.subject != null && lesson.subject.length() > 15
+                ? lesson.subject.substring(0, 14) + "…" : lesson.subject)
                 .append("&ensp;-&ensp;")
                 .append(lesson.room);
         if (lesson.subjectCat != null && lesson.subjectCat.length() > 1) {
             sb.append("</b><br/>");
-            sb.append(lesson.subjectCat);
+            sb.append(lesson.subjectCat != null && lesson.subjectCat.length() > 25
+                    ? lesson.subjectCat.substring(0, 24) + "…" : lesson.subjectCat);
             sb.append("</big><br/>");
         } else {
             sb.append("</b></big><br/>");
