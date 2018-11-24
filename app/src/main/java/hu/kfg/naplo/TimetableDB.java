@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class TimetableDB extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "Lessons.db";
+    private static final String DATABASE_NAME = "Common.db";
     private static final String LESSONS_TABLE_NAME = "lessons";
     private static final String LESSONS_COLUMN_ID = "id";
     private static final String LESSONS_COLUMN_SUBJECT = "subject";

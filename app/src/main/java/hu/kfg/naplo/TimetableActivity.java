@@ -80,7 +80,12 @@ public class TimetableActivity extends Activity {
                 }
                 if (Integer.valueOf(smd.format(cal.getTime())) > Integer.valueOf(smd.format(eventsDB.getMaxYear()))) {
                     Log.i("Timetable-events", "Downloading events for next year");
-                    events.addAll(ChangeListener.doEventsCheck(TimetableActivity.this, cal.getTime()));
+                    if (new Date().after(eventsDB.getMaxYear())) {
+                        events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
+                    } else {
+                        events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
+                        events.addAll(ChangeListener.doEventsCheck(TimetableActivity.this, cal.getTime()));
+                    }
                     eventsDB.upgradeDatabase(events);
                 }
             } catch (NullPointerException | NumberFormatException e) {
@@ -172,15 +177,24 @@ public class TimetableActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+        final TableLayout.LayoutParams lp = new TableLayout.LayoutParams(
+                TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
         for (Lesson l : lessons) {
             final TableRow row = new TableRow(TimetableActivity.this);
-            TableLayout.LayoutParams lp = new TableLayout.LayoutParams(
-                    TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
             TextView lView = new TextView(TimetableActivity.this);
             lView.setMinWidth((int) (size.x / 1.1));
             lView.setText(formatLesson(l));
+            row.addView(lView);
+            table.addView(row);
+        }
+        if (lessons.size() == 0) {
+            final TableRow row = new TableRow(TimetableActivity.this);
+            row.setLayoutParams(lp);
+            TextView lView = new TextView(TimetableActivity.this);
+            lView.setMinWidth((int) (size.x / 1.1));
+            lView.setText(Html.fromHtml(String.format(getString(R.string.no_lessons_on_day))));
             row.addView(lView);
             table.addView(row);
         }
@@ -193,7 +207,7 @@ public class TimetableActivity extends Activity {
                 .append(lesson.period)
                 .append(".&ensp;&ensp;&ensp;")
                 .append(lesson.subject != null && lesson.subject.length() > 15
-                ? lesson.subject.substring(0, 14) + "…" : lesson.subject)
+                        ? lesson.subject.substring(0, 14) + "…" : lesson.subject)
                 .append("&ensp;-&ensp;")
                 .append(lesson.room);
         if (lesson.subjectCat != null && lesson.subjectCat.length() > 1) {

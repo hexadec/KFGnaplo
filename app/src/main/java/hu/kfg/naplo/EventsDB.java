@@ -14,7 +14,7 @@ import java.util.Locale;
 
 public class EventsDB extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "Events.db";
+    private static final String DATABASE_NAME = "Common.db";
     private static final String EVENTS_TABLE_NAME = "events";
     private static final String EVENTS_COLUMN_ID = "id";
     private static final String EVENTS_COLUMN_START = "start";

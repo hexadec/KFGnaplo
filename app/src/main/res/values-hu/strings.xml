@@ -119,4 +119,7 @@
     <string name="autoignore">Irreleváns órák elrejtése</string>
     <string name="autoignore_sum">Automatikusan elrejti azokat a helyettesítéseket,
         amelyek nem rád vonatkoznak az órarended alapján (kísérleti, csak a tantárgyakat veszi figyelembe)</string>
+    <string name="no_lessons_on_day">&lt;div align="center" style="text-align:center;">&#8230;&lt;br/>&lt;br/>&lt;br/>&lt;b>&lt;big>Úgy tűnik, &lt;br/>ezen a napon nincsenek óráid!&lt;/big>&lt;/b>&lt;/div></string>
+    <string name="hide_grades_warning">Ez a funkció néhány készüléken pl. Huawei (a kezdőképernyő hibája miatt) nem működik megfelelően. Ha teljesen eltűnik a program ikonja, töröld le, majd telepítsd újra a KFGNaplót a Google Playről!</string>
+    <string name="absences">Hiányzások</string>
 </resources>

@@ -337,7 +337,8 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem oItem) {
+        final MenuItem item = oItem;
         switch (item.getItemId()) {
             case R.id.refresh:
                 if (getSystemService(Context.CONNECTIVITY_SERVICE) != null
@@ -366,16 +367,39 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 alert11.show();
                 return true;
             case R.id.shortcut:
-                //TODO Warn user about Huawei (or other vendors') bug!
-                boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(this, TableRedirectActivity.class))
+                final boolean enabled = getPackageManager().getComponentEnabledSetting(new ComponentName(TableViewActivity.this, TableRedirectActivity.class))
                         != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-                try {
-                    item.setIcon(!enabled ? getResources().getDrawable(R.drawable.pin_light) : getResources().getDrawable(R.drawable.pin_dark));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (enabled) {
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(TableViewActivity.this);
+                    builder2.setMessage(R.string.hide_grades_warning);
+                    builder2.setTitle(R.string.warning);
+                    builder2.setCancelable(false);
+                    builder2.setPositiveButton(
+                            "Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    try {
+                                        item.setIcon(!enabled ? getResources().getDrawable(R.drawable.pin_light) : getResources().getDrawable(R.drawable.pin_dark));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    toggleShortCut(enabled);
+                                    Toast.makeText(TableViewActivity.this, enabled ? R.string.shortcut_off : R.string.shortcut_on, Toast.LENGTH_SHORT).show();
+                                    dialog.cancel();
+                                }
+                            });
+                    builder2.setNeutralButton(R.string.cancel, null);
+                    AlertDialog alert = builder2.create();
+                    alert.show();
+                } else {
+                    try {
+                        item.setIcon(getResources().getDrawable(R.drawable.pin_light));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    toggleShortCut(false);
+                    Toast.makeText(TableViewActivity.this, R.string.shortcut_on, Toast.LENGTH_SHORT).show();
                 }
-                toggleShortCut(enabled);
-                Toast.makeText(this, enabled ? R.string.shortcut_off : R.string.shortcut_on, Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
