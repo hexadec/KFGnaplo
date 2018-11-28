@@ -38,7 +38,6 @@
             android:key="timetable_autoignore"
             android:title="@string/autoignore"
             android:summary="@string/autoignore_sum" />
-
         <ListPreference
             android:defaultValue="300"
             android:entries="@array/check_interval"
@@ -46,6 +45,10 @@
             android:key="auto_check_interval"
             android:summary="%s"
             android:title="@string/interval" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="light_theme_mode"
+            android:title="@string/toggle_light_theme" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="vibrate"

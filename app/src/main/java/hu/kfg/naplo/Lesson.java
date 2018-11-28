@@ -31,15 +31,43 @@ public class Lesson {
         this.topic = topic;
     }
 
-    public void setSubjectCat(final String subjectCat) {
+    public void setSubjectCat(final String subjectCat, boolean noReplace) {
+        if (noReplace) {
+            this.subjectCat = subjectCat;
+            return;
+        }
         if (subjectCat == null || subjectCat.equalsIgnoreCase("Na")) {
-            if (subject.equalsIgnoreCase("tör")) {
+            if (subject.equalsIgnoreCase("tör") || subject.equalsIgnoreCase("törE")) {
                 this.subjectCat = "Történelem";
+            } else if (subject.equalsIgnoreCase("törny")) {
+                this.subjectCat = "Történelem szaknyelv";
             } else {
                 this.subjectCat = "";
             }
         } else if (subjectCat.equalsIgnoreCase("Filozófia") && subject.equalsIgnoreCase("tok")) {
             this.subjectCat = "TOK (Theory of knowledge)";
+        } else if (subject.equalsIgnoreCase("angcc")) {
+            this.subjectCat = "angol c.c.";
+        } else if (subjectCat.equalsIgnoreCase("némcc")) {
+            this.subjectCat = "német c.c.";
+        } else if (subject.equalsIgnoreCase("pszi")) {
+            this.subjectCat = "Pszichológia";
+        } else if (subject.equalsIgnoreCase("ofő")) {
+            this.subjectCat = "Osztályfőnöki";
+        } else if (subject.equalsIgnoreCase("lab")) {
+            this.subjectCat = "Labor";
+        } else if (subject.equalsIgnoreCase("föl")) {
+            this.subjectCat = "Földrajz";
+        } else if (subject.equalsIgnoreCase("fölny")) {
+            this.subjectCat = "Földrajz szaknyelv";
+        } else if (subject.equalsIgnoreCase("fizny")) {
+            this.subjectCat = "Fizika szaknyelv";
+        } else if (subject.equalsIgnoreCase("közg")) {
+            this.subjectCat = "Közgazdaságtan";
+        } else if (subject.equalsIgnoreCase("bio") || subject.equalsIgnoreCase("bioE")) {
+            this.subjectCat = "Biológia";
+        } else if (subject.equalsIgnoreCase("eti")) {
+            this.subjectCat = "Etika";
         } else {
             this.subjectCat = subjectCat;
         }

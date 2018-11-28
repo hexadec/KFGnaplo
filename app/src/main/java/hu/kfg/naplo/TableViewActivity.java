@@ -6,8 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -42,13 +44,17 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
     DBHelper db;
     int upgraderesult = 0;
     int VIEW_HEIGHT = 30;
-    boolean darkmode = true;
+    boolean lightmode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("light_theme_mode", false)) {
+            setTheme(R.style.AppThemeLight);
+            lightmode = true;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
-        darkmode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_mode", true);
         db = new DBHelper(TableViewActivity.this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
@@ -81,8 +87,12 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
                     row.setPadding(15, 0, 15, 0);
 
-                    if (i == -1)
-                        row.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+                    if (i == -1) {
+                        if (lightmode)
+                            row.setBackgroundColor(Color.parseColor("#61CC7C"));
+                        else
+                            row.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                    }
 
 
                     TextView Header = new TextView(TableViewActivity.this);
@@ -94,7 +104,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         Header.setTextColor(Color.parseColor("#FFFFFF"));
                     } else {
                         Header.setText(subjects.get(i).length() > 20 ? subjects.get(i).substring(0, 17) + "…" : subjects.get(i));
-                        Header.setTextColor(getResources().getColor(android.R.color.holo_green_light));
+                        Header.setTextColor(getResources().getColor(lightmode ? android.R.color.black : android.R.color.holo_green_light));
                         Header.setTextSize(18.0f);
                         Header.setBackground(createBackground(11, 3));
                     }
@@ -165,8 +175,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                     applyDimension(1));
                             Values.setGravity(Gravity.CENTER);
                             Values.setTextSize(18.0f);
-                            Values.setTextColor(Color.parseColor(doublegrade > 0 ? "#FF4500" : "#FFFFFF"));
-                            Values.setTypeface(null, Typeface.ITALIC);
+                            Values.setTextColor(Color.parseColor("#FFFFFF"));
+                            Values.setTypeface(null, doublegrade > 0 ? Typeface.BOLD : Typeface.ITALIC);
+                            if (doublegrade > 0)
+                                Values.setPaintFlags(Values.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                             Values.setText(j == -1 || doublegrade > 0 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
                             Values.setId(j != -1 ? grades.get(j).id + 1000000 : grades.get(j + 1).id - 30000);
                             final int minPos = j - doublegrade;
@@ -300,7 +312,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
             Header2.setGravity(Gravity.CENTER);
             Header2.setText(String.format(Locale.getDefault(), "%d", g.value));
             Header2.setTextSize(26.0f);
-            Header2.setTextColor(Color.parseColor(darkmode ? "#FFFFFF" : "#000000"));
+            Header2.setTextColor(Color.parseColor(!lightmode ? "#FFFFFF" : "#000000"));
             Header2.setTypeface(null, Typeface.BOLD);
             TextView messageText = new TextView(TableViewActivity.this);
             messageText.setText(Html.fromHtml("<i>&#9658; " + g.subject + "<br/>&#9658; " +
@@ -447,7 +459,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
         Header2.setText(text.toString());
         Header2.setTextSize(26.0f);
-        Header2.setTextColor(Color.parseColor("#FFFFFF"));
+        Header2.setTextColor(Color.parseColor(lightmode ? "#000000" : "#FFFFFF"));
         Header2.setTypeface(null, Typeface.BOLD);
         TextView messageText = new TextView(TableViewActivity.this);
         messageText.setText(Html.fromHtml("<i>&#9658; " + grades.get(0).subject + "<br/>&#9658; " + grades.get(0).date + "<br/>&#9658; " + TableViewActivity.this.getString(R.string.save_date) + " " + grades.get(0).save_date + "<br/>&#9658; " + grades.get(0).teacher + "<br/>&#9658; " + grades.get(0).description + "</i>"));
@@ -485,9 +497,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 Color.parseColor("#99AED6F1"), Color.parseColor("#995DADE2"), Color.parseColor("#992E86C1"),
                 Color.parseColor("#9982E0AA"), Color.parseColor("#992ECC71"), Color.parseColor("#99239B56"),
                 Color.parseColor("#999B59B6"), Color.parseColor("#99E74C3C"), Color.parseColor("#00000000")};
+        int[] Lightcolors = new int[]{Color.parseColor("#FFF8C471"), Color.parseColor("#FFF39C12"), Color.parseColor("#FFB9770E"),
+                Color.parseColor("#FFAED6F1"), Color.parseColor("#FF5DADE2"), Color.parseColor("#FF2E86C1"),
+                Color.parseColor("#FF82E0AA"), Color.parseColor("#FF2ECC71"), Color.parseColor("#FF239B56"),
+                Color.parseColor("#FF9B59B6"), Color.parseColor("#FFE74C3C"), Color.parseColor("#19000000")};
         int strokeColor = getResources().getColor(android.R.color.darker_gray);
         GradientDrawable background = new GradientDrawable();
-        background.setColor(colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber]);
+        background.setColor(lightmode ? Lightcolors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber] : colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber]);
         background.setShape(GradientDrawable.RECTANGLE);
         background.setStroke(3, strokeColor);
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});

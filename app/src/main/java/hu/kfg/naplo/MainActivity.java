@@ -25,9 +25,12 @@ public class MainActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("light_theme_mode", false)) {
+            setTheme(R.style.AppThemeLight);
+        }
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.prefs);
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final Preference manual_check = findPreference("manual_check");
         final Preference about = findPreference("about");
         final Preference interval = findPreference("auto_check_interval");
@@ -44,6 +47,9 @@ public class MainActivity extends PreferenceActivity {
         final EditTextPreference username = (EditTextPreference) findPreference("username");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
         final EditTextPreference clas = (EditTextPreference) findPreference("class");
+        final SwitchPreference lightTheme = (SwitchPreference) findPreference("light_theme_mode");
+
+
         if (username.getText() != null && username.getText().length() >= 1) {
             username.setTitle(getString(R.string.username) + ": " + username.getText());
         }
@@ -276,6 +282,26 @@ public class MainActivity extends PreferenceActivity {
                 warnPw.setCancelable(false);
                 warnPw.show();
                 grades.setEnabled(true);
+                return true;
+            }
+        });
+
+        lightTheme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                setTheme(((Boolean) newValue).booleanValue() ? R.style.AppThemeLight : R.style.AppTheme);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(350);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                MainActivity.super.recreate();
+                            }
+                        });
+                    }
+                }).start();
                 return true;
             }
         });

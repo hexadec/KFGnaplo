@@ -3,4 +3,7 @@
     <style name="AppTheme" parent="@android:style/Theme.Material">
         <item name="android:colorAccent">@android:color/holo_green_light</item>
     </style>
+    <style name="AppThemeLight" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <item name="android:colorAccent">@android:color/holo_red_dark</item>
+    </style>
 </resources>

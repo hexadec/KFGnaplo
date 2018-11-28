@@ -898,7 +898,7 @@ public class ChangeListener {
                 byte period = (byte) item.getInt("Count");
                 Lesson currentLesson = new Lesson(subject, teacher, room, lFrom, lTo, group, period);
                 currentLesson.setTopic(topic != null && topic.length() > 1 ? topic : "");
-                currentLesson.setSubjectCat(subjectCat);
+                currentLesson.setSubjectCat(subjectCat, false);
                 //mylessons.add(currentLesson);
                 db.insertLesson(currentLesson);
             }

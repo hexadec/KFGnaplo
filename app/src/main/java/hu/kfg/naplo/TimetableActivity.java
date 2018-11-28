@@ -3,7 +3,12 @@ package hu.kfg.naplo;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -35,8 +40,10 @@ public class TimetableActivity extends Activity {
     private Date currentDateShown;
     private SimpleDateFormat dateFormat;
     private TimetableDB db;
+    private EventsDB eventsDB;
     private List<Event> events;
     private TextView eventView;
+    private boolean lightmode = false;
 
     static final String NO_LESSONS_INDICATORS[] = {"Síszünet", "Tavaszi szünet", "Őszi szünet", "Téli szünet",
             "Projektnap", "Projekt nap"};
@@ -46,11 +53,17 @@ public class TimetableActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("light_theme_mode", false)) {
+            setTheme(R.style.AppThemeLight);
+            lightmode = true;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable);
         currentDateShown = new Date();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd, EEEE", Locale.getDefault());
         db = new TimetableDB(this);
+        eventsDB = new EventsDB(TimetableActivity.this);
         eventView = findViewById(R.id.event_field);
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -67,7 +80,6 @@ public class TimetableActivity extends Activity {
     Runnable r = new Runnable() {
         @Override
         public void run() {
-            EventsDB eventsDB = new EventsDB(TimetableActivity.this);
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             cal.add(Calendar.DAY_OF_WEEK, DAYS_TO_DOWNLOAD);
@@ -158,7 +170,6 @@ public class TimetableActivity extends Activity {
             }
         });
         thread.start();
-        EventsDB eventsDB = new EventsDB(TimetableActivity.this);
         eventsDB.cleanDatabase();
         new Thread(r).start();
     }
@@ -180,12 +191,19 @@ public class TimetableActivity extends Activity {
         final TableLayout.LayoutParams lp = new TableLayout.LayoutParams(
                 TableLayout.LayoutParams.MATCH_PARENT,
                 TableLayout.LayoutParams.WRAP_CONTENT);
+        int strokeColor = getResources().getColor(android.R.color.darker_gray);
+        GradientDrawable background = new GradientDrawable();
+        background.setShape(GradientDrawable.RECTANGLE);
+        background.setStroke(3, strokeColor);
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});
+        layerDrawable.setLayerInset(0, -3, -3, -3, 0);
         for (Lesson l : lessons) {
             final TableRow row = new TableRow(TimetableActivity.this);
             row.setLayoutParams(lp);
             TextView lView = new TextView(TimetableActivity.this);
             lView.setMinWidth((int) (size.x / 1.1));
             lView.setText(formatLesson(l));
+            lView.setBackground(layerDrawable);
             row.addView(lView);
             table.addView(row);
         }
@@ -288,12 +306,17 @@ public class TimetableActivity extends Activity {
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDateShown);
         cal.add(Calendar.DAY_OF_WEEK, -1);
+        Log.i("Events", " " + events.size());
         for (Event e : events) {
             if (e.getStart().before(currentDateShown) && e.getEnd().after(cal.getTime())
                     || dateFormat.format(e.getStart()).equals(dateFormat.format(currentDateShown))) {
                 toShow += e.getName();
-                Log.e("I", e.toString());
+                Log.i("I", e.toString());
             }
+        }
+        if (lightmode) {
+            eventView.setTextColor(Color.parseColor("#EEEEEEEE"));
+            eventView.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
         }
         if (!toShow.equals("")) {
             final String toShow2 = toShow;
