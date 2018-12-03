@@ -13,6 +13,18 @@
     </shortcut>
     <shortcut
         android:enabled="true"
+        android:icon="@drawable/calendar_clock"
+        android:shortcutId="timetable"
+        android:shortcutLongLabel="@string/timetable"
+        android:shortcutShortLabel="@string/timetable">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="hu.kfg.naplo.TimetableActivity"
+            android:targetPackage="hu.kfg.naplo" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
         android:icon="@drawable/ic_standins"
         android:shortcutId="standins"
         android:shortcutLongLabel="@string/standins"
