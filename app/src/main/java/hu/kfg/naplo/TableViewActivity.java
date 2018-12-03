@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -434,7 +435,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 applyDimension(6),
                 applyDimension(3));
         Values.setGravity(Gravity.CENTER);
-        Values.setTextSize(12.0f);
+        float scale = getResources().getConfiguration().fontScale;
+        if (scale > 1.1 && scale < 1.2) scale *= 2.07-scale;
+        else if (scale > 1.2 && scale < 1.4) scale *= 2.14-scale;
+        else if (scale > 0.8 && scale < 0.9) scale *= 1.92-scale;
+        Values.setTextSize(12.0f * scale);
         Values.setTextColor(Color.parseColor("#FFFFFF"));
         Values.setTypeface(null, Typeface.ITALIC);
         Values.setText(month_spelled);
