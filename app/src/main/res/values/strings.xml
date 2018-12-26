@@ -11,7 +11,7 @@
     a) Your username is your <b>OM ID</b> by default<br/>
     b) Your password is your birth-date in
     <b>YYYY-MM-DD</b> or <b>YYYYMMDD</b> format<br/>
-    2. Click Find changes now<br/>
+    2. You should get a feedback in a few moments if network is available<br/>
     3. If your username or password is incorrect, repeat step 1-2!]]></string>
     <string name="insert_code">GYIA code required!</string>
     <string name="click2edit">Click here to edit</string>
@@ -104,6 +104,7 @@
     <string name="save_pwd">Save password</string>
     <string name="username">Username</string>
     <string name="incorrect_credentials">EKréta: Incorrect username or password!</string>
+    <string name="correct_credentials">Login credentials accepted!</string>
     <string name="try_login">Attempt login</string>
     <string name="save_date">Registered: </string>
     <string name="ekreta_new">This new version of KFGapp does not support the old Napló fro now on. Please open the app to login into E-Kréta!</string>

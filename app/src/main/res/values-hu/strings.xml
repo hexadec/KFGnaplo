@@ -10,7 +10,7 @@
     a) A felhasználóneved az <b>OM-azonosítód</b><br/>
     b) A jelszavad a születési dátumod
     <b>ÉÉÉÉ-HH-NN</b> vagy <b>ÉÉÉÉHHNN</b> formátumban<br/>
-    2. Kattints a Változások keresése most gombra<br/>
+    2. Ha van hálózat, pár pillanaton belül visszajelzést kapsz<br/>
     3. Ha hibás a felhasználóneved vagy jelszavat, ismételd meg az 1-2 lépéseket!]]></string>
     <string name="insert_code">Másold be a GYIA linket!</string>
     <string name="click2edit">Kattints ide a szerkesztéshez</string>
@@ -102,6 +102,7 @@
     <string name="save_pwd">Jelszó mentése</string>
     <string name="username">Felhasználónév</string>
     <string name="incorrect_credentials">EKréta: Hibás felhasználónév vagy jelszó!</string>
+    <string name="correct_credentials">Bejelentkezési adatok elfogadva!</string>
     <string name="try_login">Bejelentkezés</string>
     <string name="save_date">Beírva: </string>
     <string name="ekreta_new">A KFGapp új verziója már nem támogatja a régi naplót! Nyisd meg az appot hogy belépj az E-Kréta naplóba!</string>

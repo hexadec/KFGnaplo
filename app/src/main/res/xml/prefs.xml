@@ -6,13 +6,16 @@
         <Preference
             android:key="grades"
             android:summary="@string/grades_expl"
-            android:title="@string/title_activity_table_view" />
+            android:title="@string/title_activity_table_view"
+            android:icon="@drawable/numeric"/>
         <Preference
             android:key="timetable"
-            android:title="@string/timetable" />
+            android:title="@string/timetable"
+            android:icon="@drawable/timetable"/>
         <Preference
             android:key="absences"
-            android:title="@string/absences" />
+            android:title="@string/absences"
+            android:icon="@drawable/account_question"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="main"
@@ -23,23 +26,12 @@
             android:entryValues="@array/notification_mode_values"
             android:key="notification_mode"
             android:summary="%s"
-            android:title="@string/mode" />
-        <!--EditTextPreference
-            android:key="username"
-            android:summary="@string/credentials_sum"
-            android:title="@string/username" /-->
-        <!--EditTextPreference
-            android:key="class"
-            android:singleLine="true"
-            android:summary="@string/yourclass_sum"
-            android:title="@string/yourclass" /-->
+            android:title="@string/mode"
+            android:icon="@drawable/bell_ring"/>
         <Preference
             android:key="common_settings"
-            android:title="@string/login_credentials" />
-        <CheckBoxPreference
-            android:key="timetable_autoignore"
-            android:summary="@string/autoignore_sum"
-            android:title="@string/autoignore" />
+            android:title="@string/login_credentials"
+            android:icon="@drawable/pencil_lock"/>
         <ListPreference
             android:defaultValue="300"
             android:entries="@array/check_interval"
@@ -47,6 +39,11 @@
             android:key="auto_check_interval"
             android:summary="%s"
             android:title="@string/interval" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="nightmode"
+            android:summary="@string/nightmode_explained"
+            android:title="@string/nightmode" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="light_theme_mode"
@@ -70,10 +67,9 @@
             android:summary="@string/nstandins_sum"
             android:title="@string/nstandins" />
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="nightmode"
-            android:summary="@string/nightmode_explained"
-            android:title="@string/nightmode" />
+            android:key="timetable_autoignore"
+            android:summary="@string/autoignore_sum"
+            android:title="@string/autoignore" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/manual">

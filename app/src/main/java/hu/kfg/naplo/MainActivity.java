@@ -25,6 +25,7 @@ public class MainActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Apply chosen theme on startup
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (prefs.getBoolean("light_theme_mode", false)) {
             setTheme(R.style.AppThemeLight);
@@ -54,6 +55,8 @@ public class MainActivity extends PreferenceActivity {
             prefs.edit().remove("url").commit();
         }
 
+        //On Android 8.0+ (API 26, O) notification channels have to be used that are incompatible with older versions
+        //Handle these changes here
         PreferenceCategory cat = (PreferenceCategory) findPreference("main");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             cat.removePreference(vibrate);
@@ -88,11 +91,12 @@ public class MainActivity extends PreferenceActivity {
             cat.removePreference(nstandins);
         }
 
+        //Filter unnecessary characters in teacher name input
         final InputFilter teacherFilter = new InputFilter() {
 
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                String notAllowed = "0123456789?!";
+                String notAllowed = "0123456789?!()_";
                 if (source != null && notAllowed.contains(source)) {
                     return "";
                 }
@@ -100,7 +104,7 @@ public class MainActivity extends PreferenceActivity {
             }
         };
 
-
+        //Filter unnecessary input in class input (needed: 0129.ABCDEKN)
         final InputFilter classFilter = new InputFilter() {
 
             @Override
@@ -113,14 +117,15 @@ public class MainActivity extends PreferenceActivity {
             }
         };
 
+        //Set the correct summary of the interval field
         interval.setSummary(String.format(getString(R.string.apprx), interval.getSummary()));
 
+        //Apply mode specific changes (hide unnecessary fields)
         switch (prefs.getString("notification_mode", "false")) {
             case ChangeListener.MODE_FALSE:
                 interval.setEnabled(false);
                 vibrate.setEnabled(false);
                 flash.setEnabled(false);
-                manual_check.setEnabled(false);
                 nightmode.setEnabled(false);
                 autoignore.setEnabled(false);
                 ngrades.setEnabled(false);
@@ -137,6 +142,7 @@ public class MainActivity extends PreferenceActivity {
                 ngrades.setEnabled(false);
                 grades.setEnabled(false);
                 timetable.setEnabled(false);
+                absences.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
@@ -150,6 +156,7 @@ public class MainActivity extends PreferenceActivity {
             showWelcomeDialog();
         }
 
+        //Show timetable window
         timetable.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -158,6 +165,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Open E-Kréta link in browser
         open_in_browser.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -167,6 +175,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Show absences window
         absences.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -179,6 +188,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Check for changes, but before check if the conditions are okay (network available, credentials available)
         manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 ConnectivityManager cm =
@@ -203,26 +213,30 @@ public class MainActivity extends PreferenceActivity {
                     Cryptography cr = new Cryptography();
                     password = cr.cryptThreedog(password_crypt, true, username);
                 }
-                if (refresh_token == null || refresh_token.length() < 2) {
-                    if ((username == null || username.length() < 2 || password == null || password.length() < 2)
-                        && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
+                if (refresh_token.length() < 2) {
+                    if ((username.length() < 2 || password == null || password.length() < 2)
+                            && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
                         Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                         return true;
 
                     }
                 }
-                if ((clas == null || clas.length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
+                if ((clas.length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Toast.makeText(MainActivity.this, R.string.checking_now, Toast.LENGTH_SHORT).show();
 
-                ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW").putExtra("error", true).putExtra("show_anyway", true));
+                ChangeListener.onRunJob(App.getContext(), new Intent("hu.kfg.naplo.CHECK_NOW")
+                        .putExtra("forced", true)
+                        .putExtra("error", true)
+                        .putExtra("show_anyway", true));
                 CheckerJob.scheduleJob();
                 return true;
             }
         });
 
+        //Common login interface (class, plus E-Kréta)
         common.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -231,12 +245,18 @@ public class MainActivity extends PreferenceActivity {
                 dialog.setNegativeButton(R.string.cancel, null);
                 dialog.setPositiveButton("Ok", null);
                 LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
-                final LinearLayout view = (LinearLayout) layoutInflater.inflate(R.layout.login_dialog, null, false);
+                final LinearLayout view;
+                try {
+                    view = (LinearLayout) layoutInflater.inflate(R.layout.login_dialog, null, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
                 dialog.setView(view);
                 final AlertDialog d = dialog.create();
                 try {
                     d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                } catch (NullPointerException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 final EditText passwordField = view.findViewById(R.id.passwordField);
@@ -260,10 +280,27 @@ public class MainActivity extends PreferenceActivity {
                         action.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                ConnectivityManager cm =
+                                        (ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+                                if (cm == null || cm.getActiveNetworkInfo() == null) {
+                                    Toast t = Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT);
+                                    t.setGravity(Gravity.CENTER, 0, 0);
+                                    t.show();
+                                    return;
+                                }
+                                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                                boolean isConnected = activeNetwork != null &&
+                                        activeNetwork.isConnected();
+                                if (!isConnected) {
+                                    Toast t = Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT);
+                                    t.setGravity(Gravity.CENTER, 0, 0);
+                                    t.show();
+                                    return;
+                                }
                                 final String cls = classField.getText().toString();
                                 final String uname = usernameField.getText().toString();
                                 final String pwd = passwordField.getText().toString();
-                                if ((cls.length() < 2 || !cls.contains(".")) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                if ((cls.length() < CLASS_MIN_LENGTH || !cls.contains(".")) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
                                     return;
                                 } else if ((uname.length() < 3 || pwd.length() < 3) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
@@ -275,16 +312,42 @@ public class MainActivity extends PreferenceActivity {
                                     @Override
                                     public void run() {
                                         try {
-                                            String token = ChangeListener.getToken(MainActivity.this, uname, pwd, true);
+                                            //Check validity by requesting the tokens
+                                            ChangeListener.getToken(MainActivity.this, uname, pwd, true);
+                                        } catch (java.net.UnknownHostException une) {
+                                            une.printStackTrace();
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    //Notify the user that the credentials are correct
+                                                    Toast t = Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_LONG);
+                                                    t.setGravity(Gravity.CENTER, 0, 0);
+                                                    t.show();
+                                                }
+                                            });
+                                            return;
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG).show();
+                                                    //Notify the user that the credentials are correct
+                                                    Toast t = Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
+                                                    t.setGravity(Gravity.CENTER, 0, 0);
+                                                    t.show();
                                                 }
                                             });
+                                            return;
                                         }
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                //Notify user that the credentials are incorrect
+                                                Toast t = Toast.makeText(MainActivity.this, R.string.correct_credentials, Toast.LENGTH_LONG);
+                                                t.setGravity(Gravity.CENTER, 0, 0);
+                                                t.show();
+                                            }
+                                        });
                                     }
                                 });
                                 t.start();
@@ -305,23 +368,11 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        /*clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference pref, Object obj) {
-                String mode = prefs.getString("notification_mode", ChangeListener.MODE_FALSE);
-                if (((String) obj).length() < 3 || (!((String) obj).contains(".") && !mode.equals(ChangeListener.MODE_TEACHER))) {
-                    clas.setSummary(mode.equals(ChangeListener.MODE_TEACHER) ? R.string.teacher_hint : R.string.insert_class);
-                    return false;
-                } else {
-                    clas.setSummary(((String) obj));
-                }
-                return true;
-            }
-        });*/
-
+        //Again, restart app to apply changes, but give time to save changes
         lightTheme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                setTheme(((Boolean) newValue).booleanValue() ? R.style.AppThemeLight : R.style.AppTheme);
+                setTheme(((Boolean) newValue) ? R.style.AppThemeLight : R.style.AppTheme);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -338,6 +389,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Handle the change of the interval preference setting
         interval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
                 ListPreference lp = (ListPreference) pref;
@@ -352,6 +404,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Restart the app, but give the system time to save the changes
         notification_mode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
                 new Thread(new Runnable() {
@@ -370,6 +423,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Show general information dialog
         about.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 String version = BuildConfig.VERSION_NAME;
@@ -387,6 +441,7 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        //Open grades table
         grades.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 Intent intent = new Intent(MainActivity.this, TableViewActivity.class);
@@ -399,6 +454,7 @@ public class MainActivity extends PreferenceActivity {
         });
     }
 
+    //Warn the user of vendor specific optimizations (stock AOSP system opt. should be removed)
     void showOptimizationDialog(final SharedPreferences preferences) {
         if (preferences.getBoolean("never_show_opt_dialog", false)) {
             return;
@@ -406,7 +462,6 @@ public class MainActivity extends PreferenceActivity {
         final SharedPreferences.Editor editor = preferences.edit();
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
         if (Build.VERSION.SDK_INT >= 23) {
-            //Toast.makeText(this, R.string.battery_opt, Toast.LENGTH_LONG).show();
             if (Build.VERSION.SDK_INT < 26 && android.os.Build.MANUFACTURER.equalsIgnoreCase("huawei") && !preferences.getBoolean("huawei_protected", false)) {
                 optimizationDialogWithOnClickListener(R.string.battery_opt, new DialogInterface.OnClickListener() {
                     @Override
@@ -510,6 +565,7 @@ public class MainActivity extends PreferenceActivity {
 
     }
 
+    //Separate method for saving space
     void optimizationDialogWithOnClickListener(int textResid, DialogInterface.OnClickListener runnable, final SharedPreferences prefs) {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(textResid);
@@ -527,6 +583,7 @@ public class MainActivity extends PreferenceActivity {
         alert11.show();
     }
 
+    //Tell the user how the program works (basically)
     void showWelcomeDialog() {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(Html.fromHtml(getString(R.string.instructions)));

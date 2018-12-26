@@ -63,7 +63,7 @@ public class ChangeListener {
     public static void onRunJob(final Context context, final Intent intent) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         final String mode = pref.getString("notification_mode", MODE_TRUE);
-        if (mode.equals(MODE_FALSE)) {
+        if (mode.equals(MODE_FALSE) && !intent.hasExtra("forced")) {
             return;
         }
         if (intent != null && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
@@ -103,6 +103,13 @@ public class ChangeListener {
                         doStandinsCheck(context, intent);
                         break;
                     case MODE_FALSE:
+                        try {
+                            getEkretaGrades(context, intent);
+                        } catch (JSONException je) {
+                            je.printStackTrace();
+                            Log.e(TAG, "JSON Processing error!");
+                        }
+                        doStandinsCheck(context, intent);
                         break;
 
                 }
@@ -476,7 +483,7 @@ public class ChangeListener {
             prefs.edit().putString("access_token", jObject.getString("access_token"))
                     .putLong("token_created", System.currentTimeMillis())
                     .putString("refresh_token", jObject.getString("refresh_token"))
-                    .putString("password2", "null").commit();
+                    .putString("password2", "null").putString("username", "null").commit();
             return jObject.getString("access_token");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -508,7 +515,7 @@ public class ChangeListener {
             URL url = new URL(eURL + "/mapi/api/v1/Student");
             HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
             request.addRequestProperty("Accept", "application/json");
-            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", intent.hasExtra("create_new_token")));
+            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", false));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
             request.addRequestProperty("Connection", "keep-alive");
             request.setRequestMethod("GET");
@@ -778,11 +785,6 @@ public class ChangeListener {
     }
 
     static List<Event> doEventsCheck(final Context context, Date date) {
-        final Handler showToast = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message message) {
-            }
-        };
         final String TAG = "KFGevents-check";
         Log.i(TAG, "Started");
         final SharedPreferences pref = PreferenceManager
