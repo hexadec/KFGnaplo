@@ -128,4 +128,5 @@
     <string name="login_credentials">Felhasználónév/jelszó</string>
     <string name="password">Jelszó</string>
     <string name="incorrect_class">Hibás osztály</string>
+    <string name="other_settings">További beállítások</string>
 </resources>

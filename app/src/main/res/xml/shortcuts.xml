@@ -1,7 +1,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/number_blocks"
+        android:icon="@drawable/numeric"
         android:shortcutId="table"
         android:shortcutLongLabel="@string/grades_long"
         android:shortcutShortLabel="@string/title_activity_table_view">
@@ -13,7 +13,7 @@
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/calendar_clock"
+        android:icon="@drawable/timetable"
         android:shortcutId="timetable"
         android:shortcutLongLabel="@string/timetable"
         android:shortcutShortLabel="@string/timetable">

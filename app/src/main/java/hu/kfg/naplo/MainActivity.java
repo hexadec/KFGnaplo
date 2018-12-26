@@ -57,7 +57,7 @@ public class MainActivity extends PreferenceActivity {
 
         //On Android 8.0+ (API 26, O) notification channels have to be used that are incompatible with older versions
         //Handle these changes here
-        PreferenceCategory cat = (PreferenceCategory) findPreference("main");
+        PreferenceCategory cat = (PreferenceCategory) findPreference("other");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             cat.removePreference(vibrate);
             cat.removePreference(flash);

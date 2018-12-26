@@ -3,7 +3,7 @@
     <background android:drawable="@android:color/holo_green_dark" />
     <foreground>
         <inset
-            android:drawable="@drawable/grades_launcher"
+            android:drawable="@drawable/numeric2"
             android:inset="25%" />
     </foreground>
 </adaptive-icon>
