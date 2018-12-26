@@ -32,7 +32,7 @@
     <string name="unknown_error">Karinthy Napló hiba!  Próbáld meg később!</string>
     <string name="wrong_username_not">Hibás felhasználónevet vagy jelszót adtál meg, nyisd meg az értesítést a szerkesztéshez</string>
     <string name="no_new_grade">Nincs új jegyed!</string>
-    <string name="unknown_change">Valami változás történt, talán átírtak egy jegyet?</string>
+    <string name="unknown_change">Valami változás történt, valószínűleg átírtak egy jegyet</string>
     <string name="new_grade">Új jegyet kaptál!</string>
     <string name="open">Napló</string>
     <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Ikonok: Freepik &amp; ToffeeNut&lt;br/>+ Android-Job by evernote&lt;br/>&lt;i>Nem hivatalos app!&lt;i/></string>
@@ -123,4 +123,8 @@
     <string name="hide_grades_warning">Ez a funkció néhány készüléken pl. Huawei (a kezdőképernyő hibája miatt) nem működik megfelelően. Ha teljesen eltűnik a program ikonja, töröld le, majd telepítsd újra a KFGNaplót a Google Playről!</string>
     <string name="absences">Hiányzások</string>
     <string name="toggle_light_theme">Világos/sötét téma</string>
+    <string name="no_absences">&lt;div align="center" style="text-align:center;">&#8230;&lt;br/>&lt;br/>&lt;br/>&lt;b>&lt;big>Úgy tűnik, &lt;br/>nincsenek hiányzásaid!&lt;/big>&lt;/b>&lt;/div></string>
+    <string name="login_credentials">Felhasználónév/jelszó</string>
+    <string name="password">Jelszó</string>
+    <string name="incorrect_class">Hibás osztály</string>
 </resources>

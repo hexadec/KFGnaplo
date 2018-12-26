@@ -35,10 +35,7 @@ import hu.hexadec.textsecure.Cryptography;
 
 public class ChangeListener {
 
-    private static final int NIGHTMODE_START = 2200;
-    private static final int NIGHTMODE_STOP = 600;
-    private static final long[] VIBR_PATTERN = new long[]{50, 60, 100, 70, 100, 60};
-    private static final int LED_COLOR = 0xff00FF88;
+
     static final String MODE_TEACHER = "teacher";
     static final String MODE_TRUE = "true";
     static final String MODE_STANDINS = "standins";
@@ -46,7 +43,6 @@ public class ChangeListener {
     static final String MODE_FALSE = "false";
 
     private static final String TAG = "KFGnaplo-check";
-    private static final int STANDINS_ID = 100;
 
     private static boolean running = false; //From old workaround, probably not necessary?
 
@@ -60,10 +56,6 @@ public class ChangeListener {
     static final int UNKNOWN_ERROR = -1, STD_ERROR = -1;
     static final int NETWORK_RELATED_ERROR = -2;
     static final int CREDENTIALS_ERROR = -7;
-
-    static final String CHANNEL_STANDINS = "standins";
-    static final String CHANNEL_GRADES = "grades";
-    static final String CHANNEL_NIGHT = "night";
 
     public static final String eURL = "https://klik035252001.e-kreta.hu";
     public static final String eCODE = "klik035252001";
@@ -356,7 +348,7 @@ public class ChangeListener {
             });
         } else {
             if (text.toString().length() > 5) {
-                notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
+                AppNotificationManager.notifyIfStandinsChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, classs, text.toString(), numoflessons);
             } else {
                 showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
@@ -401,86 +393,6 @@ public class ChangeListener {
         }
     }
 
-    private static void notifyIfChanged(int[] state, Context context, String url, String subjects) {
-        try {
-            setUpNotificationChannels(context);
-        } catch (Exception e) {
-            Log.e(TAG, "Error while creating channels!");
-            e.printStackTrace();
-        }
-        Intent intent = new Intent(context, TableViewActivity.class);
-        Intent main = new Intent(context, MainActivity.class);
-        Intent eintent = new Intent(Intent.ACTION_VIEW);
-        eintent.setData(Uri.parse(url));
-
-        final SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
-        boolean nightmode = pref.getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
-        String oldtext = "";
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager == null) {
-            Log.e(TAG, "NotificationManager instance is null!");
-            return;
-        }
-        if (state[0] == 0) {
-            notificationManager.cancel(1);
-            if (isNotificationVisible(context)) {
-                oldtext += '\n';
-                oldtext += pref.getString("oldtext", "");
-            }
-        }
-        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
-        PendingIntent mainIntent = PendingIntent.getActivity(context, 0, main, 0);
-        Notification.Builder n;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            n = new Notification.Builder(context, nightmode || state[0] == 1 ? CHANNEL_NIGHT : CHANNEL_GRADES);
-        } else {
-            n = new Notification.Builder(context);
-        }
-        n.setContentTitle(context.getString(R.string.app_name))
-                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new))
-                .setAutoCancel(true);
-        if (Build.VERSION.SDK_INT >= 21) {
-            n.setSmallIcon(R.drawable.number_blocks);
-        } else {
-            n.setSmallIcon(R.drawable.number_blocks_mod);
-        }
-        //.setContentIntent(pIntent)
-        if (state[1] == 1 && !nightmode) {
-            n.setVibrate(VIBR_PATTERN);
-        }
-        if (state[2] == 1 && !nightmode) {
-            n.setLights(LED_COLOR, 350, 3000);
-        }
-        if (Build.VERSION.SDK_INT >= 21) {
-            n.setVisibility(Notification.VISIBILITY_PRIVATE);
-        }
-        if (state[0] == 0) {
-            n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
-            n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
-        } else {
-            n.addAction(android.R.drawable.ic_menu_edit, context.getString(R.string.open_app), mainIntent);
-        }
-        Notification notification = new Notification.BigTextStyle(n)
-                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
-        notificationManager.notify(state[0], notification);
-        pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
-    }
-
-    private static boolean isNotificationVisible(Context context) {
-        NotificationManager nManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT < 23 || nManager == null) return false;
-        StatusBarNotification[] notifications = nManager.getActiveNotifications();
-        if (notifications.length == 0) return false;
-        for (StatusBarNotification s : notifications) {
-            if (s.getId() == 0) return true;
-        }
-        return false;
-    }
-
     private static String SHA512(byte[] data) throws Exception {
         if (data == null) throw new Exception();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -493,92 +405,6 @@ public class ChangeListener {
         return sb.toString();
     }
 
-    static void setUpNotificationChannels(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager =
-                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            //Setup standins channel
-            NotificationChannel notificationChannel =
-                    new NotificationChannel(CHANNEL_STANDINS, context.getString(R.string.standins), NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(LED_COLOR);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(VIBR_PATTERN);
-            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            notificationManager.createNotificationChannel(notificationChannel);
-
-            //Setup grades channel
-            notificationChannel =
-                    new NotificationChannel(CHANNEL_GRADES, context.getString(R.string.grades), NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(LED_COLOR);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(VIBR_PATTERN);
-            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            notificationManager.createNotificationChannel(notificationChannel);
-
-            //Setup nightmode channel
-            notificationChannel =
-                    new NotificationChannel(CHANNEL_NIGHT, context.getString(R.string.night_notifications), NotificationManager.IMPORTANCE_LOW);
-            notificationChannel.setLightColor(LED_COLOR);
-            notificationChannel.enableLights(false);
-            notificationChannel.enableVibration(false);
-            notificationChannel.setVibrationPattern(new long[]{0, 0});
-            notificationChannel.setSound(null, null);
-            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-    }
-
-    private static void notifyIfStandinsChanged(int[] state, Context context, String classs, String subjects, int numberoflessons) {
-        try {
-            setUpNotificationChannels(context);
-        } catch (Exception e) {
-            Log.e(TAG, "Error while creating channels!");
-            e.printStackTrace();
-        }
-        int time = Integer.valueOf(new SimpleDateFormat("HHmm", Locale.US).format(new Date()));
-        boolean nightmode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("nightmode", false) && (time > NIGHTMODE_START || time < NIGHTMODE_STOP);
-        Intent eintent = new Intent(Intent.ACTION_VIEW);
-        eintent.setData(Uri.parse("https://apps.karinthy.hu/helyettesites"));
-        PendingIntent epIntent = PendingIntent.getActivity(context, 0, eintent, 0);
-        Notification.Builder n;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            n = new Notification.Builder(context, state[0] != 3 && !nightmode ? CHANNEL_STANDINS : CHANNEL_NIGHT);
-        } else {
-            n = new Notification.Builder(context);
-        }
-        n.setContentTitle(context.getString(R.string.kfg_standins));
-        n.setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")");
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            n.setSmallIcon(R.drawable.ic_standins);
-        else
-            n.setSmallIcon(R.drawable.ic_standins3);
-        n.setAutoCancel(true);
-        if (state[1] == 1 && state[0] != 3 && !nightmode) {
-            n.setVibrate(VIBR_PATTERN);
-        }
-        if (state[2] == 1 && state[0] != 3 && !nightmode) {
-            n.setLights(LED_COLOR, 350, 3000);
-        }
-        if (Build.VERSION.SDK_INT >= 21) {
-            n.setVisibility(Notification.VISIBILITY_PUBLIC);
-        }
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (notificationManager == null) {
-            Log.e(TAG, "NotificationManager instance is null!");
-            return;
-        }
-        n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open_site), epIntent);
-        Notification notification = new Notification.BigTextStyle(n)
-                .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
-        notification.number = numberoflessons;
-        notificationManager.notify(STANDINS_ID, notification);
-    }
-
     static String getToken(final Context context, String username, String password, boolean forceCreate) throws Exception {
         final Handler showToast = new Handler(Looper.getMainLooper()) {
             @Override
@@ -587,6 +413,7 @@ public class ChangeListener {
         };
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        //If the access token is younger than 10 minutes, use that one
         if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && !forceCreate) {
             if (prefs.getString("access_token", null) != null) {
                 Log.d(TAG, "Using previously generated token...");
@@ -595,18 +422,24 @@ public class ChangeListener {
         }
         URL url = new URL(ChangeListener.eURL + "/idp/api/v1/Token");
 
+        String refToken = prefs.getString("refresh_token", "");
         HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
         String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
+        String postRefresh = "institute_code=" + ChangeListener.eCODE + "&refresh_token=" + refToken + "&grant_type=refresh_token&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
 
-        if (username == null || username.length() < 2 || password == null || password.length() < 2) {
-            showToast.postAtFrontOfQueue(new Runnable() {
-                public void run() {
-                    Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
-                }
-            });
-            Log.e(TAG, "No credentials");
-            notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
-            throw new IllegalAccessException("No credentials");
+        if (refToken == null || refToken.length() < 2) {
+            if (username == null || username.length() < 2 || password == null || password.length() < 2) {
+                showToast.postAtFrontOfQueue(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Log.e(TAG, "No credentials");
+                AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
+                throw new IllegalAccessException("No credentials");
+            }
+        } else if (!forceCreate){
+            post = postRefresh;
         }
 
         request.setDoOutput(true);
@@ -627,7 +460,7 @@ public class ChangeListener {
                 }
             });
             Log.e(TAG, "Invalid credentials");
-            notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
+            AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
             throw new IllegalAccessException("Invalid credentials");
         }
 
@@ -641,7 +474,9 @@ public class ChangeListener {
             JSONObject jObject = new JSONObject(sb.toString());
             request.disconnect();
             prefs.edit().putString("access_token", jObject.getString("access_token"))
-                    .putLong("token_created", System.currentTimeMillis()).commit();
+                    .putLong("token_created", System.currentTimeMillis())
+                    .putString("refresh_token", jObject.getString("refresh_token"))
+                    .putString("password2", "null").commit();
             return jObject.getString("access_token");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -659,7 +494,7 @@ public class ChangeListener {
         };
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         if (pref.getString("url", null) != null) {
-            notifyIfChanged(new int[]{2, 1, 1}, context, eURL, "");
+            AppNotificationManager.notifyIfChanged(new int[]{2, 1, 1}, context, eURL, "");
             return CREDENTIALS_ERROR;
         }
         JSONObject resultStuff;
@@ -700,7 +535,7 @@ public class ChangeListener {
 
         final List<Grade> mygrades = new ArrayList<>();
         JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");
-        Log.d(TAG, rawGrades.getJSONObject(0).toString());
+        Log.d(TAG, "Grades: " + rawGrades.length());
         for (int i = 0; i < rawGrades.length(); i++) {
             JSONObject currentItem = rawGrades.getJSONObject(i);
             SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -721,6 +556,31 @@ public class ChangeListener {
             grade.addDescription(currentItem.getString("Theme") + " - " + currentItem.getString("Mode"));
             //Log.e(TAG, grade.save_date + "--" + createTime.length());
             mygrades.add(grade);
+        }
+        //Use a separate try-block for the Absences not to affect the grade retrieval
+        final List<Absence> myabsences = new ArrayList<>();
+        try {
+            JSONArray rawAbsences = resultStuff.getJSONArray("Absences");
+            Log.d(TAG, "Absences: " + rawAbsences.length());
+            for (int i = 0; i < rawAbsences.length(); i++) {
+                JSONObject currentItem = rawAbsences.getJSONObject(i);
+                Log.e(TAG, currentItem.toString());
+                String mode = currentItem.getString("ModeName");
+                String subject = currentItem.getString("Subject");
+                String teacher = currentItem.getString("Teacher");
+                String justState = currentItem.getString("JustificationStateName");
+                String dateOfAbsence = currentItem.getString("LessonStartTime");
+                String dateOfRegister = currentItem.getString("CreatingTime");
+                byte period = (byte) currentItem.getInt("NumberOfLessons");
+                myabsences.add(new Absence(mode, subject, teacher, justState, dateOfAbsence, dateOfRegister, period));
+            }
+            AbsencesDB adb = new AbsencesDB(context);
+            adb.upgradeDatabase(myabsences);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error while retrieving absences...");
         }
         byte[] notes = new byte[1];
         try {
@@ -799,18 +659,21 @@ public class ChangeListener {
                     if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
                 }
                 text.deleteCharAt(text.length() - 2);
-                notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, text.toString());
+                AppNotificationManager.notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, text.toString());
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
                 running = false;
                 return DONE;
             } else {
                 if (!SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
                     pref.edit().putString("lastSHA", SHA512(notes)).commit();
-                    notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, context.getString(R.string.unknown_change));
+                    AppNotificationManager.notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, context.getString(R.string.unknown_change));
                     //If a grade was modified, it's easier to update the whole DB
-                    Intent intent2 = new Intent(context, ChangeListener.class);
-                    intent2.putExtra("dbupgrade", true);
-                    getEkretaGrades(context, intent);
+                    try {
+                        if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Automatically initiated update failed");
+                        e.printStackTrace();
+                    }
                     running = false;
                     return DONE;
                 } else if (intent.hasExtra("error")) {

@@ -34,7 +34,7 @@
     <string name="unknown_error">Unknown error in Karinthy Naplo!  Consider trying it again later!</string>
     <string name="wrong_username_not">You entered wrong username or password combination! Click on the notification to edit</string>
     <string name="no_new_grade">You haven\'t got a new grade!</string>
-    <string name="unknown_change">Something has changed. Maybe a grade was changed?</string>
+    <string name="unknown_change">Something has changed, most likely a grade had been corrected</string>
     <string name="new_grade">You got a new grade!</string>
     <string name="open">Open Naplo</string>
     <string name="about_text">&lt;b>Developer:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App version:&lt;/b>&lt;br/>%1$s&lt;br/>Icons by: Freepik &amp; ToffeeNut&lt;br/>Uses Android-Job by evernote&lt;br/>&lt;i>Unofficial app!&lt;i/></string>
@@ -125,5 +125,10 @@
     <string name="hide_grades_warning">This function works incorrectly on some devices (eg. Huawei). If the icon of the program disappears and you cannot open it, please remove and reinstall KFGNapló from Google Play!</string>
     <string name="absences">Absences</string>
     <string name="toggle_light_theme">Toggle light &amp; dark theme</string>
+    <string name="title_activity_absences">\@string/absences</string>
+    <string name="no_absences">&lt;div align="center" style="text-align:center;">&#8230;&lt;br/>&lt;br/>&lt;br/>&lt;b>&lt;big>It looks like &lt;br/>you have no absences!&lt;/big>&lt;/b>&lt;/div></string>
+    <string name="login_credentials">Edit username/password</string>
+    <string name="password">Password</string>
+    <string name="incorrect_class">Incorrect class</string>
 
 </resources>

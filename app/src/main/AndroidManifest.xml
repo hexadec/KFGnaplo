@@ -42,9 +42,15 @@
             android:name=".TableViewActivity"
             android:documentLaunchMode="intoExisting"
             android:icon="@mipmap/ic_launcher_grades_new"
-            android:label="@string/title_activity_table_view" />
+            android:label="@string/title_activity_table_view"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hu.kfg.naplo.MainActivity" />
+        </activity>
         <activity
             android:name=".TableRedirectActivity"
+            android:excludeFromRecents="true"
             android:icon="@mipmap/ic_launcher_grades_new"
             android:label="@string/title_activity_table_view"
             android:noHistory="true">
@@ -56,7 +62,20 @@
         </activity>
         <activity
             android:name=".TimetableActivity"
-            android:label="@string/timetable" />
+            android:label="@string/timetable"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hu.kfg.naplo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AbsencesActivity"
+            android:label="@string/absences"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hu.kfg.naplo.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -56,6 +56,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         db = new DBHelper(TableViewActivity.this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);

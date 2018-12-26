@@ -10,6 +10,9 @@
         <Preference
             android:key="timetable"
             android:title="@string/timetable" />
+        <Preference
+            android:key="absences"
+            android:title="@string/absences" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="main"
@@ -21,23 +24,22 @@
             android:key="notification_mode"
             android:summary="%s"
             android:title="@string/mode" />
-        <EditTextPreference
+        <!--EditTextPreference
             android:key="username"
             android:summary="@string/credentials_sum"
-            android:title="@string/username" />
-        <EditTextPreference
+            android:title="@string/username" /-->
+        <!--EditTextPreference
             android:key="class"
             android:singleLine="true"
             android:summary="@string/yourclass_sum"
-            android:title="@string/yourclass" />
-        <!--EditTextPreference
-            android:key="ignore_lessons"
-            android:summary="@string/ignore_sum"
-            android:title="@string/ignore" /-->
+            android:title="@string/yourclass" /-->
+        <Preference
+            android:key="common_settings"
+            android:title="@string/login_credentials" />
         <CheckBoxPreference
             android:key="timetable_autoignore"
-            android:title="@string/autoignore"
-            android:summary="@string/autoignore_sum" />
+            android:summary="@string/autoignore_sum"
+            android:title="@string/autoignore" />
         <ListPreference
             android:defaultValue="300"
             android:entries="@array/check_interval"

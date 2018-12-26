@@ -40,19 +40,14 @@ public class MainActivity extends PreferenceActivity {
         final Preference nstandins = findPreference("not_standins");
         final Preference nightmode = findPreference("nightmode");
         final Preference open_in_browser = findPreference("open_in_browser");
-        //final Preference ignore = findPreference("ignore_lessons");
         final Preference grades = findPreference("grades");
         final Preference timetable = findPreference("timetable");
         final Preference autoignore = findPreference("timetable_autoignore");
-        final EditTextPreference username = (EditTextPreference) findPreference("username");
+        final Preference absences = findPreference("absences");
+        final Preference common = findPreference("common_settings");
         final ListPreference notification_mode = (ListPreference) findPreference("notification_mode");
-        final EditTextPreference clas = (EditTextPreference) findPreference("class");
         final SwitchPreference lightTheme = (SwitchPreference) findPreference("light_theme_mode");
 
-
-        if (username.getText() != null && username.getText().length() >= 1) {
-            username.setTitle(getString(R.string.username) + ": " + username.getText());
-        }
 
         if (prefs.getString("url", null) != null) {
             new DBHelper(MainActivity.this).cleanDatabase();
@@ -64,7 +59,7 @@ public class MainActivity extends PreferenceActivity {
             cat.removePreference(vibrate);
             cat.removePreference(flash);
             try {
-                ChangeListener.setUpNotificationChannels(this);
+                AppNotificationManager.setUpNotificationChannels(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,7 +67,7 @@ public class MainActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
-                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, ChangeListener.CHANNEL_GRADES);
+                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, AppNotificationManager.CHANNEL_GRADES);
                     intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
                     startActivity(intent);
                     return true;
@@ -82,7 +77,7 @@ public class MainActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
-                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, ChangeListener.CHANNEL_STANDINS);
+                    intent.putExtra(Settings.EXTRA_CHANNEL_ID, AppNotificationManager.CHANNEL_STANDINS);
                     intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
                     startActivity(intent);
                     return true;
@@ -127,48 +122,28 @@ public class MainActivity extends PreferenceActivity {
                 flash.setEnabled(false);
                 manual_check.setEnabled(false);
                 nightmode.setEnabled(false);
-                clas.setEnabled(false);
-                //url.setEnabled(false);
                 autoignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 nstandins.setEnabled(false);
-                username.setEnabled(false);
                 JobManager.instance().cancelAll();
                 break;
             case ChangeListener.MODE_NAPLO:
-                clas.setEnabled(false);
                 autoignore.setEnabled(false);
                 nstandins.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_TEACHER:
-                clas.getEditText().setFilters(new InputFilter[]{teacherFilter});
-                clas.setSummary(R.string.teacher_hint);
-                clas.setTitle(R.string.teacher_name);
-                clas.getEditText().setHint("9.AK / 12.IB");
-//                url.setEnabled(false);
                 autoignore.setEnabled(false);
                 ngrades.setEnabled(false);
                 grades.setEnabled(false);
                 timetable.setEnabled(false);
-                username.setEnabled(false);
                 CheckerJob.scheduleJob();
                 break;
             case ChangeListener.MODE_STANDINS:
-//                url.setEnabled(false);
                 autoignore.setEnabled(false);
-                username.setEnabled(false);
                 ngrades.setEnabled(false);
             default:
-                clas.getEditText().setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                clas.getEditText().setFilters(new InputFilter[]{classFilter, new InputFilter.LengthFilter(5)});
-                clas.setSummary(R.string.yourclass_sum);
-                clas.setTitle(R.string.yourclass);
-                clas.getEditText().setHint("9.AK / 12.IB");
                 CheckerJob.scheduleJob();
-        }
-        if (clas.getText() != null && clas.getText().length() > 2) {
-            clas.setSummary(clas.getText());
         }
 
         if (!prefs.getBoolean("inst_kreta", false) && !Intent.ACTION_SEND.equals(getIntent().getAction())) {
@@ -192,6 +167,18 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
+        absences.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(MainActivity.this, AbsencesActivity.class);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                }
+                startActivity(intent);
+                return false;
+            }
+        });
+
         manual_check.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference pref) {
                 ConnectivityManager cm =
@@ -207,19 +194,24 @@ public class MainActivity extends PreferenceActivity {
                     Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_SHORT).show();
                     return true;
                 }
+                String clas = prefs.getString("class", "null");
+                String username = prefs.getString("username", "null");
+                String refresh_token = prefs.getString("refresh_token", "null");
                 String password = null;
                 String password_crypt = prefs.getString("password2", null);
                 if (password_crypt != null && password_crypt.length() >= 4) {
                     Cryptography cr = new Cryptography();
-                    password = cr.cryptThreedog(password_crypt, true, username.getText());
+                    password = cr.cryptThreedog(password_crypt, true, username);
                 }
-                if ((username.getText() == null || username.getText().length() < 2 || password == null || password.length() < 2)
+                if (refresh_token == null || refresh_token.length() < 2) {
+                    if ((username == null || username.length() < 2 || password == null || password.length() < 2)
                         && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
-                    Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
-                    return true;
+                        Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                        return true;
 
+                    }
                 }
-                if ((clas.getText() == null || clas.getText().length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
+                if ((clas == null || clas.length() < CLASS_MIN_LENGTH) && (notification_mode.getValue().equals("standins") || notification_mode.getValue().equals("true"))) {
                     Toast.makeText(MainActivity.this, R.string.insert_class, Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -231,7 +223,89 @@ public class MainActivity extends PreferenceActivity {
             }
         });
 
-        clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        common.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle(R.string.login_credentials);
+                dialog.setNegativeButton(R.string.cancel, null);
+                dialog.setPositiveButton("Ok", null);
+                LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+                final LinearLayout view = (LinearLayout) layoutInflater.inflate(R.layout.login_dialog, null, false);
+                dialog.setView(view);
+                final AlertDialog d = dialog.create();
+                try {
+                    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                final EditText passwordField = view.findViewById(R.id.passwordField);
+                final EditText usernameField = view.findViewById(R.id.usernameField);
+                final EditText classField = view.findViewById(R.id.classField);
+                if (notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                    passwordField.setEnabled(false);
+                    usernameField.setEnabled(false);
+                    classField.setFilters(new InputFilter[]{teacherFilter});
+                    ((TextView) view.findViewById(R.id.textView3)).setText(R.string.teacher_name);
+                } else {
+                    classField.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    classField.setFilters(new InputFilter[]{classFilter, new InputFilter.LengthFilter(5)});
+                    classField.setHint("9.AK / 12.IB");
+                }
+                classField.setText(prefs.getString("class", ""));
+                d.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        Button action = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                        action.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final String cls = classField.getText().toString();
+                                final String uname = usernameField.getText().toString();
+                                final String pwd = passwordField.getText().toString();
+                                if ((cls.length() < 2 || !cls.contains(".")) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                    Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
+                                    return;
+                                } else if ((uname.length() < 3 || pwd.length() < 3) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                    Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                prefs.edit().putString("class", cls).commit();
+                                Thread t = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            String token = ChangeListener.getToken(MainActivity.this, uname, pwd, true);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                t.start();
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+                d.show();
+                AlertDialog.Builder warnPw = new AlertDialog.Builder(MainActivity.this);
+                warnPw.setMessage(R.string.change_password);
+                warnPw.setIcon(android.R.drawable.ic_dialog_alert);
+                warnPw.setTitle(R.string.warning);
+                warnPw.setPositiveButton("OK", null);
+                warnPw.setCancelable(false);
+                warnPw.show();
+                return false;
+            }
+        });
+
+        /*clas.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref, Object obj) {
                 String mode = prefs.getString("notification_mode", ChangeListener.MODE_FALSE);
                 if (((String) obj).length() < 3 || (!((String) obj).contains(".") && !mode.equals(ChangeListener.MODE_TEACHER))) {
@@ -242,49 +316,7 @@ public class MainActivity extends PreferenceActivity {
                 }
                 return true;
             }
-        });
-
-        username.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                final String uname = (String) newValue;
-                if (uname == null || uname.length() <= 1) {
-                    grades.setEnabled(false);
-                    return false;
-                }
-                if (!uname.equals(username.getText())) {
-                    prefs.edit().remove("access_token").commit();
-                }
-                preference.setTitle(getString(R.string.username) + ": " + uname);
-                final EditText pwdfield = new EditText(MainActivity.this);
-                pwdfield.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                AlertDialog.Builder ad = new AlertDialog.Builder(MainActivity.this);
-                ad.setTitle(R.string.enter_pwd);
-                ad.setView(pwdfield);
-                ad.setPositiveButton(R.string.save_pwd, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prefs.edit().putString("password2", new Cryptography().cryptThreedog(pwdfield.getText().toString(), false, uname)).commit();
-                    }
-                });
-                AlertDialog dialog = ad.create();
-                try {
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-                dialog.show();
-                AlertDialog.Builder warnPw = new AlertDialog.Builder(MainActivity.this);
-                warnPw.setMessage(R.string.change_password);
-                warnPw.setIcon(android.R.drawable.ic_dialog_alert);
-                warnPw.setTitle(R.string.warning);
-                warnPw.setPositiveButton("OK", null);
-                warnPw.setCancelable(false);
-                warnPw.show();
-                grades.setEnabled(true);
-                return true;
-            }
-        });
+        });*/
 
         lightTheme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -419,10 +451,15 @@ public class MainActivity extends PreferenceActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent battOpt = new Intent();
                         battOpt.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                        if (battOpt.resolveActivity(getPackageManager()) == null) {
+                        try {
+                            if (battOpt.resolveActivity(getPackageManager()) == null) {
+                                Toast.makeText(MainActivity.this, R.string.battery_opt_err, Toast.LENGTH_LONG).show();
+                            } else {
+                                startActivity(battOpt);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                             Toast.makeText(MainActivity.this, R.string.battery_opt_err, Toast.LENGTH_LONG).show();
-                        } else {
-                            startActivity(battOpt);
                         }
                     }
                 }, preferences);

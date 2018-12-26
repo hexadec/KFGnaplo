@@ -60,6 +60,7 @@ public class TimetableActivity extends Activity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         currentDateShown = new Date();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd, EEEE", Locale.getDefault());
         db = new TimetableDB(this);
