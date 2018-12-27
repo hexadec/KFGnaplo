@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -42,7 +41,7 @@ import java.util.Locale;
 
 public class TableViewActivity extends Activity implements View.OnClickListener {
 
-    DBHelper db;
+    GradesDB db;
     int upgraderesult = 0;
     int VIEW_HEIGHT = 30;
     boolean lightmode = false;
@@ -57,7 +56,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_table_view);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        db = new DBHelper(TableViewActivity.this);
+        db = new GradesDB(TableViewActivity.this);
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {
@@ -65,7 +64,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         }
     }
 
-    void doStuff(final DBHelper db) {
+    void doStuff(final GradesDB db) {
         final TableLayout table = findViewById(R.id.table);
         runOnUiThread(new Runnable() {
             @Override
@@ -227,7 +226,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
     }
 
-    void updateDatabase(final DBHelper db) {
+    void updateDatabase(final GradesDB db) {
         if (PreferenceManager.getDefaultSharedPreferences(TableViewActivity.this).getString("password2", "").length() <= 1) {
             Toast t = Toast.makeText(TableViewActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
             t.setGravity(Gravity.CENTER, 0, 0);

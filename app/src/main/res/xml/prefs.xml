@@ -5,7 +5,6 @@
         android:title="@string/table">
         <Preference
             android:key="grades"
-            android:summary="@string/grades_expl"
             android:title="@string/title_activity_table_view"
             android:icon="@drawable/numeric"/>
         <Preference
@@ -20,6 +19,10 @@
     <PreferenceCategory
         android:key="main"
         android:title="@string/settings">
+        <Preference
+            android:key="common_settings"
+            android:title="@string/login_credentials"
+            android:icon="@drawable/pencil_lock"/>
         <ListPreference
             android:defaultValue="true"
             android:entries="@array/notification_mode"
@@ -28,10 +31,6 @@
             android:summary="%s"
             android:title="@string/mode"
             android:icon="@drawable/bell_ring"/>
-        <Preference
-            android:key="common_settings"
-            android:title="@string/login_credentials"
-            android:icon="@drawable/pencil_lock"/>
         <ListPreference
             android:defaultValue="300"
             android:entries="@array/check_interval"

@@ -5,23 +5,17 @@ import android.preference.*;
 
 import android.net.*;
 import android.os.*;
-import android.service.notification.StatusBarNotification;
 import android.text.Html;
 import android.util.*;
 
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAdjuster;
 import java.util.*;
 import java.io.*;
 
 import android.widget.*;
-import android.app.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -224,7 +218,6 @@ public class ChangeListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(TAG, ilessons.size() + " <-- size of ignore");
         int day = 0;
         List<Substitution> subs = new ArrayList<>();
         String tomorrowFormat = "";
@@ -266,7 +259,6 @@ public class ChangeListener {
                     try {
                         period = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                     } catch (Exception e) {
-                        Log.d(TAG, "No lesson specified");
                     }
                     sub.setTime(period, day == 1);
                 }
@@ -275,7 +267,6 @@ public class ChangeListener {
                     try {
                         room = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
                     } catch (Exception e) {
-                        Log.d(TAG, "No room specified!");
                     }
                     sub.setRoom(room);
                 }
@@ -337,8 +328,6 @@ public class ChangeListener {
                         if (!autoignore || isRelevant(sub, sub.isToday() ? lessonsToday : lessonsTomorrow)) {
                             text.append("\n");
                             text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
-                        } else {
-                            Log.i(TAG, "Irrelevant substitution");
                         }
                         //Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
                         numoflessons++;
@@ -369,7 +358,7 @@ public class ChangeListener {
 
     private static boolean isRelevant(Substitution substitution, List<Lesson> lessons) {
         try {
-            Log.i(TAG, substitution.toString("DDPP-SS:MT->TE C9"));
+            //Log.i(TAG, substitution.toString("DDPP-SS:MT->TE C9"));
             if (lessons == null || lessons.size() == 0) {
                 Log.i(TAG, "No lessons on day: ?");
                 return true; //Since we don't know if an error occurred, or no lessons
@@ -571,7 +560,6 @@ public class ChangeListener {
             Log.d(TAG, "Absences: " + rawAbsences.length());
             for (int i = 0; i < rawAbsences.length(); i++) {
                 JSONObject currentItem = rawAbsences.getJSONObject(i);
-                Log.e(TAG, currentItem.toString());
                 String mode = currentItem.getString("ModeName");
                 String subject = currentItem.getString("Subject");
                 String teacher = currentItem.getString("Teacher");
@@ -610,15 +598,14 @@ public class ChangeListener {
                 e.printStackTrace();
             }
             if (mygrades.size() < 1) {
-                new DBHelper(context).cleanDatabase();
+                new GradesDB(context).cleanDatabase();
                 return DB_EMPTY;
             }
-            if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
+            if (new GradesDB(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
             else return UPGRADE_FAILED;
         }
         try {
             if (resultStuff.toString().length() < 300) {
-                Log.w(TAG, rawGrades.toString());
                 throw new Exception("Content too small \nLength: " + resultStuff.toString().length());
             }
             if (mygrades.size() == 0) throw new IndexOutOfBoundsException("No grades!");
@@ -632,7 +619,7 @@ public class ChangeListener {
                     }
                 });
             }
-            new DBHelper(context).cleanDatabase();
+            new GradesDB(context).cleanDatabase();
             return DB_EMPTY;
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
@@ -659,7 +646,7 @@ public class ChangeListener {
             if (rawGrades.length() - numofnotes > 0 && !SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
                 int i = rawGrades.length() - numofnotes;
                 StringBuilder text = new StringBuilder();
-                DBHelper db1 = new DBHelper(context);
+                GradesDB db1 = new GradesDB(context);
                 for (int i2 = 0; i2 < i; i2++) {
                     text.append(mygrades.get(i2).getNotificationFormat());
                     text.append(", \n");
@@ -676,7 +663,7 @@ public class ChangeListener {
                     AppNotificationManager.notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, context.getString(R.string.unknown_change));
                     //If a grade was modified, it's easier to update the whole DB
                     try {
-                        if (new DBHelper(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
+                        if (new GradesDB(context).upgradeDatabase(mygrades)) return UPGRADE_DONE;
                     } catch (Exception e) {
                         Log.e(TAG, "Automatically initiated update failed");
                         e.printStackTrace();
@@ -750,8 +737,6 @@ public class ChangeListener {
             return UNKNOWN_ERROR;
         }
 
-        //List<Lesson> mylessons = new ArrayList<>();
-        Log.d(TAG, resultStuff.toString());
         TimetableDB db = new TimetableDB(context);
         if (removeExisting) db.cleanDatabase();
         try {
@@ -814,7 +799,6 @@ public class ChangeListener {
             //NOTE the special space (nbsp??) between month & day!!!
             SimpleDateFormat monthDay = new SimpleDateFormat("yyyy-MMMM dd", new Locale("hu"));
             SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            Log.i(TAG, "Reading from output");
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
                 if (!line.contains("Date")) {
@@ -838,7 +822,6 @@ public class ChangeListener {
                     endDate = startDate;
                 }
                 events.add(new Event(tempInfo, startDate, endDate));
-                Log.i(TAG, "Event added");
 
             }
             reader.close();

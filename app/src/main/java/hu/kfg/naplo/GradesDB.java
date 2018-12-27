@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class DBHelper extends SQLiteOpenHelper {
+public class GradesDB extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Grades.db";
     private static final String GRADES_TABLE_NAME= "grades";
@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String GRADES_COLUMN_TEACHER = "teacher";
     private static final String GRADES_COLUMN_WEIGHTED = "weighted";
 
-    DBHelper(Context context) {
+    GradesDB(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 

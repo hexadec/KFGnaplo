@@ -13,6 +13,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.Display;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -79,7 +80,6 @@ public class AbsencesActivity extends Activity {
         }
         TableLayout table = findViewById(R.id.absencestable);
         table.removeAllViews();
-        table.setMeasureWithLargestChildEnabled(true);
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -92,13 +92,14 @@ public class AbsencesActivity extends Activity {
         background.setStroke(3, strokeColor);
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});
         layerDrawable.setLayerInset(0, -3, -3, -3, 0);
-        for (Date date : dates) {
+        for (int i = 0; i < dates.size(); i++) {
+            Date date = dates.get(i);
             List<Absence> absences = db.getAbsencesOnDay(date);
             final TableRow row2 = new TableRow(AbsencesActivity.this);
             row2.setLayoutParams(lp);
             TextView lView2 = new TextView(AbsencesActivity.this);
             lView2.setMinWidth((int) (size.x / 1.1));
-            lView2.setText(Html.fromHtml("<big><u><b>" + this.date.format(date)));
+            lView2.setText(Html.fromHtml((i > 0 ? "<br/>" : "") + "<div style=\"text-align:center;\"><big><big><u><b>" + this.date.format(date) + "</b></u></big></big>"));
             row2.addView(lView2);
             table.addView(row2);
             for (Absence absence : absences) {
@@ -112,6 +113,7 @@ public class AbsencesActivity extends Activity {
                 table.addView(row);
             }
         }
+        Log.e("Test", "" + ((ScrollView) findViewById(R.id.absences_scrollview)).getChildCount());
         if (dates == null || dates.size() == 0) {
             final TableRow row = new TableRow(AbsencesActivity.this);
             row.setLayoutParams(lp);

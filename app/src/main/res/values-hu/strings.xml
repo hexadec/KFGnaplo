@@ -12,14 +12,10 @@
     <b>ÉÉÉÉ-HH-NN</b> vagy <b>ÉÉÉÉHHNN</b> formátumban<br/>
     2. Ha van hálózat, pár pillanaton belül visszajelzést kapsz<br/>
     3. Ha hibás a felhasználóneved vagy jelszavat, ismételd meg az 1-2 lépéseket!]]></string>
-    <string name="insert_code">Másold be a GYIA linket!</string>
     <string name="click2edit">Kattints ide a szerkesztéshez</string>
-    <string name="copythelink">Másold be a GYIA kódban található linket! (Katt ide)</string>
-    <string name="invalid_url">Érvénytelen URL!</string>
     <string name="checking_now">Ellenőrzés…</string>
     <string name="no_network_conn">Nincs internetkapcsolat!</string>
     <string name="about">Névjegy</string>
-    <string name="enable_notifications">Értesítések engedélyezése</string>
     <string name="interval">Változások ellenőrzése</string>
     <string name="vibrate">Rezgő értesítés</string>
     <string name="light">Villogás értesítéskor</string>
@@ -29,7 +25,7 @@
     <string name="browser">E-Kréta megnyitása a böngészőben</string>
     <string name="find_changes_now">Változások keresése most</string>
     <string name="cannot_reach_site">Nem érhető el a \"Napló\" oldal!</string>
-    <string name="unknown_error">Karinthy Napló hiba!  Próbáld meg később!</string>
+    <string name="unknown_error">Ismeretlen hiba!  Próbáld meg később!</string>
     <string name="wrong_username_not">Hibás felhasználónevet vagy jelszót adtál meg, nyisd meg az értesítést a szerkesztéshez</string>
     <string name="no_new_grade">Nincs új jegyed!</string>
     <string name="unknown_change">Valami változás történt, valószínűleg átírtak egy jegyet</string>
@@ -38,7 +34,6 @@
     <string name="about_text">&lt;b>Fejlesztő:&lt;/b>&lt;br/>Cseh András&lt;br/>&lt;b>App verziója:&lt;/b>&lt;br/>%1$s&lt;br/>Ikonok: Freepik &amp; ToffeeNut&lt;br/>+ Android-Job by evernote&lt;br/>&lt;i>Nem hivatalos app!&lt;i/></string>
     <string name="error_no_grades">Nincs egy jegyed sem! Ha szerinted van, próbáld újra később!</string>
     <string name="title_activity_table_view">Jegyeim</string>
-    <string name="update_grades"><![CDATA[Frissíted a jegyeket?<br/>(Nincsen automatikus frissítés a háttérben!)]]></string>
     <string name="update">Frissítés</string>
     <string name="not_now">Most nem</string>
     <string name="upgrading">Frissítés, kérlek várj…</string>
@@ -60,25 +55,17 @@
     <string name="battery_opt">Ahhoz hogy a Karinty Napló rendesen működhessen, add hozzá a NEM OPTIMALIZÁLT, ENGEDÉLYEZETTEK vagy VÉDETTEK listájához</string>
     <string name="battery_opt_err">Jaj ne! Meg kell nyitnod a beállításokat és kézzel hozzáadnod a Karinthy Naplót az engedélyezettek listájához :(</string>
     <string name="battery_opt_err_huawei">Jaj ne! Meg kell nyitnod a beállításokat és kézzel hozzáadnod a Karinthy Naplót a védett alkalmazások listájához :(</string>
-    <string name="no_new_substitution">Nincs új helyettesítés az osztályodban!</string>
-    <string name="new_substitution">Új helyettesítés az osztályodban!</string>
-    <string name="substitution_canceled">Valamelyik helyettesítésed mégis meg lesz tartva!</string>
-    <string name="substitution_canceled_and_new">Lesz helyettesítésed, de valamelyik órád mégis meg lesz tartva!</string>
     <string name="open_site">Megnyitás</string>
     <string name="yourclass">Osztály: </string>
-    <string name="yourclass_sum">HELYETTESÍTÉSEK: Írd be az osztályodat (nagybetűkkel) pl. 9.AK/10.A</string>
     <string name="mode">Értesítések</string>
     <string name="standins">Helyettesítések</string>
     <string name="grades">Jegyek</string>
-    <string name="ignore">Órák figyelmen kívül hagyása</string>
-    <string name="ignore_sum">HELYETTESÍTÉSEK: Írd be azokat az órákat vesszővel elválasztva, amikről nem szeretnél értesítést kapni (pl. földrajz,német,orosz)</string>
     <string name="open_standins">Helyettesítések oldal megnyitása</string>
     <string name="lyukasora">LYUKASÓRA</string>
     <string name="next_time">Mutasd máskor is</string>
     <string name="hide_forever">Nem érdekel</string>
     <string name="insert_class">Írd be az osztályodat! (nagybetűkkel)</string>
-    <string name="teacher">Helyettesítés - tanári</string>
-    <string name="teacher_hint">Helyettesítés - tanári: Írja be ide a nevét. Ha a táblára többféleképp is fel szokott kerülni, írja be azokat a neveket vesszővel elválasztva (erősen ajánlott!)</string>
+    <string name="teacher_hint">Ha a táblára többféleképp is fel szokott kerülni, írja be azokat a neveket vesszővel elválasztva (erősen ajánlott!)</string>
     <string name="teacher_name">Tanár neve: </string>
     <string name="no_new_substitution2">Nincs új helyettesítésed!</string>
     <string name="new_substitution2">Új helyettesítésed van!</string>
@@ -86,16 +73,12 @@
     <string name="battery_opt_err_huawei_26">Ajaj, ez nem működött :(. Nyisd meg a beállításokat, majd Akkumulátor->Indítás, és a KFGapp-ot állítsd kézi kezelésre, de az összes többi dobozt hagyd engedélyezve!</string>
     <string name="battery_opt_vendor_specific">A készüléked gyártója módosította az eredeti Android rendszert, lehetetlenné téve számos appnak a háttérben futást. Ahhoz hogy a KFGapp normálisan működhessen add hozzá a kivételek listájához a következő képernyőn (vélhetően a kevesebb alkalmazást tartalmazó lista)</string>
     <string name="battery_opt_err_vendor_specific">Jaj ne, ez nem működött :(. Nyisd meg a Beállítások vagy Készülékkezelő alkalmazást és keresd meg a megfelelő beállításokat. Amennyiben nem találod, a KFGapp vélhetően nem fog működni :(</string>
-    <string name="url_updated">A Napló (GYIA) link frissítve!</string>
-    <string name="only_gyia_url">A KFGapp csak GYIA linkeket tud megnyitni! \nEzek tartalmazzák a "view=v_slip" szöveget!</string>
     <string name="night_notifications">Éjszakai értesítések</string>
     <string name="ngrades">Jegyek értesítései</string>
     <string name="ngrades_sum">Ide kattintva beállíthatod hogyan jelezze az új jegyeket (pl. rezgéssel, hanggal, villogással)</string>
     <string name="nstandins">Helyettesítések értesítései</string>
     <string name="nstandins_sum">Ide kattintva beállíthatod hogyan jelezze az új helyettesítéseket (pl. rezgéssel, hanggal, villogással)</string>
     <string name="settings">Beállítások</string>
-    <string name="import_gyia">GYIA kód importálása a KFGapp-ba</string>
-    <string name="override_gyia">Biztos vagy benne hogy importálod a GYIA kódot és felülírod az előzőt?</string>
     <string name="cancel">Mégsem</string>
     <string name="credentials_sum">Kattints ide a módosításhoz! A felhasználóneved az OM-azonosítód és a jelszavad a születési dátumod alapértelmezetten</string>
     <string name="enter_pwd">Írd be a jelszavad</string>

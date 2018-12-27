@@ -51,7 +51,7 @@ public class MainActivity extends PreferenceActivity {
 
 
         if (prefs.getString("url", null) != null) {
-            new DBHelper(MainActivity.this).cleanDatabase();
+            new GradesDB(MainActivity.this).cleanDatabase();
             prefs.edit().remove("url").commit();
         }
 
@@ -270,7 +270,7 @@ public class MainActivity extends PreferenceActivity {
                 } else {
                     classField.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                     classField.setFilters(new InputFilter[]{classFilter, new InputFilter.LengthFilter(5)});
-                    classField.setHint("9.AK / 12.IB");
+                    classField.setHint("9.AK / 12.IB / 11.D");
                 }
                 classField.setText(prefs.getString("class", ""));
                 d.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -300,10 +300,20 @@ public class MainActivity extends PreferenceActivity {
                                 final String cls = classField.getText().toString();
                                 final String uname = usernameField.getText().toString();
                                 final String pwd = passwordField.getText().toString();
-                                if ((cls.length() < CLASS_MIN_LENGTH || !cls.contains(".")) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                if (notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                    if (cls.length() > 3) {
+                                        prefs.edit().putString("class", cls).commit();
+                                    } else {
+                                        Toast t = Toast.makeText(MainActivity.this, R.string.teacher_hint, Toast.LENGTH_LONG);
+                                        t.setGravity(Gravity.CENTER, 0, 0);
+                                        t.show();
+                                    }
+                                    return;
+                                }
+                                if ((cls.length() < CLASS_MIN_LENGTH || !cls.contains("."))) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
                                     return;
-                                } else if ((uname.length() < 3 || pwd.length() < 3) && !notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                                } else if ((uname.length() < 3 || pwd.length() < 3)) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                                     return;
                                 }
@@ -348,6 +358,9 @@ public class MainActivity extends PreferenceActivity {
                                                 t.show();
                                             }
                                         });
+                                        new AbsencesDB(MainActivity.this).cleanDatabase();
+                                        new GradesDB(MainActivity.this).cleanDatabase();
+                                        new TimetableDB(MainActivity.this).cleanDatabase();
                                     }
                                 });
                                 t.start();
@@ -357,13 +370,19 @@ public class MainActivity extends PreferenceActivity {
                     }
                 });
                 d.show();
-                AlertDialog.Builder warnPw = new AlertDialog.Builder(MainActivity.this);
-                warnPw.setMessage(R.string.change_password);
-                warnPw.setIcon(android.R.drawable.ic_dialog_alert);
-                warnPw.setTitle(R.string.warning);
-                warnPw.setPositiveButton("OK", null);
-                warnPw.setCancelable(false);
-                warnPw.show();
+                if (notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                    Toast t = Toast.makeText(MainActivity.this, R.string.teacher_hint, Toast.LENGTH_LONG);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
+                } else {
+                    AlertDialog.Builder warnPw = new AlertDialog.Builder(MainActivity.this);
+                    warnPw.setMessage(R.string.change_password);
+                    warnPw.setIcon(android.R.drawable.ic_dialog_alert);
+                    warnPw.setTitle(R.string.warning);
+                    warnPw.setPositiveButton("OK", null);
+                    warnPw.setCancelable(false);
+                    warnPw.show();
+                }
                 return false;
             }
         });

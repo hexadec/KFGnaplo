@@ -74,7 +74,7 @@ public class AbsencesDB extends SQLiteOpenHelper {
     ArrayList<Date> getDates() {
         ArrayList<Date> array_list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("SELECT DISTINCT " + ABSENCES_COLUMN_ABSENCE + " FROM " + ABSENCES_TABLE_NAME + " ORDER BY " + ABSENCES_COLUMN_ABSENCE, null);
+        Cursor res = db.rawQuery("SELECT DISTINCT " + ABSENCES_COLUMN_ABSENCE + " FROM " + ABSENCES_TABLE_NAME + " ORDER BY " + ABSENCES_COLUMN_ABSENCE + " DESC", null);
         res.moveToFirst();
 
         while (!res.isAfterLast()) {
