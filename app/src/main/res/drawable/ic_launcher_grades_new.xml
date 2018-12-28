@@ -1,15 +1,15 @@
 <!-- drawable/numeric.xml -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:bottom="3dp"
-        android:left="3dp"
-        android:right="3dp"
-        android:top="3dp">
+        android:bottom="1dp"
+        android:left="2dp"
+        android:right="1dp"
+        android:top="2dp">
         <shape>
-            <solid android:color="#446600" />
+            <solid android:color="#334d00" />
             <stroke
                 android:width="2dp"
-                android:color="#446600" />
+                android:color="#334d00" />
             <corners android:radius="8dp" />
             <padding
                 android:bottom="0dp"
@@ -19,14 +19,14 @@
         </shape>
     </item>
     <item
-        android:bottom="5dp"
-        android:left="3dp"
-        android:right="5dp"
-        android:top="3dp">
+        android:bottom="3dp"
+        android:left="1dp"
+        android:right="3dp"
+        android:top="1dp">
         <shape>
-            <solid android:color="#088A08" />
+            <solid android:color="#077807" />
             <stroke
-                android:width="2dp"
+                android:width="2.4dp"
                 android:color="#B18904" />
             <corners android:radius="8dp" />
             <padding
@@ -42,8 +42,8 @@
         android:right="5dp"
         android:top="3dp">
         <vector
-            android:width="24dp"
-            android:height="24dp"
+            android:width="72dp"
+            android:height="72dp"
             android:viewportHeight="24"
             android:viewportWidth="24">
             <path

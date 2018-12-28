@@ -93,7 +93,7 @@ public class TimetableActivity extends Activity {
                 }
                 if (Integer.valueOf(smd.format(cal.getTime())) > Integer.valueOf(smd.format(eventsDB.getMaxYear()))) {
                     Log.i("Timetable-events", "Downloading events for next year");
-                    if (new Date().after(eventsDB.getMaxYear())) {
+                    if (Integer.valueOf(smd.format(new Date())) >= (cal.get(Calendar.YEAR))) {
                         events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
                     } else {
                         events = ChangeListener.doEventsCheck(TimetableActivity.this, new Date());
@@ -307,12 +307,12 @@ public class TimetableActivity extends Activity {
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDateShown);
         cal.add(Calendar.DAY_OF_WEEK, -1);
-        Log.i("Events", " " + events.size());
+        //Log.i("Events", " " + events.size());
         for (Event e : events) {
             if (e.getStart().before(currentDateShown) && e.getEnd().after(cal.getTime())
                     || dateFormat.format(e.getStart()).equals(dateFormat.format(currentDateShown))) {
                 toShow += e.getName();
-                Log.i("I", e.toString());
+                Log.i("I", e.getStart() + "/" + e.getEnd());
             }
         }
         if (lightmode) {

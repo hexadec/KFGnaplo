@@ -42,7 +42,6 @@
     <string name="ohno">Jaj, ne! Valami hiba történt!</string>
     <string name="average">Átl.</string>
     <string name="refresh">Adatok frissítése</string>
-    <string name="job_name">Feladatütemező</string>
     <string name="table">Táblázatok</string>
     <string name="grades_expl">Tantárgyak szerint, átlagokkal, kattints a jegyekre részletekhez</string>
     <string name="grades_long">Jegyek táblázatban, tantárgyak szerint rendezve</string>
@@ -75,14 +74,13 @@
     <string name="battery_opt_err_vendor_specific">Jaj ne, ez nem működött :(. Nyisd meg a Beállítások vagy Készülékkezelő alkalmazást és keresd meg a megfelelő beállításokat. Amennyiben nem találod, a KFGapp vélhetően nem fog működni :(</string>
     <string name="night_notifications">Éjszakai értesítések</string>
     <string name="ngrades">Jegyek értesítései</string>
-    <string name="ngrades_sum">Ide kattintva beállíthatod hogyan jelezze az új jegyeket (pl. rezgéssel, hanggal, villogással)</string>
+    <string name="ngrades_sum">Rezgés, hangjelzés, villogás?</string>
     <string name="nstandins">Helyettesítések értesítései</string>
-    <string name="nstandins_sum">Ide kattintva beállíthatod hogyan jelezze az új helyettesítéseket (pl. rezgéssel, hanggal, villogással)</string>
+    <string name="nstandins_sum">Rezgés, hangjelzés, villogás?</string>
     <string name="settings">Beállítások</string>
     <string name="cancel">Mégsem</string>
     <string name="credentials_sum">Kattints ide a módosításhoz! A felhasználóneved az OM-azonosítód és a jelszavad a születési dátumod alapértelmezetten</string>
     <string name="enter_pwd">Írd be a jelszavad</string>
-    <string name="save_pwd">Jelszó mentése</string>
     <string name="username">Felhasználónév</string>
     <string name="incorrect_credentials">EKréta: Hibás felhasználónév vagy jelszó!</string>
     <string name="correct_credentials">Bejelentkezési adatok elfogadva!</string>
@@ -112,4 +110,5 @@
     <string name="password">Jelszó</string>
     <string name="incorrect_class">Hibás osztály</string>
     <string name="other_settings">További beállítások</string>
+    <string name="empty_absences">Úgy tűnik, egyáltalán nincsenek hiányzásaid…</string>
 </resources>

@@ -44,7 +44,6 @@
     <string name="ohno">Oh no! Something went wrong!</string>
     <string name="average">Avg.</string>
     <string name="refresh">Reload data</string>
-    <string name="job_name">Job trigger</string>
     <string name="table">Tables</string>
     <string name="grades_expl">Ordered by subject, with averages, click on grades for details</string>
     <string name="grades_long">Grades in table, ordered by subject and date</string>
@@ -77,14 +76,13 @@
     <string name="battery_opt_err_vendor_specific">Oh no, it did not work :(. Please open the Settings or Device optimizer app and try to find the proper settings manually, otherwise KFGapp will not work properly :(</string>
     <string name="night_notifications">Notifications at night</string>
     <string name="ngrades">Grades:  Notification settings</string>
-    <string name="ngrades_sum">Configure how new grades should be shown (eg. with vibration, light, sound)</string>
+    <string name="ngrades_sum">Vibrate, make sound or flash led?</string>
     <string name="nstandins">Stand-Ins:  Notification settings</string>
-    <string name="nstandins_sum">Configure how new stand-ins should be shown (eg. with vibration, light, sound)</string>
+    <string name="nstandins_sum">Vibrate, make sound or flash led?</string>
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="credentials_sum">Click here to edit! Your username is your OM ID by default and your password is your birthdate</string>
     <string name="enter_pwd">Enter your password</string>
-    <string name="save_pwd">Save password</string>
     <string name="username">Username</string>
     <string name="incorrect_credentials">EKréta: Incorrect username or password!</string>
     <string name="correct_credentials">Login credentials accepted!</string>
@@ -114,4 +112,5 @@
     <string name="password">Password</string>
     <string name="incorrect_class">Incorrect class</string>
     <string name="other_settings">Other settings</string>
+    <string name="empty_absences">It looks like you have no absences at all…</string>
 </resources>

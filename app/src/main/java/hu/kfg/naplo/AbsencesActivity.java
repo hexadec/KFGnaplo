@@ -1,5 +1,7 @@
 package hu.kfg.naplo;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -8,11 +10,13 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -27,6 +31,7 @@ import java.util.Locale;
 public class AbsencesActivity extends Activity {
 
     boolean lightmode = false;
+    private int upgraderesult = 0;
     AbsencesDB db;
     SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
@@ -44,7 +49,7 @@ public class AbsencesActivity extends Activity {
 
         if (db.numberOfRows() < 1) {
             Log.e("AbsencesActivity", "Empty DB");
-            //doStuff();
+            updateDatabase();
         } else {
             updateViews();
         }
@@ -113,7 +118,6 @@ public class AbsencesActivity extends Activity {
                 table.addView(row);
             }
         }
-        Log.e("Test", "" + ((ScrollView) findViewById(R.id.absences_scrollview)).getChildCount());
         if (dates == null || dates.size() == 0) {
             final TableRow row = new TableRow(AbsencesActivity.this);
             row.setLayoutParams(lp);
@@ -123,6 +127,87 @@ public class AbsencesActivity extends Activity {
             row.addView(lView);
             table.addView(row);
         }
+    }
+
+    void updateDatabase() {
+        if (PreferenceManager.getDefaultSharedPreferences(AbsencesActivity.this).getString("password2", "").length() <= 1) {
+            Toast t = Toast.makeText(AbsencesActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+            finish();
+            return;
+        }
+        final ProgressDialog pdialog = ProgressDialog.show(AbsencesActivity.this, "",
+                getString(R.string.upgrading), true);
+        pdialog.show();
+        Thread thr = new Thread(new Runnable() {
+            public void run() {
+                final Intent intent = new Intent(AbsencesActivity.this, ChangeListener.class);
+                intent.putExtra("dbupgrade", true);
+                intent.putExtra("error", true);
+                intent.setAction("hu.kfg.naplo.CHECK_NOW");
+                Thread t2 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            upgraderesult = ChangeListener.getEkretaGrades(AbsencesActivity.this, intent);
+                        } catch (Exception e) {
+                            upgraderesult = -10;
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                upgraderesult = -10;
+                t2.start();
+                try {
+                    t2.join(20000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                pdialog.cancel();
+                Looper.prepare();
+                if (upgraderesult == ChangeListener.DB_EMPTY) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Toast t = Toast.makeText(AbsencesActivity.this, R.string.empty_absences, Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
+
+                        }
+                    });
+                } else if (upgraderesult == ChangeListener.UPGRADE_DONE) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateViews();                        }
+                    });
+                } else if (upgraderesult == ChangeListener.TOKEN_ERROR || upgraderesult == ChangeListener.CREDENTIALS_ERROR) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Toast t = Toast.makeText(AbsencesActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
+                            ((TableLayout) findViewById(R.id.absencestable)).removeAllViews();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Toast t = Toast.makeText(AbsencesActivity.this, R.string.ohno, Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
+                        }
+                    });
+                }
+                Looper.loop();
+            }
+
+        });
+        thr.start();
+
     }
 
 }
