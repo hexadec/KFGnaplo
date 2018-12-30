@@ -60,11 +60,11 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         if (db.numberOfRows() < 1) {
             updateDatabase(db);
         } else {
-            doStuff(db);
+            fillTable(db);
         }
     }
 
-    void doStuff(final GradesDB db) {
+    void fillTable(final GradesDB db) {
         final TableLayout table = findViewById(R.id.table);
         runOnUiThread(new Runnable() {
             @Override
@@ -137,6 +137,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         int doublegrade = 0;
                         for (int j = -1; j < grades.size(); j++) {
                             SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                            SimpleDateFormat saveFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
                             SimpleDateFormat m = new SimpleDateFormat("MM", Locale.ENGLISH);
                             int mo = 0;
                             int mo2 = 0;
@@ -148,10 +149,12 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
                                 if (j != -1 && j + 1 < grades.size()) {
+                                    //Two or more grades are counted as one BIG if the following properties are the same:
                                     if (grades.get(j).description.equals(grades.get(j + 1).description)
                                             && grades.get(j).date.equals(grades.get(j + 1).date)
                                             && grades.get(j).subject.equals(grades.get(j + 1).subject)) {
-                                        if (Math.abs(d.getTime() - dd.getTime()) < 40 * 1000) {
+                                        //Only count them as a single grade, if the time difference is less than 2 minutes
+                                        if (Math.abs(saveFormat.parse(grades.get(j).save_date).getTime() - saveFormat.parse(grades.get(j + 1).save_date).getTime()) < 120 * 1000) {
                                             doublegrade++;
                                             continue;
                                         }
@@ -274,7 +277,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         }
                     });
                 } else if (upgraderesult == ChangeListener.UPGRADE_DONE) {
-                    doStuff(db);
+                    fillTable(db);
                     Toast.makeText(TableViewActivity.this, TableViewActivity.this.getString(R.string.title_activity_table_view) + ": " + db.numberOfRows(), Toast.LENGTH_SHORT).show();
                 } else if (upgraderesult == ChangeListener.TOKEN_ERROR || upgraderesult == ChangeListener.CREDENTIALS_ERROR) {
                     runOnUiThread(new Runnable() {
@@ -436,9 +439,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                 applyDimension(3));
         Values.setGravity(Gravity.CENTER);
         float scale = getResources().getConfiguration().fontScale;
-        if (scale > 1.1 && scale < 1.2) scale *= 2.07-scale;
-        else if (scale > 1.2 && scale < 1.4) scale *= 2.14-scale;
-        else if (scale > 0.8 && scale < 0.9) scale *= 1.92-scale;
+        if (scale > 1.1 && scale < 1.2) scale *= 2.07 - scale;
+        else if (scale > 1.2 && scale < 1.4) scale *= 2.14 - scale;
+        else if (scale > 0.8 && scale < 0.9) scale *= 1.92 - scale;
         Values.setTextSize(12.0f * scale);
         Values.setTextColor(Color.parseColor("#FFFFFF"));
         Values.setTypeface(null, Typeface.ITALIC);

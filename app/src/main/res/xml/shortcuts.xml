@@ -34,4 +34,16 @@
             android:data="https://apps.karinthy.hu/helyettesites/" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/account_question"
+        android:shortcutId="absences"
+        android:shortcutLongLabel="@string/absences"
+        android:shortcutShortLabel="@string/absences">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="hu.kfg.naplo.AbsencesActivity"
+            android:targetPackage="hu.kfg.naplo" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
 </shortcuts>

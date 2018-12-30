@@ -3,7 +3,6 @@
 
     <string name="app_name">KFG App</string>
     <string name="kfg_standins">KFG Helyettesítések</string>
-    <string name="main_activity">KFGNapló &amp; Helyettesítések</string>
     <string name="account_name">KFG Kréta Fiók</string>
     <string name="instructions"><![CDATA[<b>Olvasd el!</b><br/>Így használd az E-Krétát:<br/>
     1. Írd be a felhasználóneved és jelszavad<br/>

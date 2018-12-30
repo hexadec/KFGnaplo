@@ -13,7 +13,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class TimetableDB extends SQLiteOpenHelper {
 
@@ -32,7 +31,7 @@ public class TimetableDB extends SQLiteOpenHelper {
 
 
     static final SimpleDateFormat start = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-    static final SimpleDateFormat dayOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    static final SimpleDateFormat dateOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     static final SimpleDateFormat time = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     TimetableDB(Context context) {
@@ -90,7 +89,7 @@ public class TimetableDB extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM " + LESSONS_TABLE_NAME
-                + " WHERE " + LESSONS_COLUMN_START + " like '" + dayOnly.format(day1) + "%' " +
+                + " WHERE " + LESSONS_COLUMN_START + " like '" + dateOnly.format(day1) + "%' " +
                 "ORDER BY " + LESSONS_COLUMN_START + "", null);
         res.moveToFirst();
         Lesson l;

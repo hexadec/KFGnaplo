@@ -209,15 +209,6 @@ public class ChangeListener {
             }
         }
 
-        /*String lessonsToIgnore = pref.getString("ignore_lessons", "semmitsemignoral")
-                .replace(", ", ",").replace(" ,", "");*/
-        String lessonsToIgnore = "semmitsem:(";
-        List<String> ilessons = new LinkedList<>();
-        try {
-            ilessons = Arrays.asList(lessonsToIgnore.split(","));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         int day = 0;
         List<Substitution> subs = new ArrayList<>();
         String tomorrowFormat = "";
@@ -318,13 +309,9 @@ public class ChangeListener {
                 }
             }
         } else {
-            substitutions:
             for (Substitution sub : subs) {
                 for (String cla : cls) {
                     if (cla.equals(sub.getGroup()) && !sub.isOver()) {
-                        for (String toIgnore : ilessons)
-                            if (toIgnore.equalsIgnoreCase(sub.getSubject()))
-                                continue substitutions;
                         if (!autoignore || isRelevant(sub, sub.isToday() ? lessonsToday : lessonsTomorrow)) {
                             text.append("\n");
                             text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
@@ -434,7 +421,7 @@ public class ChangeListener {
                 AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
                 throw new IllegalAccessException("No credentials");
             }
-        } else if (!forceCreate){
+        } else if (!forceCreate) {
             post = postRefresh;
         }
 

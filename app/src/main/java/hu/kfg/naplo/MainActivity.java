@@ -181,9 +181,6 @@ public class MainActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Intent intent = new Intent(MainActivity.this, AbsencesActivity.class);
-                if (Build.VERSION.SDK_INT >= 21) {
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                }
                 startActivity(intent);
                 return false;
             }
