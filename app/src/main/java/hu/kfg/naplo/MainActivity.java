@@ -238,10 +238,7 @@ public class MainActivity extends PreferenceActivity {
         common.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                dialog.setTitle(R.string.login_credentials);
-                dialog.setNegativeButton(R.string.cancel, null);
-                dialog.setPositiveButton("Ok", null);
+
                 LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
                 final LinearLayout view;
                 try {
@@ -250,6 +247,27 @@ public class MainActivity extends PreferenceActivity {
                     e.printStackTrace();
                     return false;
                 }
+                final EditText passwordField = view.findViewById(R.id.passwordField);
+                final EditText usernameField = view.findViewById(R.id.usernameField);
+                final EditText classField = view.findViewById(R.id.classField);
+
+                final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle(R.string.login_credentials);
+                dialog.setNegativeButton(R.string.cancel, null);
+                dialog.setPositiveButton("Ok", null);
+                if (!notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
+                    dialog.setNeutralButton(R.string.save_cls, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final String cls = classField.getText().toString();
+                            if ((cls.length() < CLASS_MIN_LENGTH || cls.split("[.]", -1).length != 2)) {
+                                Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            prefs.edit().putString("class", cls).commit();
+                        }
+                    });
+                }
                 dialog.setView(view);
                 final AlertDialog d = dialog.create();
                 try {
@@ -257,9 +275,6 @@ public class MainActivity extends PreferenceActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                final EditText passwordField = view.findViewById(R.id.passwordField);
-                final EditText usernameField = view.findViewById(R.id.usernameField);
-                final EditText classField = view.findViewById(R.id.classField);
                 if (notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
                     passwordField.setEnabled(false);
                     usernameField.setEnabled(false);

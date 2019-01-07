@@ -110,4 +110,5 @@
     <string name="incorrect_class">Hibás osztály</string>
     <string name="other_settings">További beállítások</string>
     <string name="empty_absences">Úgy tűnik, egyáltalán nincsenek hiányzásaid…</string>
+    <string name="save_cls">Oszt. mentése</string>
 </resources>

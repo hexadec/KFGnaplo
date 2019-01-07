@@ -177,36 +177,6 @@ public class ChangeListener {
             } catch (Exception e) {
                 cls.add(classs);
             }
-        } else {
-            cls.add(classs);
-            try {
-                if ((classs.endsWith("A") || classs.endsWith("B")) && !classs.endsWith(".IB")) {
-                    int i = Integer.valueOf(classs.split("[.]")[0]);
-                    if (i < 11) {
-                        cls.add(i + ".AB");
-                    } else {
-                        cls.add(i + ".AB");
-                        cls.add(i + ".A+");
-
-                    }
-                    Log.d(TAG, i + ".AB");
-                } else {
-                    if (classs.endsWith("C") || classs.endsWith("D")) {
-                        int i = Integer.valueOf(classs.split("[.]")[0]);
-                        cls.add(i + ".A+");
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "User typed incorrect class!");
-                e.printStackTrace();
-                if (intent.hasExtra("error")) {
-                    showToast.postAtFrontOfQueue(new Runnable() {
-                        public void run() {
-                            Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
         }
 
         int day = 0;
@@ -248,7 +218,8 @@ public class ChangeListener {
                 if (line.contains("\"lesson\"") && counter == 1) {
                     int period = -1;
                     try {
-                        period = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
+                        String line2 = line.replaceAll("\\D+","");
+                        period = Integer.valueOf(line2);
                     } catch (Exception e) {
                     }
                     sub.setTime(period, day == 1);
@@ -256,7 +227,8 @@ public class ChangeListener {
                 if (line.contains("\"room\"") && counter == 4) {
                     int room = 0;
                     try {
-                        room = Integer.valueOf(line.substring(line.indexOf(">") + 1, line.lastIndexOf("<")));
+                        String line2 = line.replaceAll("\\D+","");
+                        room = Integer.valueOf(line2);
                     } catch (Exception e) {
                     }
                     sub.setRoom(room);
@@ -310,16 +282,15 @@ public class ChangeListener {
             }
         } else {
             for (Substitution sub : subs) {
-                for (String cla : cls) {
-                    if (cla.equals(sub.getGroup()) && !sub.isOver()) {
-                        if (!autoignore || isRelevant(sub, sub.isToday() ? lessonsToday : lessonsTomorrow)) {
-                            text.append("\n");
-                            text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
-                        }
-                        //Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
-                        numoflessons++;
+                if (sub.isMemberOfClasses(classs) && !sub.isOver()) {
+                    if (!autoignore || isRelevant(sub, sub.isToday() ? lessonsToday : lessonsTomorrow)) {
+                        text.append("\n");
+                        text.append(sub.toString("PPDD. SS: TE C9 RR, GG"));
                     }
+                    //Log.d(TAG, sub.toString("PPDD. SS: TE C9 RR, GG"));
+                    numoflessons++;
                 }
+
             }
         }
 
