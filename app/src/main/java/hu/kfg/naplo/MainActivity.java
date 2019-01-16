@@ -256,17 +256,7 @@ public class MainActivity extends PreferenceActivity {
                 dialog.setNegativeButton(R.string.cancel, null);
                 dialog.setPositiveButton("Ok", null);
                 if (!notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
-                    dialog.setNeutralButton(R.string.save_cls, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            final String cls = classField.getText().toString();
-                            if ((cls.length() < CLASS_MIN_LENGTH || cls.split("[.]", -1).length != 2)) {
-                                Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            prefs.edit().putString("class", cls).commit();
-                        }
-                    });
+                    dialog.setNeutralButton(R.string.save_cls, null);
                 }
                 dialog.setView(view);
                 final AlertDialog d = dialog.create();
@@ -289,7 +279,21 @@ public class MainActivity extends PreferenceActivity {
                 d.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(final DialogInterface dialog) {
-                        Button action = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                        final Button classave = d.getButton(AlertDialog.BUTTON_NEUTRAL);
+                        if (!notification_mode.getValue().equals(ChangeListener.MODE_TEACHER))
+                            classave.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    final String cls = classField.getText().toString();
+                                    if (!cls.matches("(9?([1-9]{0}[.]([ABCE]{1}?([K]|[K]{0})|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|IB))")) {
+                                        Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    prefs.edit().putString("class", cls).commit();
+                                    d.dismiss();
+                                }
+                            });
+                        final Button action = d.getButton(AlertDialog.BUTTON_POSITIVE);
                         action.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -323,7 +327,9 @@ public class MainActivity extends PreferenceActivity {
                                     }
                                     return;
                                 }
-                                if ((cls.length() < CLASS_MIN_LENGTH || !cls.contains("."))) {
+                                //Log.e("regex", cls + " matches: " +
+                                //cls.matches("(9?([1-9]{0}[.]([ABCE]?[K]|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|[IB]))"));
+                                if (!cls.matches("(9?([1-9]{0}[.]([ABCE]{1}?([K]|[K]{0})|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|IB))")) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
                                     return;
                                 } else if ((uname.length() < 3 || pwd.length() < 3)) {

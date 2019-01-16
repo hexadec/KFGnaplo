@@ -105,7 +105,7 @@
     <string name="no_lessons_on_day">&lt;div align="center" style="text-align:center;">&#8230;&lt;br/>&lt;br/>&lt;br/>&lt;b>&lt;big>It looks like &lt;br/>you have no lessons on this day!&lt;/big>&lt;/b>&lt;/div></string>
     <string name="hide_grades_warning">This function works incorrectly on some devices (eg. Huawei). If the icon of the program disappears and you cannot open it, please remove and reinstall KFGNapló from Google Play!</string>
     <string name="absences">Absences</string>
-    <string name="toggle_light_theme">Toggle light &amp; dark theme</string>
+    <string name="toggle_light_theme">Toggle dark &amp; light theme</string>
     <string name="no_absences">&lt;div align="center" style="text-align:center;">&#8230;&lt;br/>&lt;br/>&lt;br/>&lt;b>&lt;big>It looks like &lt;br/>you have no absences!&lt;/big>&lt;/b>&lt;/div></string>
     <string name="login_credentials">Edit username/password</string>
     <string name="password">Password</string>

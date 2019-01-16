@@ -218,7 +218,7 @@ public class ChangeListener {
                 if (line.contains("\"lesson\"") && counter == 1) {
                     int period = -1;
                     try {
-                        String line2 = line.replaceAll("\\D+","");
+                        String line2 = line.replaceAll("\\D+", "");
                         period = Integer.valueOf(line2);
                     } catch (Exception e) {
                     }
@@ -227,7 +227,7 @@ public class ChangeListener {
                 if (line.contains("\"room\"") && counter == 4) {
                     int room = 0;
                     try {
-                        String line2 = line.replaceAll("\\D+","");
+                        String line2 = line.replaceAll("\\D+", "");
                         room = Integer.valueOf(line2);
                     } catch (Exception e) {
                     }
@@ -330,7 +330,14 @@ public class ChangeListener {
                     if (l.subjectCat.equalsIgnoreCase(substitution.getSubject()) ||
                             l.subject.equalsIgnoreCase(substitution.getSubject())) {
                         return true;
-                    } else if (l.subject.length() <= 3 && l.subject.equalsIgnoreCase(substitution.getSubject().substring(0, 3))) {
+                    } //These two checks ensure that no relevant lessons will be filtered
+                    else if (l.subject.substring(0, l.subject.length() >= 3 ? 3 : l.subject.length())
+                            .equalsIgnoreCase(substitution.getSubject()
+                                    .substring(0, l.subject.length() >= 3 ? 3 : l.subject.length()))) {
+                        return true;
+                    } else if (l.subjectCat.substring(0, l.subjectCat.length() >= 3 ? 3 : l.subjectCat.length())
+                            .equalsIgnoreCase(substitution.getSubject()
+                                    .substring(0, l.subjectCat.length() >= 3 ? 3 : l.subjectCat.length()))) {
                         return true;
                     } else {
                         return false;
