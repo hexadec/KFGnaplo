@@ -14,7 +14,7 @@ import android.util.Log;
 public class GradesDB extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Grades.db";
-    private static final String GRADES_TABLE_NAME= "grades";
+    private static final String GRADES_TABLE_NAME = "grades";
     private static final String GRADES_COLUMN_SUBJECT = "subject";
     private static final String GRADES_COLUMN_ID = "id";
     private static final String GRADES_COLUMN_DESCRIPTION = "description";
@@ -50,7 +50,7 @@ public class GradesDB extends SQLiteOpenHelper {
         contentValues.put("save_date", save_date);
         contentValues.put("subject", subject);
         contentValues.put("value", grade);
-        return db.insert("grades", null, contentValues)>-1;
+        return db.insert("grades", null, contentValues) > -1;
     }
 
     boolean insertGrade(Grade grade) {
@@ -64,22 +64,28 @@ public class GradesDB extends SQLiteOpenHelper {
         res.moveToFirst();
 
         while (!res.isAfterLast()) {
-            array_list.add(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
+            String subject = res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT));
+            if (!(subject == null || subject.equals("null")))
+                array_list.add(subject);
             res.moveToNext();
         }
         res.close();
         return array_list;
     }
 
-    List<Grade> getSubjectGradesG(String subject) {
+    List<Grade> getSubjectGrades(String subject) {
         try {
             List<Grade> array_list = new ArrayList<>();
-
+            //Get an instance of the database object
             SQLiteDatabase db = this.getReadableDatabase();
+            //Get all grades from the given subject and order them descending according to their date
             Cursor res = db.rawQuery("SELECT * FROM grades WHERE subject=\"" + subject + "\" ORDER BY date DESC", null);
             res.moveToFirst();
             Grade g;
+            //Check if the current position of the Cursor object is in
+            //the boundaries of the request
             while (!res.isAfterLast()) {
+                //Add all parameters to the grade object
                 g = new Grade((byte) res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
                 g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
                 g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
@@ -87,12 +93,15 @@ public class GradesDB extends SQLiteOpenHelper {
                 g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
                 g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
                 g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+                //Save the object into the array
                 array_list.add(g);
                 res.moveToNext();
             }
             res.close();
+            //If everything is OK, return the array (it may be empty)
             return array_list;
         } catch (Exception e) {
+            //In case of an error, return null
             e.printStackTrace();
             return null;
         }
@@ -102,9 +111,9 @@ public class GradesDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM grades WHERE id=\"" + id + "\"", null);
         res.moveToFirst();
-        Grade g = new Grade((byte)0);
+        Grade g = new Grade((byte) 0);
         while (!res.isAfterLast()) {
-            g = new Grade((byte)res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
+            g = new Grade((byte) res.getShort(res.getColumnIndex(GRADES_COLUMN_VALUE)));
             g.addSubject(res.getString(res.getColumnIndex(GRADES_COLUMN_SUBJECT)));
             g.addTeacher(res.getString(res.getColumnIndex(GRADES_COLUMN_TEACHER)));
             g.addDescription(res.getString(res.getColumnIndex(GRADES_COLUMN_DESCRIPTION)));
@@ -131,7 +140,7 @@ public class GradesDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS grades");
         onCreate(db);
-        for (Grade grade:grades) {
+        for (Grade grade : grades) {
             if (!insertGrade(grade)) return false;
         }
         return true;

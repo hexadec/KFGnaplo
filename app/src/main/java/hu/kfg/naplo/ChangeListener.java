@@ -38,8 +38,6 @@ public class ChangeListener {
 
     private static final String TAG = "KFGnaplo-check";
 
-    private static boolean running = false; //From old workaround, probably not necessary?
-
     static final int DB_EMPTY = 4;
     static final int UPGRADE_DONE = 3;
     static final int UPGRADE_FAILED = 5;
@@ -466,30 +464,40 @@ public class ChangeListener {
             password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
         }
         try {
+            //Convert grading system URL from String to URL
             URL url = new URL(eURL + "/mapi/api/v1/Student");
+            //Create connection
             HttpsURLConnection request = (HttpsURLConnection) (url.openConnection());
+            //Provide credentials and connection properties
             request.addRequestProperty("Accept", "application/json");
-            request.addRequestProperty("Authorization", "Bearer " + getToken(context, pref.getString("username", "null"), password != null ? password : "null", false));
+            request.addRequestProperty("Authorization", "Bearer " +
+                    getToken(context, pref.getString("username", "null"),
+                            password != null ? password : "null", false));
             request.addRequestProperty("HOST", eURL.replace("https://", ""));
             request.addRequestProperty("Connection", "keep-alive");
             request.setRequestMethod("GET");
             request.connect();
-
+            //Read server response
             final BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
+            //Create a JSON object from the result
             resultStuff = new JSONObject(sb.toString());
             request.disconnect();
+            //If there is an exception, return the corresponding error message
         } catch (IllegalAccessException | FileNotFoundException e) {
+            //getToken() throws this if the token cannot be obtained
             e.printStackTrace();
             return TOKEN_ERROR;
         } catch (IOException e) {
+            //Server is down, or other problems
             e.printStackTrace();
             return NETWORK_RELATED_ERROR;
         } catch (Exception e) {
+            //In case any different error occurs, catch them
             e.printStackTrace();
             return UNKNOWN_ERROR;
         }
@@ -499,9 +507,12 @@ public class ChangeListener {
         Log.d(TAG, "Grades: " + rawGrades.length());
         for (int i = 0; i < rawGrades.length(); i++) {
             JSONObject currentItem = rawGrades.getJSONObject(i);
+            Log.e(TAG, currentItem.toString());
             SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-            Grade grade = new Grade((byte) currentItem.getInt("NumberValue"));
+            int value = currentItem.getInt("NumberValue");
+            if (value == 0) continue;
+            Grade grade = new Grade((byte) value);
             grade.addSubject(currentItem.getString("Subject"));
             grade.addTeacher(currentItem.getString("Teacher"));
             String date = currentItem.getString("Date");
@@ -597,13 +608,6 @@ public class ChangeListener {
             }
             return STD_ERROR;
         }
-
-        if (running) {
-            Log.w(TAG, "A process is already running");
-            Log.w(TAG, "Action:\t" + intent.getAction());
-            return STD_ERROR;
-        }
-        running = true;
         final int numofnotes = pref.getInt("numberofnotes", 0);
         try {
 
@@ -620,7 +624,6 @@ public class ChangeListener {
                 text.deleteCharAt(text.length() - 2);
                 AppNotificationManager.notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, text.toString());
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
-                running = false;
                 return DONE;
             } else {
                 if (!SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
@@ -633,7 +636,6 @@ public class ChangeListener {
                         Log.e(TAG, "Automatically initiated update failed");
                         e.printStackTrace();
                     }
-                    running = false;
                     return DONE;
                 } else if (intent.hasExtra("error")) {
                     showToast.postAtFrontOfQueue(new Runnable() {
@@ -642,7 +644,6 @@ public class ChangeListener {
                         }
                     });
                 }
-                running = false;
                 return DONE_NO_CHANGE;
             }
         } catch (Exception e) {
@@ -655,7 +656,6 @@ public class ChangeListener {
                 });
             }
             e.printStackTrace();
-            running = false;
             return STD_ERROR;
         }
     }

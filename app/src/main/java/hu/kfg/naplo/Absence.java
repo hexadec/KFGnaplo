@@ -27,7 +27,6 @@ public class Absence {
         this.period = period;
         try {
             dayOfAbsence = absenceFormat.parse(doa);
-            String dorSub = dor.split("\\.")[0];
             dayOfRegister = absenceFormat.parse(dor);
         } catch (Exception e) {
             Log.e("Absence", "Faulty date: " + dor);

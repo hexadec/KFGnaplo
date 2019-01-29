@@ -82,32 +82,37 @@ public class Substitution extends Object {
     }
 
     public boolean isMemberOfClasses(String cls) {
-        int preclass = Integer.valueOf(cls.split("[.]")[0]);
-        if (group.length() < 3) return false;
-        if (Integer.valueOf(group.split("[.]")[0]) != preclass) {
-            return false;
-        }
-        String subclass = cls.split("[.]")[1];
-        if (group.toUpperCase().contains(subclass.toUpperCase())) {
-            if (group.toUpperCase().contains("B") && subclass.toUpperCase().equals("B")) {
-                try {
-                    int numB = group.toUpperCase().split("B", -1).length;
-                    if (numB < 3 && group.toUpperCase().contains("IB")) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return true; //return true, just in case...
-                }
+        try {
+            int preclass = Integer.valueOf(cls.split("[.]")[0]);
+            if (group.length() < 3) return false;
+            if (Integer.valueOf(group.split("[.]")[0]) != preclass) {
+                return false;
             }
+            String subclass = cls.split("[.]")[1];
+            if (group.toUpperCase().contains(subclass.toUpperCase())) {
+                if (group.toUpperCase().contains("B") && subclass.toUpperCase().equals("B")) {
+                    try {
+                        int numB = group.toUpperCase().split("B", -1).length;
+                        if (numB < 3 && group.toUpperCase().contains("IB")) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return true; //return true, just in case...
+                    }
+                }
+                return true;
+            }
+            if (group.contains("+") && !subclass.equalsIgnoreCase("IB")) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            //Just in case, should not happen
             return true;
         }
-        if (group.contains("+") && !subclass.equalsIgnoreCase("IB")) {
-            return true;
-        }
-        return false;
     }
 
     public String getTeacher() {

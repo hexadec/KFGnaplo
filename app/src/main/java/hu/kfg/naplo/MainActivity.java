@@ -327,43 +327,42 @@ public class MainActivity extends PreferenceActivity {
                                     }
                                     return;
                                 }
-                                //Log.e("regex", cls + " matches: " +
-                                //cls.matches("(9?([1-9]{0}[.]([ABCE]?[K]|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|[IB]))"));
+                                //Checks if the user entered one of the classes available at school
+                                //These are: 9.AK, 9.BK, 9.CK, 9.EK, 9.A, 9.B, 9.C, 9.D, 9.E, 10.A, 10.B, 10.C, 10.D, 10.E
+                                //11.A, 11.B, 11.C, 11.D, 11.E, 11.IB, 12.A, 12.B, 12.C, 12.D, 12.E, 12.IB
                                 if (!cls.matches("(9?([1-9]{0}[.]([ABCE]{1}?([K]|[K]{0})|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|IB))")) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
                                     return;
                                 } else if ((uname.length() < 3 || pwd.length() < 3)) {
+                                    //The credentials are likely to be invalid...
                                     Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 prefs.edit().putString("class", cls).commit();
+                                //Networking on Android has to be done on a background thread
                                 Thread t = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
                                         try {
-                                            //Check validity by requesting the tokens
+                                            //Check whether credentials are correct by requesting the tokens
                                             ChangeListener.getToken(MainActivity.this, uname, pwd, true);
-                                        } catch (java.net.UnknownHostException une) {
-                                            une.printStackTrace();
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    //Notify the user that the credentials are correct
-                                                    Toast t = Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_LONG);
-                                                    t.setGravity(Gravity.CENTER, 0, 0);
-                                                    t.show();
-                                                }
-                                            });
-                                            return;
-                                        } catch (Exception e) {
+                                        } catch (final Exception e) {
                                             e.printStackTrace();
+                                            //Toasts have to be shown on the UI thread
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    //Notify the user that the credentials are correct
-                                                    Toast t = Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
-                                                    t.setGravity(Gravity.CENTER, 0, 0);
-                                                    t.show();
+                                                    if (e.getClass().getName().contains("IllegalAccessException")) {
+                                                        //Notify the user that the credentials are incorrect
+                                                        Toast t = Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_LONG);
+                                                        t.setGravity(Gravity.CENTER, 0, 0);
+                                                        t.show();
+                                                    } else {
+                                                        //Notify the user that there is no network
+                                                        Toast t = Toast.makeText(MainActivity.this, R.string.no_network_conn, Toast.LENGTH_LONG);
+                                                        t.setGravity(Gravity.CENTER, 0, 0);
+                                                        t.show();
+                                                    }
                                                 }
                                             });
                                             return;
@@ -371,7 +370,7 @@ public class MainActivity extends PreferenceActivity {
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                //Notify user that the credentials are incorrect
+                                                //Notify user that the credentials are correct
                                                 Toast t = Toast.makeText(MainActivity.this, R.string.correct_credentials, Toast.LENGTH_LONG);
                                                 t.setGravity(Gravity.CENTER, 0, 0);
                                                 t.show();

@@ -118,7 +118,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
 
                     row.addView(Header);
                     if (i != -1) {
-                        final List<Grade> grades = db.getSubjectGradesG(subjects.get(i));
+                        final List<Grade> grades = db.getSubjectGrades(subjects.get(i));
                         if (grades == null) {
                             runOnUiThread(new Runnable() {
                                 @Override

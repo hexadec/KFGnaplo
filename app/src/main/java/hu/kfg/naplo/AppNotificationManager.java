@@ -92,12 +92,15 @@ public class AppNotificationManager {
         if (state[0] == 0) {
             n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open), epIntent);
             n.addAction(android.R.drawable.ic_input_get, context.getString(R.string.grade_table), pIntent);
+            n.setContentIntent(pIntent);
         } else {
             n.addAction(android.R.drawable.ic_menu_edit, context.getString(R.string.open_app), mainIntent);
+            n.setContentIntent(mainIntent);
         }
         Notification notification = new Notification.BigTextStyle(n)
                 .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
         notificationManager.notify(state[0], notification);
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
     }
 
@@ -192,9 +195,11 @@ public class AppNotificationManager {
             return;
         }
         n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open_site), epIntent);
+        n.setContentIntent(epIntent);
         Notification notification = new Notification.BigTextStyle(n)
                 .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
         notification.number = numberoflessons;
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(STANDINS_ID, notification);
     }
 }
