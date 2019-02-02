@@ -31,6 +31,8 @@ public class Absence {
         } catch (Exception e) {
             Log.e("Absence", "Faulty date: " + dor);
             e.printStackTrace();
+            dayOfRegister = new Date(0);
+            dayOfAbsence = new Date(0);
         }
 
         try {

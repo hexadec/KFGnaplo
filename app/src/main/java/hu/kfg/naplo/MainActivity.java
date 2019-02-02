@@ -22,6 +22,8 @@ import hu.hexadec.textsecure.Cryptography;
 public class MainActivity extends PreferenceActivity {
 
     protected static final int CLASS_MIN_LENGTH = 3;
+    protected static final int CREDS_MIN_LENGTH = 3;
+    protected static final int TOKENS_MIN_LENGTH = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,15 +206,15 @@ public class MainActivity extends PreferenceActivity {
                 }
                 String clas = prefs.getString("class", "null");
                 String username = prefs.getString("username", "null");
-                String refresh_token = prefs.getString("refresh_token", "null");
+                String refresh_token = prefs.getString("refresh_token", "");
                 String password = null;
                 String password_crypt = prefs.getString("password2", null);
                 if (password_crypt != null && password_crypt.length() >= 4) {
                     Cryptography cr = new Cryptography();
                     password = cr.cryptThreedog(password_crypt, true, username);
                 }
-                if (refresh_token.length() < 2) {
-                    if ((username.length() < 2 || password == null || password.length() < 2)
+                if (refresh_token.length() < TOKENS_MIN_LENGTH) {
+                    if ((username.length() < CREDS_MIN_LENGTH || password == null || password.length() < CREDS_MIN_LENGTH)
                             && (notification_mode.getValue().equals(ChangeListener.MODE_TRUE) || notification_mode.getValue().equals(ChangeListener.MODE_NAPLO))) {
                         Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                         return true;
@@ -318,7 +320,7 @@ public class MainActivity extends PreferenceActivity {
                                 final String uname = usernameField.getText().toString();
                                 final String pwd = passwordField.getText().toString();
                                 if (notification_mode.getValue().equals(ChangeListener.MODE_TEACHER)) {
-                                    if (cls.length() > 3) {
+                                    if (cls.length() > CLASS_MIN_LENGTH) {
                                         prefs.edit().putString("class", cls).commit();
                                     } else {
                                         Toast t = Toast.makeText(MainActivity.this, R.string.teacher_hint, Toast.LENGTH_LONG);
@@ -333,7 +335,7 @@ public class MainActivity extends PreferenceActivity {
                                 if (!cls.matches("(9?([1-9]{0}[.]([ABCE]{1}?([K]|[K]{0})|D[K]{0}))|10[.][ABCDE]|1[12][.]([ABCDE]|IB))")) {
                                     Toast.makeText(MainActivity.this, R.string.incorrect_class, Toast.LENGTH_SHORT).show();
                                     return;
-                                } else if ((uname.length() < 3 || pwd.length() < 3)) {
+                                } else if ((uname.length() < CREDS_MIN_LENGTH || pwd.length() < CREDS_MIN_LENGTH)) {
                                     //The credentials are likely to be invalid...
                                     Toast.makeText(MainActivity.this, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                                     return;

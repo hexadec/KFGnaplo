@@ -126,7 +126,7 @@ public class ChangeListener {
         if (classs.equals("noclass")) {
             return;
         }
-        if (classs.length() < 3) {
+        if (classs.length() < MainActivity.CLASS_MIN_LENGTH) {
             showToast.postAtFrontOfQueue(new Runnable() {
                 public void run() {
                     Toast.makeText(context, "Írd be az osztályodat!", Toast.LENGTH_SHORT).show();
@@ -243,7 +243,6 @@ public class ChangeListener {
             return;
         }
         Log.d(TAG, "Subtitutions: " + subs.size());
-        pref.edit().putLong("last_check2", System.currentTimeMillis()).commit();
         StringBuilder text = new StringBuilder();
         int numoflessons = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -373,7 +372,7 @@ public class ChangeListener {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         //If the access token is younger than 10 minutes, use that one
-        if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < 10 * 60 * 1000 && !forceCreate) {
+        if (System.currentTimeMillis() - prefs.getLong("token_created", 0) < prefs.getInt("expires_in", 600) * 1000 && !forceCreate) {
             if (prefs.getString("access_token", null) != null) {
                 Log.d(TAG, "Using previously generated token...");
                 return prefs.getString("access_token", "");
@@ -386,15 +385,16 @@ public class ChangeListener {
         String post = "institute_code=" + ChangeListener.eCODE + "&userName=" + username + "&password=" + password + "&grant_type=password&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
         String postRefresh = "institute_code=" + ChangeListener.eCODE + "&refresh_token=" + refToken + "&grant_type=refresh_token&client_id=919e0c1c-76a2-4646-a2fb-7085bbbf3c56";
 
-        if (refToken == null || refToken.length() < 2) {
-            if (username == null || username.length() < 2 || password == null || password.length() < 2) {
+        if (refToken == null || refToken.length() < MainActivity.TOKENS_MIN_LENGTH) {
+            if (username == null || username.length() < MainActivity.CREDS_MIN_LENGTH
+                    || password == null || password.length() < MainActivity.CREDS_MIN_LENGTH) {
                 showToast.postAtFrontOfQueue(new Runnable() {
                     public void run() {
                         Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                     }
                 });
                 Log.e(TAG, "No credentials");
-                AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
+                AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1, 0}, context, eURL, "");
                 throw new IllegalAccessException("No credentials");
             }
         } else if (!forceCreate) {
@@ -412,14 +412,18 @@ public class ChangeListener {
         writer.flush();
         Log.i(TAG, "Response code: " + request.getResponseCode() + "/" + request.getResponseMessage());
 
-        if (request.getResponseCode() == 401) {
+        if (request.getResponseCode() >= 400 && request.getResponseCode() < 500) {
             showToast.postAtFrontOfQueue(new Runnable() {
                 public void run() {
                     Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_SHORT).show();
                 }
             });
             Log.e(TAG, "Invalid credentials");
-            AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1}, context, eURL, "");
+            AppNotificationManager.notifyIfChanged(new int[]{1, 1, 1, request.getResponseCode()}, context, eURL, "");
+            if (post.equals(postRefresh)) {
+                prefs.edit().remove("refresh_token").remove("access_token")
+                        .remove("password2").remove("username").apply();
+            }
             throw new IllegalAccessException("Invalid credentials");
         }
 
@@ -433,6 +437,7 @@ public class ChangeListener {
             JSONObject jObject = new JSONObject(sb.toString());
             request.disconnect();
             prefs.edit().putString("access_token", jObject.getString("access_token"))
+                    .putInt("expires_in", jObject.getInt("expires_in") - 100) //Subtract 1 minute to avoid using expired token accidentally
                     .putLong("token_created", System.currentTimeMillis())
                     .putString("refresh_token", jObject.getString("refresh_token"))
                     .putString("password2", "null").putString("username", "null").commit();
@@ -459,7 +464,7 @@ public class ChangeListener {
         JSONObject resultStuff;
         String password = "null";
         String password_crypt = pref.getString("password2", null);
-        if (password_crypt != null && password_crypt.length() >= 4) {
+        if (password_crypt != null && password_crypt.length() >= MainActivity.CREDS_MIN_LENGTH) {
             Cryptography cr = new Cryptography();
             password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
         }
@@ -505,13 +510,17 @@ public class ChangeListener {
         final List<Grade> mygrades = new ArrayList<>();
         JSONArray rawGrades = resultStuff.getJSONArray("Evaluations");
         Log.d(TAG, "Grades: " + rawGrades.length());
+        int effectiveGradesLength = rawGrades.length();
         for (int i = 0; i < rawGrades.length(); i++) {
             JSONObject currentItem = rawGrades.getJSONObject(i);
-            Log.e(TAG, currentItem.toString());
+            //Log.e(TAG, currentItem.toString());
             SimpleDateFormat importedFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
             int value = currentItem.getInt("NumberValue");
-            if (value == 0) continue;
+            if (value == 0) {
+                effectiveGradesLength--;
+                continue;
+            }
             Grade grade = new Grade((byte) value);
             grade.addSubject(currentItem.getString("Subject"));
             grade.addTeacher(currentItem.getString("Teacher"));
@@ -522,6 +531,8 @@ public class ChangeListener {
                 createTime = createTime.replace("T", " ").substring(0, 19);
             } catch (Exception e) {
                 e.printStackTrace();
+                date = dateFormat.format(new Date(0));
+                createTime = dateFormat.format(new Date(0));
             }
             grade.addDate(date);
             grade.addSaveDate(createTime);
@@ -566,7 +577,7 @@ public class ChangeListener {
         }
         if (intent.hasExtra("dbupgrade")) {
             Log.i("Grades", "Size: " + mygrades.size());
-            pref.edit().putInt("numberofnotes", rawGrades.length())
+            pref.edit().putInt("numberofnotes", effectiveGradesLength)
                     .putLong("last_check", System.currentTimeMillis()).commit();
             try {
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
@@ -611,9 +622,9 @@ public class ChangeListener {
         final int numofnotes = pref.getInt("numberofnotes", 0);
         try {
 
-            pref.edit().putInt("numberofnotes", rawGrades.length()).putLong("last_check", System.currentTimeMillis()).commit();
-            if (rawGrades.length() - numofnotes > 0 && !SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
-                int i = rawGrades.length() - numofnotes;
+            pref.edit().putInt("numberofnotes", effectiveGradesLength).putLong("last_check", System.currentTimeMillis()).commit();
+            if (effectiveGradesLength - numofnotes > 0 && !SHA512(notes).equals(pref.getString("lastSHA", "ABCD"))) {
+                int i = effectiveGradesLength - numofnotes;
                 StringBuilder text = new StringBuilder();
                 GradesDB db1 = new GradesDB(context);
                 for (int i2 = 0; i2 < i; i2++) {
@@ -664,7 +675,7 @@ public class ChangeListener {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         String password = "null";
         String password_crypt = pref.getString("password2", null);
-        if (password_crypt != null && password_crypt.length() >= 4) {
+        if (password_crypt != null && password_crypt.length() >= MainActivity.CREDS_MIN_LENGTH) {
             Cryptography cr = new Cryptography();
             password = cr.cryptThreedog(password_crypt, true, pref.getString("username", "null"));
         }

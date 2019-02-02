@@ -42,6 +42,7 @@
         </activity>
         <activity
             android:name=".TableRedirectActivity"
+            android:documentLaunchMode="intoExisting"
             android:excludeFromRecents="true"
             android:icon="@drawable/ic_launcher_grades_new"
             android:label="@string/title_activity_table_view"

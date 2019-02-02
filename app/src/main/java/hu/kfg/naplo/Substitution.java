@@ -150,7 +150,7 @@ public class Substitution extends Object {
         format = format.replace("GG", group);
         format = format.replace("PP", "" + period);
         format = format.replace("SS", subject);
-        format = format.replace("TE", subject.equals("??") ? missing : teacher);
+        format = format.replace("TE", subject.equals("??") || subject.equals("") ? missing : teacher);
         format = format.replace("MT", missing);
         try {
             format = format.replace("C9", "(" + comment.substring(0, 9) + "…)");

@@ -72,7 +72,9 @@ public class AppNotificationManager {
             n = new Notification.Builder(context);
         }
         n.setContentTitle(context.getString(R.string.app_name))
-                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new))
+                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade)
+                        : state[0] == 1 ? context.getString(R.string.wrong_username_not) + (state.length == 4 ? " (" + state[3] + ")" : "")
+                        : context.getString(R.string.ekreta_new))
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= 21) {
             n.setSmallIcon(R.drawable.number_blocks);
@@ -98,7 +100,8 @@ public class AppNotificationManager {
             n.setContentIntent(mainIntent);
         }
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) : context.getString(R.string.ekreta_new)).build();
+                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) + (state.length == 4 ? " (" + state[3] + ")"
+                        : "") : context.getString(R.string.ekreta_new)).build();
         notificationManager.notify(state[0], notification);
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
