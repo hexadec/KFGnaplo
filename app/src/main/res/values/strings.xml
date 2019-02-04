@@ -113,4 +113,7 @@
     <string name="other_settings">Other settings</string>
     <string name="empty_absences">It looks like you have no absences at all…</string>
     <string name="save_cls">Save class</string>
+    <string name="statistics">Statistics</string>
+    <string name="stat_total_missed">Total lessons missed</string>
+    <string name="stat_total_unjust">Total unjustified</string>
 </resources>

@@ -1,12 +1,18 @@
 package hu.kfg.naplo;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
@@ -17,6 +23,9 @@ import android.text.Spanned;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -180,7 +189,8 @@ public class AbsencesActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            updateViews();                        }
+                            updateViews();
+                        }
                     });
                 } else if (upgraderesult == ChangeListener.TOKEN_ERROR || upgraderesult == ChangeListener.CREDENTIALS_ERROR) {
                     runOnUiThread(new Runnable() {
@@ -208,6 +218,43 @@ public class AbsencesActivity extends Activity {
         });
         thr.start();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.absencesmenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.statistics:
+                AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                adb.setTitle(R.string.statistics);
+                adb.setPositiveButton("OK", null);
+                StringBuilder text = new StringBuilder();
+                text.append(getString(R.string.stat_total_missed))
+                        .append(": ")
+                        .append(db.numberOfRows())
+                        .append("\n")
+                        .append(getString(R.string.stat_total_unjust))
+                        .append(": ")
+                        .append(db.getUnjustifiedAbsences());
+                List<String> subjects = db.getSubjects();
+                for (String subject : subjects) {
+                    text.append("\n");
+                    text.append(subject);
+                    text.append(": ");
+                    text.append(db.getAbsencesNumberBySubject(subject));
+                }
+                adb.setMessage(text.toString());
+                adb.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

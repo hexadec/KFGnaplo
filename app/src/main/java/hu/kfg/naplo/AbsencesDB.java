@@ -89,6 +89,24 @@ public class AbsencesDB extends SQLiteOpenHelper {
         return array_list;
     }
 
+    ArrayList<String> getSubjects() {
+        ArrayList<String> array_list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT DISTINCT " + ABSENCES_COLUMN_SUBJECT + " FROM " + ABSENCES_TABLE_NAME + " GROUP BY " + ABSENCES_COLUMN_SUBJECT + " ORDER BY COUNT(*) DESC", null);
+        res.moveToFirst();
+
+        while (!res.isAfterLast()) {
+            try {
+                array_list.add(res.getString(res.getColumnIndex(ABSENCES_COLUMN_SUBJECT)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            res.moveToNext();
+        }
+        res.close();
+        return array_list;
+    }
+
     ArrayList<Absence> getAbsences() {
         try {
             ArrayList<Absence> array_list = new ArrayList<>();
@@ -153,6 +171,41 @@ public class AbsencesDB extends SQLiteOpenHelper {
             e.printStackTrace();
             cleanDatabase();
             return null;
+        }
+    }
+
+    int getAbsencesNumberBySubject(String subject) {
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("SELECT * FROM " + ABSENCES_TABLE_NAME
+                    + " WHERE " + ABSENCES_COLUMN_SUBJECT + " like '" + subject + "' " +
+                    "ORDER BY " + ABSENCES_COLUMN_PERIOD + "", null);
+            res.moveToFirst();
+            int count = res.getCount();
+            res.close();
+            return count;
+        } catch (Exception e) {
+            Log.e("AbsencesDB", "Operation failed, cleaning database...");
+            e.printStackTrace();
+            cleanDatabase();
+            return 0;
+        }
+    }
+
+    int getUnjustifiedAbsences() {
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("SELECT * FROM " + ABSENCES_TABLE_NAME
+                    + " WHERE " + ABSENCES_COLUMN_JUSTSTATE + " not like '%Igazolt%' ", null);
+            res.moveToFirst();
+            int count = res.getCount();
+            res.close();
+            return count;
+        } catch (Exception e) {
+            Log.e("AbsencesDB", "Operation failed, cleaning database...");
+            e.printStackTrace();
+            cleanDatabase();
+            return 0;
         }
     }
 
