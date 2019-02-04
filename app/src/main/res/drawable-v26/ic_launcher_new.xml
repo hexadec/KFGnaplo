@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/holo_green_dark" />
+    <background>
+        <shape>
+            <gradient
+                android:angle="270"
+                android:startColor="#46c38d"
+                android:endColor="#296342"
+                android:centerColor="#3a8867"/>
+            <padding
+                android:bottom="0dp"
+                android:left="0dp"
+                android:right="0dp"
+                android:top="0dp" />
+        </shape>
+    </background>
     <foreground>
         <inset
-            android:drawable="@drawable/ic_launcher"
+            android:drawable="@drawable/launcher2"
             android:inset="25%" />
     </foreground>
 </adaptive-icon>
