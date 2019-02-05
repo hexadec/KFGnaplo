@@ -129,10 +129,15 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             return;
                         }
                         double avg = 0;
+                        int otherGrade = 0;
                         for (Grade g : grades) {
+                            if (!g.mode.equals("MidYear")) {
+                                otherGrade++;
+                                continue;
+                            }
                             avg += g.value;
                         }
-                        avg /= grades.size();
+                        avg /= grades.size() - otherGrade;
                         int month = 0;
                         int doublegrade = 0;
                         for (int j = -1; j < grades.size(); j++) {
@@ -144,7 +149,10 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             try {
                                 Date d = s.parse(grades.get(j).date);
                                 mo = Integer.valueOf(m.format(d));
-                                if (((mo != month) || (j + 1 == grades.size() && mo != month)) && doublegrade == 0) {
+                                if (grades.get(j).mode.equals("HalfYear")) {
+                                    row.addView(halfYearTextBox());
+                                    mo = 20;
+                                } else if (((mo != month) || (j + 1 == grades.size() && mo != month)) && doublegrade == 0) {
                                     row.addView(monthSpelled(d));
                                 }
                                 Date dd = s.parse(grades.get(j + 1).date);
@@ -180,7 +188,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             Values.setGravity(Gravity.CENTER);
                             Values.setTextSize(18.0f);
                             Values.setTextColor(Color.parseColor("#FFFFFF"));
-                            Values.setTypeface(null, doublegrade > 0 ? Typeface.BOLD : Typeface.ITALIC);
+                            Values.setTypeface(null, doublegrade > 0 || mo == 20 ? Typeface.BOLD : Typeface.ITALIC);
                             if (doublegrade > 0)
                                 Values.setPaintFlags(Values.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                             Values.setText(j == -1 || doublegrade > 0 ? new DecimalFormat("#.##").format(avg) : "" + grades.get(j).value);
@@ -196,13 +204,13 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                             } : TableViewActivity.this);
                             Values.setHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, VIEW_HEIGHT, getResources().getDisplayMetrics()));
                             if ((j + 1 == grades.size() && mo == month) || (mo == month && mo != mo2)) {
-                                Values.setBackground(createBackground(monthNumber, 2));
+                                Values.setBackground(createBackground(grades.get(j).mode.equals("HalfYear") ? 12 : monthNumber, 2));
                             } else if ((mo != month && mo != mo2) || (j + 1 == grades.size() && mo != month)) {
-                                Values.setBackground(createBackground(monthNumber, 2));
+                                Values.setBackground(createBackground(grades.get(j).mode.equals("HalfYear") ? 12 : monthNumber, 2));
                             } else if (j == -1) {
                                 Values.setBackground(createBackground(10, 3));
                             } else {
-                                Values.setBackground(createBackground(monthNumber, 1));
+                                Values.setBackground(createBackground(grades.get(j).mode.equals("HalfYear") ? 12 : monthNumber, 1));
                             }
                             row.addView(Values);
                             month = mo;
@@ -452,6 +460,27 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         return Values;
     }
 
+    private View halfYearTextBox() {
+        TextView Values = new TextView(TableViewActivity.this);
+        Values.setPadding(applyDimension(6),
+                applyDimension(7.5f),
+                applyDimension(6),
+                applyDimension(3));
+        Values.setGravity(Gravity.CENTER);
+        float scale = getResources().getConfiguration().fontScale;
+        if (scale > 1.1 && scale < 1.2) scale *= 2.07 - scale;
+        else if (scale > 1.2 && scale < 1.4) scale *= 2.14 - scale;
+        else if (scale > 0.8 && scale < 0.9) scale *= 1.92 - scale;
+        Values.setTextSize(12.0f * scale);
+        Values.setTextColor(Color.parseColor("#FFFFFF"));
+        Values.setTypeface(null, Typeface.ITALIC);
+        Values.setText(getString(R.string.half_year_grade));
+        Values.setOnClickListener(TableViewActivity.this);
+        Values.setHeight(applyDimension(VIEW_HEIGHT));
+        Values.setBackground(createBackground(12, 0));
+        return Values;
+    }
+
     int applyDimension(float value) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
@@ -504,14 +533,16 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
         int[] colors = new int[]{Color.parseColor("#99F8C471"), Color.parseColor("#99F39C12"), Color.parseColor("#99B9770E"),
                 Color.parseColor("#99AED6F1"), Color.parseColor("#995DADE2"), Color.parseColor("#992E86C1"),
                 Color.parseColor("#9982E0AA"), Color.parseColor("#992ECC71"), Color.parseColor("#99239B56"),
-                Color.parseColor("#999B59B6"), Color.parseColor("#99E74C3C"), Color.parseColor("#00000000")};
+                Color.parseColor("#999B59B6"), Color.parseColor("#99E74C3C"), Color.parseColor("#00000000"),
+                Color.parseColor("#FF444444")};
         int[] Lightcolors = new int[]{Color.parseColor("#FFF8C471"), Color.parseColor("#FFF39C12"), Color.parseColor("#FFB9770E"),
                 Color.parseColor("#FFAED6F1"), Color.parseColor("#FF5DADE2"), Color.parseColor("#FF2E86C1"),
                 Color.parseColor("#FF82E0AA"), Color.parseColor("#FF2ECC71"), Color.parseColor("#FF239B56"),
-                Color.parseColor("#FF9B59B6"), Color.parseColor("#FFE74C3C"), Color.parseColor("#19000000")};
+                Color.parseColor("#FF9B59B6"), Color.parseColor("#FFE74C3C"), Color.parseColor("#19000000"),
+                Color.parseColor("#FF444444")};
         int strokeColor = getResources().getColor(android.R.color.darker_gray);
         GradientDrawable background = new GradientDrawable();
-        background.setColor(lightmode ? Lightcolors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber] : colors[monthNumber < 10 || monthNumber > 11 ? monthNumber % 10 : monthNumber]);
+        background.setColor(lightmode ? Lightcolors[monthNumber < 10 || monthNumber > 12 ? monthNumber % 10 : monthNumber] : colors[monthNumber < 10 || monthNumber > 12 ? monthNumber % 10 : monthNumber]);
         background.setShape(GradientDrawable.RECTANGLE);
         background.setStroke(3, strokeColor);
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background});

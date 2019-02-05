@@ -25,8 +25,7 @@ public class AbsencesDB extends SQLiteOpenHelper {
     private static final String ABSENCES_COLUMN_ABSENCE = "dayofabsence";
     private static final String ABSENCES_COLUMN_REGISTER = "dayofregister";
     private static final String ABSENCES_COLUMN_PERIOD = "period";
-
-    private Date maxYear;
+    private static final String ABSENCES_COLUMN_LATE_MINUTES = "late_minutes";
 
     public AbsencesDB(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -34,9 +33,8 @@ public class AbsencesDB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        maxYear = null;
         db.execSQL(
-                "CREATE TABLE absences (id integer PRIMARY KEY, mode text, subject text, teacher text, juststate text, dayofabsence text, dayofregister text, period smallint)"
+                "CREATE TABLE absences (id integer PRIMARY KEY, mode text, subject text, teacher text, juststate text, dayofabsence text, dayofregister text, period smallint, late_minutes smallint)"
         );
     }
 
@@ -46,9 +44,8 @@ public class AbsencesDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    boolean insertEvent(String mode, String subject, String teacher, String justState, Date dayOfAbsence, Date dayOfRegister, byte period) {
+    boolean insertAbsence(String mode, String subject, String teacher, String justState, Date dayOfAbsence, Date dayOfRegister, byte period, short late_minutes) {
         try {
-            maxYear = null;
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             contentValues.put(ABSENCES_COLUMN_MODE, mode);
@@ -58,6 +55,7 @@ public class AbsencesDB extends SQLiteOpenHelper {
             contentValues.put(ABSENCES_COLUMN_REGISTER, Absence.absenceFormat.format(dayOfRegister));
             contentValues.put(ABSENCES_COLUMN_TEACHER, teacher);
             contentValues.put(ABSENCES_COLUMN_PERIOD, period);
+            contentValues.put(ABSENCES_COLUMN_LATE_MINUTES, late_minutes);
             return db.insert(ABSENCES_TABLE_NAME, null, contentValues) > -1;
         } catch (Exception e) {
             Log.e("AbsencesDB", "Operation failed, cleaning database");
@@ -68,7 +66,7 @@ public class AbsencesDB extends SQLiteOpenHelper {
     }
 
     boolean insertAbsence(Absence absence) {
-        return insertEvent(absence.mode, absence.subject, absence.teacher, absence.justificationState, absence.dayOfAbsence, absence.dayOfRegister, absence.period);
+        return insertAbsence(absence.mode, absence.subject, absence.teacher, absence.justificationState, absence.dayOfAbsence, absence.dayOfRegister, absence.period, absence.late_minutes);
     }
 
     ArrayList<Date> getDates() {
@@ -108,8 +106,8 @@ public class AbsencesDB extends SQLiteOpenHelper {
     }
 
     ArrayList<Absence> getAbsences() {
+        ArrayList<Absence> array_list = new ArrayList<>();
         try {
-            ArrayList<Absence> array_list = new ArrayList<>();
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor res = db.rawQuery("SELECT * FROM " + ABSENCES_TABLE_NAME + " ORDER BY " + ABSENCES_COLUMN_ABSENCE, null);
             res.moveToFirst();
@@ -121,11 +119,14 @@ public class AbsencesDB extends SQLiteOpenHelper {
                     String teacher = res.getString(res.getColumnIndex(ABSENCES_COLUMN_TEACHER));
                     String justState = res.getString(res.getColumnIndex(ABSENCES_COLUMN_JUSTSTATE));
                     byte period = (byte) res.getInt(res.getColumnIndex(ABSENCES_COLUMN_PERIOD));
+                    short late_minutes = (short) res.getInt(res.getColumnIndex(ABSENCES_COLUMN_LATE_MINUTES));
                     Date absence = Absence.absenceFormat.parse(res.getString(res.getColumnIndex(ABSENCES_COLUMN_ABSENCE)));
                     Date register = Absence.absenceFormat.parse(res.getString(res.getColumnIndex(ABSENCES_COLUMN_REGISTER)));
-                    array_list.add(new Absence(mode, subject, teacher, justState, absence, register, period));
+                    array_list.add(new Absence(mode, subject, teacher, justState, absence, register, period).addLateMinutes(late_minutes));
                 } catch (Exception e) {
+                    Log.e("AbsencesDB", "Operation failed, cleaning database...");
                     e.printStackTrace();
+                    cleanDatabase();
                 }
                 res.moveToNext();
             }
@@ -135,13 +136,13 @@ public class AbsencesDB extends SQLiteOpenHelper {
             Log.e("AbsencesDB", "Operation failed, cleaning database...");
             e.printStackTrace();
             cleanDatabase();
-            return null;
+            return array_list;
         }
     }
 
     List<Absence> getAbsencesOnDay(Date day1) {
+        List<Absence> array_list = new ArrayList<>();
         try {
-            List<Absence> array_list = new ArrayList<>();
 
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor res = db.rawQuery("SELECT * FROM " + ABSENCES_TABLE_NAME
@@ -155,12 +156,15 @@ public class AbsencesDB extends SQLiteOpenHelper {
                     String teacher = res.getString(res.getColumnIndex(ABSENCES_COLUMN_TEACHER));
                     String justState = res.getString(res.getColumnIndex(ABSENCES_COLUMN_JUSTSTATE));
                     byte period = (byte) res.getInt(res.getColumnIndex(ABSENCES_COLUMN_PERIOD));
+                    short late_minutes = (short) res.getInt(res.getColumnIndex(ABSENCES_COLUMN_LATE_MINUTES));
                     Date absence = Absence.absenceFormat.parse(res.getString(res.getColumnIndex(ABSENCES_COLUMN_ABSENCE)));
                     Date register = Absence.absenceFormat.parse(res.getString(res.getColumnIndex(ABSENCES_COLUMN_REGISTER)));
-                    array_list.add(new Absence(mode, subject, teacher, justState, absence, register, period));
+                    array_list.add(new Absence(mode, subject, teacher, justState, absence, register, period).addLateMinutes(late_minutes));
                 } catch (Exception pe) {
+                    Log.e("AbsencesDB", "Operation failed, cleaning database...");
+                    cleanDatabase();
                     pe.printStackTrace();
-                    return null;
+                    return array_list;
                 }
                 res.moveToNext();
             }
@@ -170,7 +174,7 @@ public class AbsencesDB extends SQLiteOpenHelper {
             Log.e("AbsencesDB", "Operation failed, cleaning database...");
             e.printStackTrace();
             cleanDatabase();
-            return null;
+            return array_list;
         }
     }
 
@@ -199,6 +203,22 @@ public class AbsencesDB extends SQLiteOpenHelper {
                     + " WHERE " + ABSENCES_COLUMN_JUSTSTATE + " not like '%Igazolt%' ", null);
             res.moveToFirst();
             int count = res.getCount();
+            res.close();
+            return count;
+        } catch (Exception e) {
+            Log.e("AbsencesDB", "Operation failed, cleaning database...");
+            e.printStackTrace();
+            cleanDatabase();
+            return 0;
+        }
+    }
+
+    int getTotalLateMinutes() {
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("SELECT SUM(" + ABSENCES_COLUMN_LATE_MINUTES + ") FROM " + ABSENCES_TABLE_NAME, null);
+            res.moveToFirst();
+            int count = res.getInt(0);
             res.close();
             return count;
         } catch (Exception e) {

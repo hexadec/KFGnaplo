@@ -109,6 +109,7 @@ public class AbsencesActivity extends Activity {
         for (int i = 0; i < dates.size(); i++) {
             Date date = dates.get(i);
             List<Absence> absences = db.getAbsencesOnDay(date);
+            if (absences == null) continue;
             final TableRow row2 = new TableRow(AbsencesActivity.this);
             row2.setLayoutParams(lp);
             TextView lView2 = new TextView(AbsencesActivity.this);
@@ -241,7 +242,11 @@ public class AbsencesActivity extends Activity {
                         .append("\n")
                         .append(getString(R.string.stat_total_unjust))
                         .append(": ")
-                        .append(db.getUnjustifiedAbsences());
+                        .append(db.getUnjustifiedAbsences())
+                        .append("\n")
+                        .append(getString(R.string.stat_total_late))
+                        .append(": ")
+                        .append(db.getTotalLateMinutes());
                 List<String> subjects = db.getSubjects();
                 for (String subject : subjects) {
                     text.append("\n");

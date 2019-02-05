@@ -114,4 +114,6 @@
     <string name="statistics">Statisztika</string>
     <string name="stat_total_missed">Összes hiányzás</string>
     <string name="stat_total_unjust">Összes igazolatlan</string>
+    <string name="stat_total_late">Összes késés</string>
+    <string name="half_year_grade">Félévi</string>
 </resources>

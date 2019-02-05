@@ -16,6 +16,7 @@ public class Absence {
     Date dayOfAbsence;
     Date dayOfRegister;
     byte period;
+    short late_minutes = 0;
 
     public static final SimpleDateFormat absenceFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
 
@@ -59,5 +60,10 @@ public class Absence {
         this.dayOfAbsence = doa;
         this.dayOfRegister = dor;
         this.period = period;
+    }
+
+    public Absence addLateMinutes(short minutes) {
+        late_minutes = minutes;
+        return this;
     }
 }

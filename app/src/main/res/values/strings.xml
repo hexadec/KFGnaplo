@@ -116,4 +116,6 @@
     <string name="statistics">Statistics</string>
     <string name="stat_total_missed">Total lessons missed</string>
     <string name="stat_total_unjust">Total unjustified</string>
+    <string name="stat_total_late">Total minutes late</string>
+    <string name="half_year_grade">&#189;year</string>
 </resources>

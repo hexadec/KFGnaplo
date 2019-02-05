@@ -526,6 +526,7 @@ public class ChangeListener {
             grade.addTeacher(currentItem.getString("Teacher"));
             String date = currentItem.getString("Date");
             String createTime = currentItem.getString("CreatingTime");
+            grade.addMode(currentItem.getString("Type"));
             try {
                 date = dateFormat.format(importedFormat.parse(date));
                 createTime = createTime.replace("T", " ").substring(0, 19);
@@ -553,8 +554,9 @@ public class ChangeListener {
                 String justState = currentItem.getString("JustificationStateName");
                 String dateOfAbsence = currentItem.getString("LessonStartTime");
                 String dateOfRegister = currentItem.getString("CreatingTime");
+                short late_minutes = (short) currentItem.getInt("DelayTimeMinutes");
                 byte period = (byte) currentItem.getInt("NumberOfLessons");
-                myabsences.add(new Absence(mode, subject, teacher, justState, dateOfAbsence, dateOfRegister, period));
+                myabsences.add(new Absence(mode, subject, teacher, justState, dateOfAbsence, dateOfRegister, period).addLateMinutes(late_minutes));
             }
             AbsencesDB adb = new AbsencesDB(context);
             adb.upgradeDatabase(myabsences);

@@ -11,6 +11,7 @@ public class Grade implements Serializable{
     String teacher;
     String subject;
     String description;
+    String mode;
     transient int id;
 
     public Grade(byte value) {
@@ -55,6 +56,12 @@ public class Grade implements Serializable{
         return returnv;
     }
 
+    public boolean addMode(String mode) {
+        boolean returnv = this.mode != null;
+        this.mode = mode;
+        return returnv;
+    }
+
     public String getNotificationFormat() {
         StringBuilder builder = new StringBuilder();
         builder.append(subject);
@@ -68,7 +75,7 @@ public class Grade implements Serializable{
 
     @Override
     public String toString() {
-        return value + "/" + subject + "/" + teacher + "/" + date + "/" + description + "/" + save_date;
+        return value + "/" + subject + "/" + teacher + "/" + date + "/" + description + "/" + save_date + "/" + mode;
     }
 
     @Override
