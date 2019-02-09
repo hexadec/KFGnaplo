@@ -3,7 +3,7 @@ package hu.kfg.naplo;
 
 import java.io.Serializable;
 
-public class Grade implements Serializable{
+public class Grade implements Serializable {
     private static final long serialVersionUID = Integer.MAX_VALUE;
     byte value;
     String date;
@@ -12,6 +12,7 @@ public class Grade implements Serializable{
     String subject;
     String description;
     String mode;
+    boolean regular;
     transient int id;
 
     public Grade(byte value) {
@@ -60,6 +61,10 @@ public class Grade implements Serializable{
         boolean returnv = this.mode != null;
         this.mode = mode;
         return returnv;
+    }
+
+    public void setRegular(boolean regular) {
+        this.regular = regular;
     }
 
     public String getNotificationFormat() {

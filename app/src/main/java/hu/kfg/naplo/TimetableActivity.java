@@ -49,7 +49,7 @@ public class TimetableActivity extends Activity {
             "Projektnap", "Projekt nap"};
     static final String EVENTS_URL = "https://apps.karinthy.hu/events/hu/eventlist.php?year=%s#act";
 
-    private static final int DAYS_TO_DOWNLOAD = 21;
+    private static final int DAYS_TO_DOWNLOAD = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +76,7 @@ public class TimetableActivity extends Activity {
         }
         Thread t = new Thread(r);
         t.start();
+
     }
 
     Runnable r = new Runnable() {
@@ -261,27 +262,12 @@ public class TimetableActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        final Calendar cal = Calendar.getInstance();
         switch (item.getItemId()) {
             case R.id.next_day:
-                cal.setTime(currentDateShown);
-                cal.add(Calendar.DAY_OF_WEEK, 1);
-                if (db.lastDay() != null && db.lastDay().before(cal.getTime())) {
-                    Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                currentDateShown = cal.getTime();
-                updateViews();
+                changeCurrentDate(false);
                 return true;
             case R.id.prev_day:
-                cal.setTime(currentDateShown);
-                cal.add(Calendar.DAY_OF_WEEK, -1);
-                if (db.firstDay() != null && db.firstDay().after(cal.getTime())) {
-                    Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                currentDateShown = cal.getTime();
-                updateViews();
+                changeCurrentDate(true);
                 return true;
             case R.id.refresh_timetable:
                 currentDateShown = new Date();
@@ -289,6 +275,28 @@ public class TimetableActivity extends Activity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    void changeCurrentDate(boolean backwards) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDateShown);
+        if (backwards) {
+            cal.add(Calendar.DAY_OF_WEEK, -1);
+            if (db.firstDay() != null && db.firstDay().after(cal.getTime())) {
+                Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            currentDateShown = cal.getTime();
+            updateViews();
+        } else {
+            cal.add(Calendar.DAY_OF_WEEK, 1);
+            if (db.lastDay() != null && db.lastDay().before(cal.getTime())) {
+                Toast.makeText(this, R.string.missing_timetable_on_day, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            currentDateShown = cal.getTime();
+            updateViews();
         }
     }
 

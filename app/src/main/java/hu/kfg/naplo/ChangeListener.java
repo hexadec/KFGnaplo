@@ -538,6 +538,7 @@ public class ChangeListener {
             grade.addDate(date);
             grade.addSaveDate(createTime);
             grade.addDescription(currentItem.getString("Theme") + " - " + currentItem.getString("Mode"));
+            grade.setRegular(currentItem.getString("Form").equalsIgnoreCase("Mark"));
             //Log.e(TAG, grade.save_date + "--" + createTime.length());
             mygrades.add(grade);
         }

@@ -32,6 +32,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -131,7 +133,7 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                         double avg = 0;
                         int otherGrade = 0;
                         for (Grade g : grades) {
-                            if (!g.mode.equals("MidYear")) {
+                            if (!g.mode.equals("MidYear") || !g.regular) {
                                 otherGrade++;
                                 continue;
                             }
@@ -259,6 +261,9 @@ public class TableViewActivity extends Activity implements View.OnClickListener 
                     public void run() {
                         try {
                             upgraderesult = ChangeListener.getEkretaGrades(TableViewActivity.this, intent);
+                        } catch (JSONException je) {
+                            upgraderesult = -100;
+                            je.printStackTrace();
                         } catch (Exception e) {
                             upgraderesult = -10;
                             e.printStackTrace();

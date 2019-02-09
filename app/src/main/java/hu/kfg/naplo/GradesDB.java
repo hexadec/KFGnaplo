@@ -22,6 +22,7 @@ public class GradesDB extends SQLiteOpenHelper {
     private static final String GRADES_COLUMN_VALUE = "value";
     private static final String GRADES_COLUMN_TEACHER = "teacher";
     private static final String GRADES_COLUMN_MODE = "mode";
+    private static final String GRADES_COLUMN_REGULAR = "regular";
     private static final String GRADES_COLUMN_WEIGHTED = "weighted";
 
     GradesDB(Context context) {
@@ -31,7 +32,7 @@ public class GradesDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE grades (id integer PRIMARY KEY, description text,teacher text,date text, save_date text, subject text,value smallint, mode text)"
+                "CREATE TABLE grades (id integer PRIMARY KEY, description text,teacher text,date text, save_date text, subject text,value tinyint, mode text, regular tinyint)"
         );
     }
 
@@ -41,7 +42,7 @@ public class GradesDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    boolean insertGrade(String description, String teacher, String date, String save_date, String subject, byte grade, String mode) {
+    boolean insertGrade(String description, String teacher, String date, String save_date, String subject, byte grade, String mode, boolean regular) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(GRADES_COLUMN_DESCRIPTION, description);
@@ -51,11 +52,12 @@ public class GradesDB extends SQLiteOpenHelper {
         contentValues.put(GRADES_COLUMN_SUBJECT, subject);
         contentValues.put(GRADES_COLUMN_VALUE, grade);
         contentValues.put(GRADES_COLUMN_MODE, mode);
+        contentValues.put(GRADES_COLUMN_REGULAR, regular ? 1 : 0);
         return db.insert(GRADES_TABLE_NAME, null, contentValues) > -1;
     }
 
     boolean insertGrade(Grade grade) {
-        return insertGrade(grade.description, grade.teacher, grade.date, grade.save_date, grade.subject, grade.value, grade.mode);
+        return insertGrade(grade.description, grade.teacher, grade.date, grade.save_date, grade.subject, grade.value, grade.mode, grade.regular);
     }
 
     ArrayList<String> getSubjects() {
@@ -95,6 +97,7 @@ public class GradesDB extends SQLiteOpenHelper {
                 g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
                 g.addMode(res.getString(res.getColumnIndex(GRADES_COLUMN_MODE)));
                 g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+                g.setRegular(res.getInt(res.getColumnIndex(GRADES_COLUMN_REGULAR)) != 0);
                 //Save the object into the array
                 array_list.add(g);
                 res.moveToNext();
@@ -123,6 +126,7 @@ public class GradesDB extends SQLiteOpenHelper {
             g.addDate(res.getString(res.getColumnIndex(GRADES_COLUMN_DATE)));
             g.addSaveDate(res.getString(res.getColumnIndex(GRADES_COLUMN_SAVE_DATE)));
             g.addID(res.getInt(res.getColumnIndex(GRADES_COLUMN_ID)));
+            g.setRegular(res.getInt(res.getColumnIndex(GRADES_COLUMN_REGULAR)) != 0);
             res.moveToNext();
         }
         res.close();
@@ -159,8 +163,8 @@ public class GradesDB extends SQLiteOpenHelper {
         for (int i = 1; i < 11; i++) {
             int month = i > 6 ? i + 2 : i;
             String year = month > 8 ? "2016" : "2017";
-            insertGrade("test2", "Random teacher", year + "-" + (month < 10 ? "0" : "") + Integer.toString(month) + "-24", "2019-07-21 18:22:10", "Teszt", (byte) 5, "MidYear");
-            insertGrade("test3", "Sali", "2019-01-30", "2019-07-21 18:22:10", "fizika", (byte)5, "MidYear");
+            insertGrade("test2", "Random teacher", year + "-" + (month < 10 ? "0" : "") + Integer.toString(month) + "-24", "2019-07-21 18:22:10", "Teszt", (byte) 5, "MidYear", true);
+            insertGrade("test3", "Sali", "2019-01-30", "2019-07-21 18:22:10", "fizika", (byte)5, "MidYear", true);
         }
     }
 }
