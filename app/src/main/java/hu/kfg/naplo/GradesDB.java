@@ -76,6 +76,18 @@ public class GradesDB extends SQLiteOpenHelper {
         return array_list;
     }
 
+    int getNumberOfMaxGrades(int month) {
+        ArrayList<String> array_list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT COUNT(*) AS numberOfGrades FROM " + GRADES_TABLE_NAME
+                + " WHERE " + GRADES_COLUMN_DATE + " like '%-" + month + "-%' " +
+                "GROUP BY " + GRADES_COLUMN_SUBJECT + " ORDER BY numberOfGrades DESC", null);
+        res.moveToFirst();
+        int result = res.getInt(0);
+        res.close();
+        return result;
+    }
+
     List<Grade> getSubjectGrades(String subject) {
         try {
             List<Grade> array_list = new ArrayList<>();

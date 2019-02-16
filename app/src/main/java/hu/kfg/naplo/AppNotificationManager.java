@@ -71,8 +71,8 @@ public class AppNotificationManager {
         } else {
             n = new Notification.Builder(context);
         }
-        n.setContentTitle(context.getString(R.string.app_name))
-                .setContentText(state[0] == 0 ? context.getString(R.string.new_grade)
+        n.setContentTitle(state[0] == 0 ? context.getString(R.string.new_grade) : context.getString(R.string.app_name))
+                .setContentText(state[0] == 0 ? subjects + oldtext
                         : state[0] == 1 ? context.getString(R.string.wrong_username_not) + (state.length == 4 ? " (" + state[3] + ")" : "")
                         : context.getString(R.string.ekreta_new))
                 .setAutoCancel(true);
@@ -100,11 +100,11 @@ public class AppNotificationManager {
             n.setContentIntent(mainIntent);
         }
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText(state[0] == 0 ? (context.getString(R.string.new_grade) + "\n" + subjects + oldtext) : state[0] == 1 ? context.getString(R.string.wrong_username_not) + (state.length == 4 ? " (" + state[3] + ")"
+                .bigText(state[0] == 0 ? subjects + oldtext : state[0] == 1 ? context.getString(R.string.wrong_username_not) + (state.length == 4 ? " (" + state[3] + ")"
                         : "") : context.getString(R.string.ekreta_new)).build();
         notificationManager.notify(state[0], notification);
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 90)) + "…" : subjects).commit();
+        pref.edit().putString("oldtext", subjects.length() > 100 ? subjects.substring(0, subjects.indexOf(",", 75)) + "…" : subjects).commit();
     }
 
     private static boolean isNotificationVisible(Context context) {
@@ -174,8 +174,8 @@ public class AppNotificationManager {
         } else {
             n = new Notification.Builder(context);
         }
-        n.setContentTitle(context.getString(R.string.kfg_standins));
-        n.setContentText(state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")");
+        n.setContentTitle(context.getString(R.string.new_substitution2));
+        n.setContentText(subjects);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             n.setSmallIcon(R.drawable.ic_standins);
         else
@@ -200,7 +200,7 @@ public class AppNotificationManager {
         n.addAction(android.R.drawable.ic_menu_view, context.getString(R.string.open_site), epIntent);
         n.setContentIntent(epIntent);
         Notification notification = new Notification.BigTextStyle(n)
-                .bigText((state[0] == 0 ? context.getString(R.string.new_substitution2) + " (" + classs + ")" + subjects : context.getString(R.string.no_new_substitution2) + " (" + classs + ")")).build();
+                .bigText(subjects).build();
         notification.number = numberoflessons;
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(STANDINS_ID, notification);

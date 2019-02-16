@@ -68,7 +68,7 @@
     <string name="teacher_hint">If your name may be displayed multiple ways, separate those by comma (strongly recommended!)</string>
     <string name="teacher_name">Teacher name: </string>
     <string name="no_new_substitution2">There is no new substitution for you!</string>
-    <string name="new_substitution2">You have a new substitution!</string>
+    <string name="new_substitution2">New substitution!</string>
     <string name="battery_opt_huawei_26">In order for Karinthy Napló to work properly on Huawei devices, additional settings need to be done. Please, in the next screen set KFGapp to manual control, but leave all other boxes enabled!</string>
     <string name="battery_opt_err_huawei_26">Oh no, it did not work :(. Open settings app, select Battery->Launch, and in the next screen set KFGapp to manual control, but leave all other boxes enabled!</string>
     <string name="battery_opt_vendor_specific">The manufacturer of your device has made additional changes in the Android system, which make it impossible for some apps to run in the background. For the proper function of KFGapp please add this app to the list of the exceptions on the next screen (the list with the fewer apps, probably)</string>

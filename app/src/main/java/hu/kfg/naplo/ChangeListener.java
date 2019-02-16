@@ -635,7 +635,7 @@ public class ChangeListener {
                     text.append(", \n");
                     if (!intent.hasExtra("dbupgrade")) db1.insertGrade(mygrades.get(i2));
                 }
-                text.deleteCharAt(text.length() - 2);
+                text.replace(text.length() - 3, text.length(), "");
                 AppNotificationManager.notifyIfChanged(new int[]{0, pref.getBoolean("vibrate", false) ? 1 : 0, pref.getBoolean("flash", false) ? 1 : 0}, context, eURL, text.toString());
                 pref.edit().putString("lastSHA", SHA512(notes)).commit();
                 return DONE;
@@ -801,7 +801,6 @@ public class ChangeListener {
                     endDate = startDate;
                 }
                 events.add(new Event(tempInfo, startDate, endDate));
-
             }
             reader.close();
         } catch (Exception e) {
@@ -812,5 +811,4 @@ public class ChangeListener {
         Log.i(TAG, "Events: " + events.size());
         return events;
     }
-
 }
